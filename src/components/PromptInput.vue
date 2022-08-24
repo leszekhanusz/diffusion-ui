@@ -7,15 +7,12 @@ import { usePromptStore } from "@/stores/prompt";
 const store = usePromptStore();
 
 onMounted(() => {
-  console.log(`The initial prompt is ${store.prompt.value}.`);
+  console.log(`The initial prompt is '${store.prompt}'.`);
 });
 </script>
 
 <template lang="pug">
-.col-12(class='md:col-4')
-  .p-inputgroup
-    InputText(type="text", v-model="store.prompt", placeholder='Keyword')
-    Button(label='Run', @click="store.run")
+.p-inputgroup
+  InputText(type="text", v-model="store.prompt", placeholder='Keyword')
+  Button(label='Run', @click="store.run")
 </template>
-
-<style scoped></style>
