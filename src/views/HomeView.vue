@@ -1,9 +1,8 @@
 <script setup>
-import TheWelcome from "@/components/TheWelcome.vue";
+import PromptInput from "@/components/PromptInput.vue";
 </script>
 
-<template>
-  <main>
-    <TheWelcome />
-  </main>
+<template lang="pug">
+main
+  PromptInput
 </template>
