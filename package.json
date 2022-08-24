@@ -21,7 +21,8 @@
     "@vitejs/plugin-vue": "^3.0.1",
     "@vue/eslint-config-prettier": "^7.0.0",
     "eslint": "^8.21.0",
-    "eslint-plugin-vue": "^9.3.0",
+    "eslint-plugin-vue": "^9.4.0",
+    "eslint-plugin-vue-pug": "^0.5.4",
     "prettier": "^2.7.1",
     "vite": "^3.0.4"
   }
