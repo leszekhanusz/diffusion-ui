@@ -13,6 +13,6 @@ onMounted(() => {
 
 <template lang="pug">
 .p-inputgroup
-  InputText(type="text", v-model="store.prompt", placeholder='Keyword')
-  Button(label='Run', @click="store.run")
+  InputText(type="text", v-model="store.prompt", @keyup.enter="store.generateImage")
+  Button(label='Generate image', @click="store.generateImage")
 </template>
