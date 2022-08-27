@@ -1,5 +1,6 @@
 <script setup>
 import Image from "primevue/image";
+import ProgressIndicator from "@/components/ProgressIndicator.vue";
 import { onMounted } from "vue";
 import { usePromptStore } from "@/stores/prompt";
 
@@ -11,8 +12,9 @@ onMounted(() => {
 </script>
 
 <template lang="pug">
-.result-image(v-if="store.image_b64 != null")
-  Image(:src="store.image_b64")
+.result-image
+  Image(:src="store.image_b64", v-if="store.image_b64 != null && !store.loading")
+  ProgressIndicator(v-if="store.loading")
 </template>
 
 <style scoped>
@@ -20,6 +22,8 @@ onMounted(() => {
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
+  min-height: 256px;
 }
 
 .p-image {
