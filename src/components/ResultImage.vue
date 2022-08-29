@@ -1,20 +1,15 @@
 <script setup>
 import Image from "primevue/image";
 import ProgressIndicator from "@/components/ProgressIndicator.vue";
-import { onMounted } from "vue";
-import { usePromptStore } from "@/stores/prompt";
+import { useOutputStore } from "@/stores/output";
 
-const store = usePromptStore();
-
-onMounted(() => {
-  console.log(`The initial image is '${store.image_b64}'.`);
-});
+const output = useOutputStore();
 </script>
 
 <template lang="pug">
 .result-image
-  Image(:src="store.image_b64", v-if="store.image_b64 != null && !store.loading")
-  ProgressIndicator(v-if="store.loading")
+  Image(:src="output.image_b64", v-if="output.image_b64 != null && !output.loading")
+  ProgressIndicator(v-if="output.loading")
 </template>
 
 <style scoped>

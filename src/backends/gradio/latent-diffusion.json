@@ -1,0 +1,63 @@
+{
+  "name": "latent-diffusion",
+  "description": "Generate images from text with Latent Diffusion LAION-400M",
+  "url": "https://huggingface.co/gradioiframe/multimodalart/latentdiffusion/api/predict/",
+  "type": "gradio",
+  "inputs": [
+    {
+      "label": "Prompt",
+      "id": "prompt",
+      "description": "try adding increments to your prompt such as 'oil on canvas', 'a painting', 'a book cover'",
+      "type": "text"
+    }, {
+      "label": "Steps",
+      "id": "nb_steps",
+      "description": "More steps can increase quality but will take longer to generate",
+      "type": "int",
+      "default": 50,
+      "validation": {
+        "min": 1,
+        "max": 50
+      }
+    }, {
+      "label": "Width",
+      "id": "width",
+      "type": "int",
+      "default": 256,
+      "visible": false
+    }, {
+      "label": "Height",
+      "id": "height",
+      "type": "int",
+      "default": 256,
+      "visible": false
+    }, {
+      "label": "Number of Images",
+      "id": "nb_images",
+      "description": "How many images you wish to generate",
+      "type": "int",
+      "default": 1,
+      "validation": {
+        "min": 1,
+        "max": 4
+      }
+    }, {
+      "label": "Diversity scale",
+      "id": "diversity_scale",
+      "description": "How different from one another you wish the images to be",
+      "type": "float",
+      "default": 5.0,
+      "step": 0.1,
+      "validation": {
+        "min": 1.0,
+        "max": 15.0
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "label": "Result",
+      "type": "image"
+    }
+  ]
+}
