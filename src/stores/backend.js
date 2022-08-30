@@ -10,6 +10,11 @@ export const useBackendStore = defineStore({
   }),
   getters: {
     current: (state) => state.configs[state.current_id],
+    options: (state) =>
+      state.configs.map((backend, index) => ({
+        name: backend.name,
+        code: index,
+      })),
   },
   actions: {},
 });
