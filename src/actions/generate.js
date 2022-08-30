@@ -56,7 +56,9 @@ async function generate() {
 
     try {
       output.image_b64 = await generateImage(input, backend.current);
+      output.error_message = null;
     } catch (error) {
+      output.error_message = error;
       console.error(error);
     } finally {
       output.loading = false;

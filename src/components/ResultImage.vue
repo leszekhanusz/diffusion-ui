@@ -1,6 +1,7 @@
 <script setup>
 import Image from "primevue/image";
 import ProgressIndicator from "@/components/ProgressIndicator.vue";
+import ErrorMessage from "@/components/ErrorMessage.vue";
 import { useOutputStore } from "@/stores/output";
 
 const output = useOutputStore();
@@ -8,8 +9,13 @@ const output = useOutputStore();
 
 <template lang="pug">
 .result-image
-  Image(:src="output.image_b64", v-if="output.image_b64 != null && !output.loading")
-  ProgressIndicator(v-if="output.loading")
+  template(v-if="output.loading")
+    ProgressIndicator(v-if="output.loading")
+  template(v-else)
+    template(v-if="output.error_message")
+      ErrorMessage
+    template(v-else)
+      Image(:src="output.image_b64", v-if="output.image_b64 != null")
 </template>
 
 <style scoped>

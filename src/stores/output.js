@@ -5,6 +5,7 @@ export const useOutputStore = defineStore({
   state: () => ({
     loading: false,
     image_b64: null,
+    error_message: null,
   }),
   getters: {},
   actions: {},
