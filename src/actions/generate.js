@@ -25,6 +25,12 @@ async function generateImageGradio(input_data, backend_config) {
     headers: { "Content-Type": "application/json" },
   });
 
+  if (!response.ok) {
+    throw new Error(
+      `Error! The backend returned the http code: ${response.status}`
+    );
+  }
+
   const json_result = await response.json();
 
   const data_image = json_result["data"][0];
