@@ -46,18 +46,21 @@ async function generateImage(input_data, backend_config) {
 }
 
 async function generate() {
-  const backend = useBackendStore();
-  const input = useInputStore();
   const output = useOutputStore();
 
-  output.loading = true;
+  if (!output.loading) {
+    const backend = useBackendStore();
+    const input = useInputStore();
 
-  try {
-    output.image_b64 = await generateImage(input, backend.current);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    output.loading = false;
+    output.loading = true;
+
+    try {
+      output.image_b64 = await generateImage(input, backend.current);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      output.loading = false;
+    }
   }
 }
 
