@@ -15,6 +15,22 @@ export const useBackendStore = defineStore({
         name: backend.name,
         code: index,
       })),
+    license: (state) => state.current.license,
+    show_license(state) {
+      if (state.current.license_accepted) {
+        return false;
+      } else {
+        if (state.license) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    },
   },
-  actions: {},
+  actions: {
+    acceptLicense() {
+      this.current.license_accepted = true;
+    },
+  },
 });

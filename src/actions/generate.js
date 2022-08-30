@@ -47,9 +47,9 @@ async function generateImage(input_data, backend_config) {
 
 async function generate() {
   const output = useOutputStore();
+  const backend = useBackendStore();
 
-  if (!output.loading) {
-    const backend = useBackendStore();
+  if (!output.loading && !backend.show_license) {
     const input = useInputStore();
 
     output.loading = true;
