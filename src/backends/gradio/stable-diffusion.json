@@ -1,0 +1,51 @@
+{
+  "name": "stable-diffusion",
+  "description": "Generate images from text with Latent Diffusion LAION-400M",
+  "url": "http://127.0.0.1:7860/api/predict/",
+  "type": "gradio",
+  "inputs": [
+    {
+      "label": "Prompt",
+      "id": "prompt",
+      "description": "try adding increments to your prompt such as 'oil on canvas', 'a painting', 'a book cover'",
+      "type": "text"
+    }, {
+      "label": "Number of Images",
+      "id": "nb_images",
+      "description": "How many images you wish to generate",
+      "type": "int",
+      "default": 1,
+      "validation": {
+        "min": 1,
+        "max": 4
+      }
+    }, {
+      "label": "Steps",
+      "id": "nb_steps",
+      "description": "More steps can increase quality but will take longer to generate",
+      "type": "int",
+      "default": 50,
+      "validation": {
+        "min": 1,
+        "max": 50
+      }
+    }, {
+      "label": "Guidance scale",
+      "id": "guidance_scale",
+      "description": "How closely we should follow the prompt",
+      "type": "float",
+      "default": 7.5,
+      "step": 0.1,
+      "validation": {
+        "min": 0.1,
+        "max": 20
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "label": "Result",
+      "type": "image"
+    }
+  ]
+}

@@ -11,7 +11,7 @@ async function generateImageGradio(input_data, backend_config) {
     if (input_config.id in input_data) {
       return input_data[input_config.id];
     } else {
-      return input_config.default_value;
+      return input_config["default"];
     }
   });
 
