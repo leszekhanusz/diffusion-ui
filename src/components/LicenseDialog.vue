@@ -19,7 +19,7 @@ Dialog(:visible="backend.show_license", :breakpoints="{'960px': '75vw', '640px':
 </template>
 
 <style scoped>
->>> h4 {
+:deep() h4 {
   padding-top: 10px;
   font-weight: bold;
 }

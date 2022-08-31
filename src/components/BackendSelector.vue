@@ -7,7 +7,14 @@ const backend = useBackendStore();
 </script>
 
 <template lang="pug">
-Dropdown(optionLabel="name", optionValue="code", v-model="backend.current_id", :options="backend.options")
+.field.grid
+  label.col-fixed(for="model")
+    | Diffusion model
+  Dropdown#model(optionLabel="name", optionValue="code", v-model="backend.current_id", :options="backend.options")
 </template>
 
-<style scoped></style>
+<style scoped>
+label.col-fixed {
+  width: 200px;
+}
+</style>

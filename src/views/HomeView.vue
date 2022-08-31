@@ -1,14 +1,9 @@
 <script setup>
-import PromptInput from "@/components/PromptInput.vue";
-import ResultImage from "@/components/ResultImage.vue";
-import BackendSelector from "@/components/BackendSelector.vue";
-import LicenseDialog from "@/components/LicenseDialog.vue";
+import MainView from "@/views/MainView.vue";
+import LeftPanelView from "@/views/LeftPanelView.vue";
 </script>
 
 <template lang="pug">
-main
-  BackendSelector
-  PromptInput
-  ResultImage
-LicenseDialog
+MainView
+LeftPanelView
 </template>

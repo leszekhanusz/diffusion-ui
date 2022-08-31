@@ -11,7 +11,7 @@ async function generateImageGradio(input_data, backend_config) {
     if (input_config.id in input_data) {
       return input_data[input_config.id];
     } else {
-      return input_config["default"];
+      return input_config["value"];
     }
   });
 
@@ -25,9 +25,21 @@ async function generateImageGradio(input_data, backend_config) {
     headers: { "Content-Type": "application/json" },
   });
 
+  if (!response.ok) {
+    throw new Error(
+      `Error! The backend returned the http code: ${response.status}`
+    );
+  }
+
   const json_result = await response.json();
 
-  const data_image = json_result["data"][0];
+  const data_field = json_result["data"];
+  let data_image = data_field[0];
+
+  // For now in all case we return only one image
+  if (typeof data_image == "object") {
+    data_image = data_image[0];
+  }
 
   console.log("Image received!");
 

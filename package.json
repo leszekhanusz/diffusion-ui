@@ -9,7 +9,11 @@
     "lintcheck": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --max-warnings 0 --ignore-path .gitignore"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.2.0",
+    "@fortawesome/free-solid-svg-icons": "^6.2.0",
+    "@fortawesome/vue-fontawesome": "^3.0.1",
     "pinia": "^2.0.17",
+    "primeflex": "^3.2.1",
     "primeicons": "^5.0.0",
     "primevue": "^3.16.2",
     "pug": "^3.0.2",
