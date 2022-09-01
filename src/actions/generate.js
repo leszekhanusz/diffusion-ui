@@ -4,6 +4,7 @@ import { useBackendStore } from "@/stores/backend";
 
 async function generateImageGradio() {
   const input = useInputStore();
+  const output = useOutputStore();
   const backend = useBackendStore();
 
   const current_backend = backend.current;
@@ -48,26 +49,27 @@ async function generateImageGradio() {
   const json_result = await response.json();
 
   const data_field = json_result["data"];
-  let data_image = data_field[0];
+  const data_images = data_field[0];
 
-  // For now in all case we return only one image
-  if (typeof data_image == "object") {
-    data_image = data_image[0];
+  // We receive either a single image or a list of images
+  if (typeof data_images == "object") {
+    output.images = data_images;
+  } else {
+    output.images = [data_images];
   }
 
-  console.log("Image received!");
-
-  return data_image;
+  console.log("Images received!");
 }
 
-async function generateImage() {
+async function generateImages() {
   const backend = useBackendStore();
 
   const backend_type = backend.current["type"];
 
   switch (backend_type) {
     case "gradio":
-      return await generateImageGradio();
+      await generateImageGradio();
+      break;
     default:
       console.error(`backend type '${backend_type}' not valid`);
   }
@@ -81,7 +83,7 @@ async function generate() {
     output.loading = true;
 
     try {
-      output.image_b64 = await generateImage();
+      await generateImages();
       output.error_message = null;
     } catch (error) {
       output.error_message = error;

@@ -4,9 +4,15 @@ export const useOutputStore = defineStore({
   id: "output",
   state: () => ({
     loading: false,
-    image_b64: null,
+    images: [],
     error_message: null,
   }),
-  getters: {},
+  getters: {
+    gallery_images: (state) =>
+      state.images.map((image) => ({
+        itemImageSrc: image,
+        thumbnailImageSrc: image,
+      })),
+  },
   actions: {},
 });

@@ -1,7 +1,7 @@
 <script setup>
 import InputView from "@/views/InputView.vue";
 import PanelHeader from "@/components/PanelHeader.vue";
-import ResultImage from "@/components/ResultImage.vue";
+import ResultImages from "@/components/ResultImages.vue";
 import LicenseDialog from "@/components/LicenseDialog.vue";
 </script>
 
@@ -9,6 +9,6 @@ import LicenseDialog from "@/components/LicenseDialog.vue";
 main
   PanelHeader
   InputView
-  ResultImage
+  ResultImages
 LicenseDialog
 </template>
