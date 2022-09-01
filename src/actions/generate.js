@@ -2,14 +2,29 @@ import { useInputStore } from "@/stores/input";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
 
-async function generateImageGradio(input_data, backend_config) {
-  const inputs_config = backend_config["inputs"];
+async function generateImageGradio() {
+  const input = useInputStore();
+  const output = useOutputStore();
+  const backend = useBackendStore();
 
-  console.log(backend_config, input_data);
+  const current_backend = backend.current;
+  const inputs_config = current_backend["inputs"];
+
+  if (backend.has_image_input) {
+    if (input.uploaded_image_b64) {
+      input.init_image_b64 = input.canvas.toDataURL();
+
+      let image_input = inputs_config.find(
+        (input_config) => input_config.type === "image"
+      );
+
+      image_input.value = input.init_image_b64;
+    }
+  }
 
   const full_input_data = inputs_config.map(function (input_config) {
-    if (input_config.id in input_data) {
-      return input_data[input_config.id];
+    if (input_config.id in input) {
+      return input[input_config.id];
     } else {
       return input_config["value"];
     }
@@ -17,7 +32,7 @@ async function generateImageGradio(input_data, backend_config) {
 
   console.log("full_input_data", full_input_data);
 
-  const response = await fetch(backend_config.url, {
+  const response = await fetch(current_backend.url, {
     method: "POST",
     body: JSON.stringify({
       data: full_input_data,
@@ -34,24 +49,27 @@ async function generateImageGradio(input_data, backend_config) {
   const json_result = await response.json();
 
   const data_field = json_result["data"];
-  let data_image = data_field[0];
+  const data_images = data_field[0];
 
-  // For now in all case we return only one image
-  if (typeof data_image == "object") {
-    data_image = data_image[0];
+  // We receive either a single image or a list of images
+  if (typeof data_images == "object") {
+    output.images = data_images;
+  } else {
+    output.images = [data_images];
   }
 
-  console.log("Image received!");
-
-  return data_image;
+  console.log("Images received!");
 }
 
-async function generateImage(input_data, backend_config) {
-  const backend_type = backend_config["type"];
+async function generateImages() {
+  const backend = useBackendStore();
+
+  const backend_type = backend.current["type"];
 
   switch (backend_type) {
     case "gradio":
-      return await generateImageGradio(input_data, backend_config);
+      await generateImageGradio();
+      break;
     default:
       console.error(`backend type '${backend_type}' not valid`);
   }
@@ -62,12 +80,10 @@ async function generate() {
   const backend = useBackendStore();
 
   if (!output.loading && !backend.show_license) {
-    const input = useInputStore();
-
     output.loading = true;
 
     try {
-      output.image_b64 = await generateImage(input, backend.current);
+      await generateImages();
       output.error_message = null;
     } catch (error) {
       output.error_message = error;

@@ -1,5 +1,6 @@
 <script setup>
 import Image from "primevue/image";
+import Galleria from "primevue/galleria";
 import ProgressIndicator from "@/components/ProgressIndicator.vue";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import { useOutputStore } from "@/stores/output";
@@ -15,7 +16,14 @@ const output = useOutputStore();
     template(v-if="output.error_message")
       ErrorMessage
     template(v-else)
-      Image(:src="output.image_b64", v-if="output.image_b64 != null")
+      template(v-if="output.images.length == 1")
+        Image(:src="output.images[0]")
+      template(v-else)
+        Galleria(:value="output.gallery_images", :numVisible="4")
+          template(#item="slotProps")
+            Image(:src="slotProps.item.itemImageSrc")
+          template(#thumbnail="slotProps")
+            img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px; display: block;")
 </template>
 
 <style scoped>

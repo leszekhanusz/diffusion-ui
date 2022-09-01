@@ -1,14 +1,14 @@
 <script setup>
-import PromptInput from "@/components/PromptInput.vue";
+import InputView from "@/views/InputView.vue";
 import PanelHeader from "@/components/PanelHeader.vue";
-import ResultImage from "@/components/ResultImage.vue";
+import ResultImages from "@/components/ResultImages.vue";
 import LicenseDialog from "@/components/LicenseDialog.vue";
 </script>
 
 <template lang="pug">
 main
   PanelHeader
-  PromptInput
-  ResultImage
+  InputView
+  ResultImages
 LicenseDialog
 </template>

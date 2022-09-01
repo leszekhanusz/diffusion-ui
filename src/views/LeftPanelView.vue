@@ -23,7 +23,7 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
         template(v-if="input.type == 'int'")
           InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="1" :description="input.description")
         template(v-if="input.type == 'float'")
-          InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="0.1")
+          InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="input.step" :description="input.description")
 </template>
 
 <style>
