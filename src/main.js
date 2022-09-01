@@ -22,11 +22,12 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faAngleLeft,
   faAngleRight,
+  faEraser,
   faGears,
 } from "@fortawesome/free-solid-svg-icons";
 
 /* add icons to the library */
-library.add(faAngleLeft, faAngleRight, faGears);
+library.add(faAngleLeft, faAngleRight, faEraser, faGears);
 
 const app = createApp(App);
 

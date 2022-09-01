@@ -19,10 +19,11 @@ async function fileUploaded(event) {
   console.log(fileUrl);
   input.uploaded_image_b64 = fileUrl;
 
-  // wait for the canvas to be rendered
-  await nextTick();
-
-  fabric.Image.fromURL(fileUrl, function (obj) {
+  fabric.Image.fromURL(fileUrl, async function (obj) {
+    while (input.canvas === null) {
+      console.log(".");
+      await nextTick();
+    }
     obj.scaleToHeight(input.canvas.height);
     obj.set("strokeWidth", 0);
     obj.clipTo = function (ctx) {
@@ -36,7 +37,6 @@ async function fileUploaded(event) {
 
 <template lang="pug">
 FileUpload(name="image_upload", url="false", mode="basic", :customUpload="true", @uploader="fileUploaded", accept="image/*", :auto="true", chooseLabel="Upload image", showUploadButton=false, class="p-button-secondary p-button-outlined p-button-sm p-button-text")
-  | This is some content
 </template>
 
 <style scoped>

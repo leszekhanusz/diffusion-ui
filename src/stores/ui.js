@@ -4,6 +4,7 @@ export const useUIStore = defineStore({
   id: "ui",
   state: () => ({
     left_panel_visible: false,
+    cursor_mode: "idle",
   }),
   getters: {},
   actions: {
