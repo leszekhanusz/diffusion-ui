@@ -35,6 +35,8 @@ export const useBackendStore = defineStore({
         }
       }
     },
+    has_image_input: (state) =>
+      state.current.inputs.some((input) => input.type === "image"),
   },
   actions: {
     acceptLicense() {
