@@ -35,12 +35,15 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
   padding: 0px !important;
 }
 .p-sidebar .toggler {
+  z-index: 1;
   position: relative;
-  z-index: 100;
   top: 16px;
   right: 0px;
   padding: 10px 10px 10px 20px !important;
   background-color: lightgray !important;
   border-radius: 5px 0px 0px 5px !important;
+}
+.p-dropdown-panel {
+  z-index: 1;
 }
 </style>

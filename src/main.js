@@ -26,10 +26,20 @@ import {
   faEraser,
   faGears,
   faImage,
+  faLeftLong,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 /* add icons to the library */
-library.add(faAngleLeft, faAngleRight, faEraser, faGears, faImage);
+library.add(
+  faAngleLeft,
+  faAngleRight,
+  faEraser,
+  faGears,
+  faImage,
+  faLeftLong,
+  faXmark
+);
 
 const app = createApp(App);
 

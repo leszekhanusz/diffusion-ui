@@ -6,6 +6,7 @@ export const useUIStore = defineStore({
     left_panel_visible: false,
     cursor_mode: "idle",
     editor_view: "composite",
+    show_results: false,
   }),
   getters: {},
   actions: {

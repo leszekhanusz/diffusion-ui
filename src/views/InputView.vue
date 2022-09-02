@@ -11,9 +11,11 @@ const input = useInputStore();
 
 <template lang="pug">
 div
-  PromptInput
-  template(v-if="backend.has_image_input")
-    FileUploadButton
-    template(v-if="input.uploaded_image_b64")
-      ImageEditor
+  .flex.flex-column.gap-3
+    PromptInput
+    template(v-if="backend.has_image_input")
+      template(v-if="input.uploaded_image_b64")
+        ImageEditor
+      template(v-if="!input.uploaded_image_b64")
+        FileUploadButton
 </template>

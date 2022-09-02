@@ -1,6 +1,8 @@
+import { useUIStore } from "@/stores/ui";
 import { useInputStore } from "@/stores/input";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
+import { resetEditorButtons } from "@/actions/editor";
 
 async function generateImageGradio() {
   const input = useInputStore();
@@ -11,21 +13,29 @@ async function generateImageGradio() {
   const inputs_config = current_backend["inputs"];
 
   if (backend.has_image_input) {
-    if (input.uploaded_image_b64) {
-      input.init_image_b64 = input.canvas.toDataURL();
+    let image_input = inputs_config.find(
+      (input_config) => input_config.type === "image"
+    );
 
-      let image_input = inputs_config.find(
-        (input_config) => input_config.type === "image"
-      );
+    let mask_image_input = inputs_config.find(
+      (input_config) => input_config.type === "image_mask"
+    );
 
-      image_input.value = input.init_image_b64;
+    if (image_input) {
+      if (input.uploaded_image_b64) {
+        input.init_image_b64 = input.canvas.toDataURL();
 
+        image_input.value = input.init_image_b64;
+      } else {
+        image_input.value = null;
+      }
+    }
+
+    if (mask_image_input) {
       if (input.mask_image_b64) {
-        let mask_image_input = inputs_config.find(
-          (input_config) => input_config.type === "image_mask"
-        );
-
         mask_image_input.value = input.mask_image_b64;
+      } else {
+        mask_image_input.value = null;
       }
     }
   }
@@ -86,6 +96,10 @@ async function generateImages() {
 async function generate() {
   const output = useOutputStore();
   const backend = useBackendStore();
+  const ui = useUIStore();
+
+  ui.show_results = true;
+  resetEditorButtons();
 
   if (!output.loading && !backend.show_license) {
     output.loading = true;

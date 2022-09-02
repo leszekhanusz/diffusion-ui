@@ -1,21 +1,25 @@
 <script setup>
 import Image from "primevue/image";
 import SpeedDial from "primevue/speeddial";
-
+import { useUIStore } from "@/stores/ui";
 import { editResultImage } from "@/actions/editor";
+
+const ui = useUIStore();
 
 const props = defineProps({
   src: String,
   index: Number,
 });
 
+function editImage() {
+  editResultImage(props.index);
+  ui.show_results = false;
+}
 const buttons = [
   {
     label: "Edit",
     icon: "pi pi-pencil",
-    command: () => {
-      editResultImage(props.index);
-    },
+    command: editImage,
   },
 ];
 </script>

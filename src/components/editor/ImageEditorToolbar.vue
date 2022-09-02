@@ -2,29 +2,10 @@
 import Button from "primevue/button";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
+import { closeImage, toggleEraser, toggleMaskView } from "@/actions/editor";
 
 const input = useInputStore();
 const ui = useUIStore();
-
-function toggleEraser() {
-  if (ui.cursor_mode != "eraser") {
-    ui.cursor_mode = "eraser";
-    input.canvas.isDrawingMode = true;
-  } else {
-    ui.cursor_mode = "idle";
-    input.canvas.isDrawingMode = false;
-  }
-  console.log(`UI cursor mode set to ${ui.cursor_mode}`);
-}
-
-function toggleMaskView() {
-  if (ui.editor_view != "composite") {
-    ui.editor_view = "composite";
-  } else {
-    ui.editor_view = "mask";
-  }
-  console.log(`UI editor mode set to ${ui.editor_view}`);
-}
 </script>
 
 <template lang="pug">
@@ -35,6 +16,8 @@ function toggleMaskView() {
   .toolbar-right
     Button.toolbar-button(v-show="ui.cursor_mode==='idle' && input.mask_image_b64 !== null", label="Primary", @click="toggleMaskView", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.editor_view === 'mask'}", v-tooltip.bottom="{ value: 'Show mask'}")
       font-awesome-icon(icon="fa-solid fa-image")
+    Button.toolbar-button.close-button(label="Primary", @click="closeImage", class="p-button-text", v-tooltip.bottom="{ value: 'Close'}", style="margin-left: 60px")
+      font-awesome-icon(icon="fa-solid fa-xmark")
 </template>
 
 <style scoped>
