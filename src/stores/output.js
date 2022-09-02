@@ -9,9 +9,10 @@ export const useOutputStore = defineStore({
   }),
   getters: {
     gallery_images: (state) =>
-      state.images.map((image) => ({
+      state.images.map((image, idx) => ({
         itemImageSrc: image,
         thumbnailImageSrc: image,
+        index: idx,
       })),
   },
   actions: {},

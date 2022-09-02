@@ -1,15 +1,15 @@
 <script setup>
-import Image from "primevue/image";
 import Galleria from "primevue/galleria";
 import ProgressIndicator from "@/components/ProgressIndicator.vue";
 import ErrorMessage from "@/components/ErrorMessage.vue";
+import ResultImage from "@/components/ResultImage.vue";
 import { useOutputStore } from "@/stores/output";
 
 const output = useOutputStore();
 </script>
 
 <template lang="pug">
-.result-image
+.result-images
   template(v-if="output.loading")
     ProgressIndicator(v-if="output.loading")
   template(v-else)
@@ -17,17 +17,17 @@ const output = useOutputStore();
       ErrorMessage
     template(v-else)
       template(v-if="output.images.length == 1")
-        Image(:src="output.images[0]")
+        ResultImage(:src="output.images[0]", :index="0")
       template(v-else)
         Galleria(:value="output.gallery_images", :numVisible="4")
           template(#item="slotProps")
-            Image(:src="slotProps.item.itemImageSrc")
+            ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
           template(#thumbnail="slotProps")
             img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px; display: block;")
 </template>
 
 <style scoped>
-.result-image {
+.result-images {
   width: 100%;
   display: flex;
   justify-content: center;

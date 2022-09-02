@@ -6,7 +6,7 @@ const ui = useUIStore();
 </script>
 
 <template lang="pug">
-Button.left-panel-toggler(@click="ui.showLeftPanel")
+Button.left-panel-toggler(@click="ui.showLeftPanel", v-show="!ui.show_results")
   font-awesome-icon(icon="fa-solid fa-gears")
   font-awesome-icon(icon="fa-solid fa-angle-right")
 .top-padding
@@ -15,7 +15,7 @@ Button.left-panel-toggler(@click="ui.showLeftPanel")
 <style scoped>
 .left-panel-toggler {
   position: fixed;
-  z-index: 100;
+  z-index: 1;
   top: 16px;
   left: 0px;
   padding: 10px 10px 10px 20px;
