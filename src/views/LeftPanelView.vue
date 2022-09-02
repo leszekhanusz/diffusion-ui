@@ -27,6 +27,10 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
 </template>
 
 <style>
+.p-sidebar {
+  z-index: 1;
+}
+
 .p-sidebar .p-sidebar-header {
   padding: 0px !important;
 }

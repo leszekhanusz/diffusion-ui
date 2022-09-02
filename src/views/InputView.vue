@@ -1,7 +1,7 @@
 <script setup>
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
-import ImageEditor from "@/components/ImageEditor.vue";
+import ImageEditor from "@/components/editor/ImageEditor.vue";
 
 import { useBackendStore } from "@/stores/backend";
 import { useInputStore } from "@/stores/input";

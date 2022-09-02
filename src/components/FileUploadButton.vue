@@ -1,14 +1,9 @@
 <script setup>
-import { nextTick } from "vue";
-import { useInputStore } from "@/stores/input";
 import FileUpload from "primevue/fileupload";
-import { fabric } from "fabric";
+import { editNewImage } from "@/actions/editor";
 
-const input = useInputStore();
-
-async function fileUploaded(event) {
+function fileUploaded(event) {
   console.log("file uploaded!");
-  console.log(event);
 
   const files = event.files;
 
@@ -17,21 +12,8 @@ async function fileUploaded(event) {
   const fileUrl = file.objectURL;
 
   console.log(fileUrl);
-  input.uploaded_image_b64 = fileUrl;
 
-  fabric.Image.fromURL(fileUrl, async function (obj) {
-    while (input.canvas === null) {
-      console.log(".");
-      await nextTick();
-    }
-    obj.scaleToHeight(input.canvas.height);
-    obj.set("strokeWidth", 0);
-    obj.clipTo = function (ctx) {
-      ctx.rect(0, 0, 512, 512);
-    };
-    input.canvas.add(obj);
-    input.canvas.renderAll();
-  });
+  editNewImage(fileUrl);
 }
 </script>
 

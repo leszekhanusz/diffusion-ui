@@ -11,6 +11,7 @@ import "primevue/resources/themes/lara-light-indigo/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeflex/primeflex.css";
 import "primeicons/primeicons.css";
+import Tooltip from "primevue/tooltip";
 
 /* import the fontawesome core */
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -24,10 +25,11 @@ import {
   faAngleRight,
   faEraser,
   faGears,
+  faImage,
 } from "@fortawesome/free-solid-svg-icons";
 
 /* add icons to the library */
-library.add(faAngleLeft, faAngleRight, faEraser, faGears);
+library.add(faAngleLeft, faAngleRight, faEraser, faGears, faImage);
 
 const app = createApp(App);
 
@@ -36,5 +38,7 @@ app.use(router);
 app.use(PrimeVue);
 
 app.component("font-awesome-icon", FontAwesomeIcon);
+
+app.directive("tooltip", Tooltip);
 
 app.mount("#app");

@@ -19,6 +19,14 @@ async function generateImageGradio() {
       );
 
       image_input.value = input.init_image_b64;
+
+      if (input.mask_image_b64) {
+        let mask_image_input = inputs_config.find(
+          (input_config) => input_config.type === "image_mask"
+        );
+
+        mask_image_input.value = input.mask_image_b64;
+      }
     }
   }
 
