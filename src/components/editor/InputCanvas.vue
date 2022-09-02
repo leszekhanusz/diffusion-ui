@@ -3,12 +3,12 @@ import { onMounted } from "vue";
 import { initCanvas } from "@/actions/editor";
 
 onMounted(() => {
-  initCanvas();
+  initCanvas("canvas");
 });
 </script>
 
 <template lang="pug">
-canvas.main-canvas(ref="can", width="512", height="512")
+canvas#canvas.main-canvas(width="512", height="512")
 </template>
 
 <style>
