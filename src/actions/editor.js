@@ -3,13 +3,11 @@ import { nextTick } from "vue";
 import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
-import { getCurrentInstance } from "vue";
 
-function initCanvas() {
+function initCanvas(canvas_id) {
   const input = useInputStore();
 
-  const ref = getCurrentInstance().ctx.$refs.can;
-  input.canvas = new fabric.Canvas(ref);
+  input.canvas = new fabric.Canvas(canvas_id);
   input.canvas.selection = false;
 
   input.canvas_mask = new fabric.Canvas();

@@ -13,7 +13,7 @@ const input = useInputStore();
 div
   .flex.flex-column.gap-3
     PromptInput
-    template(v-if="backend.has_image_input")
+    div(v-show="backend.has_image_input")
       template(v-if="input.uploaded_image_b64")
         ImageEditor
       template(v-if="!input.uploaded_image_b64")
