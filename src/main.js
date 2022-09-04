@@ -27,6 +27,8 @@ import {
   faGears,
   faImage,
   faLeftLong,
+  faRotateLeft,
+  faRotateRight,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -38,6 +40,8 @@ library.add(
   faGears,
   faImage,
   faLeftLong,
+  faRotateLeft,
+  faRotateRight,
   faXmark
 );
 
