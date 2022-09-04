@@ -4,6 +4,66 @@ import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
 
+function undo() {
+  const input = useInputStore();
+
+  const undo_action = input.canvas_history.undo.pop();
+
+  if (undo_action) {
+    input.canvas_history.redo.push(undo_action);
+
+    switch (undo_action.type) {
+      case "erase":
+        input.canvas.remove(undo_action.path);
+        input.canvas_mask.remove(undo_action.path);
+
+        input.mask_image_b64 = input.canvas_mask.toDataURL();
+        input.canvas.renderAll();
+        break;
+    }
+  }
+}
+
+function redo() {
+  const input = useInputStore();
+
+  const redo_action = input.canvas_history.redo.pop();
+
+  if (redo_action) {
+    input.canvas_history.undo.push(redo_action);
+
+    switch (redo_action.type) {
+      case "erase":
+        input.canvas.add(redo_action.path);
+        input.canvas_mask.add(redo_action.path);
+
+        input.mask_image_b64 = input.canvas_mask.toDataURL();
+        input.canvas.renderAll();
+        break;
+    }
+  }
+}
+
+function keyUpHandler(event) {
+  if (event.ctrlKey) {
+    switch (event.key) {
+      case "z":
+        undo();
+        break;
+      case "y":
+        redo();
+        break;
+    }
+  } else {
+    switch (event.key) {
+      case "Escape":
+        resetEditorButtons();
+
+        break;
+    }
+  }
+}
+
 function initCanvas(canvas_id) {
   const input = useInputStore();
 
@@ -27,13 +87,16 @@ function initCanvas(canvas_id) {
     path.selectable = false;
 
     path.opacity = 1;
-    input.canvas.add(path);
-
-    input.canvas_history.push({ type: "erase", path: path });
 
     input.canvas_mask.add(path);
+
+    input.canvas_history.undo.push({ type: "erase", path: path });
+    input.canvas_history.redo.length = 0;
+
     input.mask_image_b64 = input.canvas_mask.toDataURL();
   });
+
+  document.addEventListener("keyup", keyUpHandler);
 }
 
 function editNewImage(image_b64) {
@@ -63,7 +126,7 @@ function editNewImage(image_b64) {
 function resetMask() {
   const input = useInputStore();
 
-  input.canvas_history.forEach(function (history_event) {
+  input.canvas_history.undo.forEach(function (history_event) {
     if (history_event.type === "erase") {
       const path = history_event.path;
       input.canvas.remove(path);
@@ -72,7 +135,7 @@ function resetMask() {
   });
 
   // Clear the history
-  input.canvas_history.length = 0;
+  input.canvas_history.undo.length = 0;
   input.mask_image_b64 = null;
 }
 
@@ -130,7 +193,9 @@ export {
   editNewImage,
   editResultImage,
   initCanvas,
+  redo,
   resetEditorButtons,
   toggleEraser,
   toggleMaskView,
+  undo,
 };

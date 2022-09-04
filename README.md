@@ -17,7 +17,6 @@ THIS IS STILL A WORK IN PROGRESS!
 
 TODO:
 
-* undo/redo mask drawing
 * change brush size
 * Saving generated images in a gallery in a panel to the right
 * Using localStorage to save generated pictures and configuration options
