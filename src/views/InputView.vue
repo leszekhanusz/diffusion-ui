@@ -27,12 +27,12 @@ div
     div(v-show="backend.has_image_input")
       template(v-if="input.uploaded_image_b64")
         ImageEditor
-        .main-slider(v-if="strength_input")
+        .main-slider(v-if="strength_input", :class="{visible: (input.mask_image_b64 != null)}")
           .flex.flex-row.justify-content-center
-            .slider-label.align-items-left
+            .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
               | Low variations
             Slider.align-items-center(v-model="strength_input.value" :min="0.2" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + strength_input.value}")
-            .slider-label.align-items-left
+            .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
               | Ignore previous
       template(v-if="!input.uploaded_image_b64")
         FileUploadButton.main-slider
@@ -42,7 +42,13 @@ div
 .main-slider {
   padding-top: 10px;
   margin-top: auto 20px;
+  visibility: hidden;
 }
+
+.main-slider.visible {
+  visibility: initial;
+}
+
 .slider-label {
   font-weight: bold;
   text-align: center;
