@@ -167,6 +167,25 @@ function initCanvas(canvas_id) {
   document.addEventListener("keyup", keyUpHandler);
 }
 
+function renderImage() {
+  const input = useInputStore();
+
+  // Save opacity of ignored layers
+  const emphasize_opacity = input.emphasize.opacity;
+  const draw_opacity = input.canvas_draw.opacity;
+
+  // Set the opacity to capture final image
+  input.emphasize.set("opacity", 0);
+  input.canvas_draw.set("opacity", 1);
+
+  // render the image in the store
+  input.init_image_b64 = input.canvas.toDataURL();
+
+  // Restore the initial opacity
+  input.emphasize.set("opacity", emphasize_opacity);
+  input.canvas_draw.set("opacity", draw_opacity);
+}
+
 function editNewImage(image_b64) {
   const input = useInputStore();
 
@@ -271,6 +290,7 @@ export {
   editResultImage,
   initCanvas,
   redo,
+  renderImage,
   resetEditorButtons,
   toggleEraser,
   toggleMaskView,

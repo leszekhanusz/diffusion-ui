@@ -2,7 +2,7 @@ import { useUIStore } from "@/stores/ui";
 import { useInputStore } from "@/stores/input";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
-import { resetEditorButtons } from "@/actions/editor";
+import { renderImage, resetEditorButtons } from "@/actions/editor";
 
 async function generateImageGradio() {
   const input = useInputStore();
@@ -23,7 +23,8 @@ async function generateImageGradio() {
 
     if (image_input) {
       if (input.uploaded_image_b64) {
-        input.init_image_b64 = input.canvas.toDataURL();
+        // Create final image in input.init_image_b64
+        renderImage();
 
         image_input.value = input.init_image_b64;
       } else {
