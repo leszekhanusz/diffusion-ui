@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faAngleLeft,
   faAngleRight,
+  faAnglesRight,
   faEraser,
   faGears,
   faImage,
@@ -37,6 +38,7 @@ import {
 library.add(
   faAngleLeft,
   faAngleRight,
+  faAnglesRight,
   faEraser,
   faGears,
   faImage,

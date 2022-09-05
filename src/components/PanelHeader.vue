@@ -9,7 +9,6 @@ const ui = useUIStore();
 Button.left-panel-toggler(@click="ui.showLeftPanel", v-show="!ui.show_results")
   font-awesome-icon(icon="fa-solid fa-gears")
   font-awesome-icon(icon="fa-solid fa-angle-right")
-.top-padding
 </template>
 
 <style scoped>
