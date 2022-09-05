@@ -3,6 +3,7 @@ import { ref, watch } from "vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
+import Button from "primevue/button";
 import Slider from "primevue/slider";
 
 import { useBackendStore } from "@/stores/backend";
@@ -18,11 +19,19 @@ watch(backend.strength_input, function (strength_input) {
     input.canvas.renderAll();
   }
 });
+
+function drawSomething() {
+  alert("Not yet implemented");
+}
 </script>
 
 <template lang="pug">
 div
   .flex.flex-column.gap-3
+    template(v-if="!input.uploaded_image_b64")
+      .flex.flex-column.align-items-center
+        .enter-a-prompt
+          | Enter a prompt:
     PromptInput
     div(v-show="backend.has_image_input")
       template(v-if="input.uploaded_image_b64")
@@ -35,10 +44,46 @@ div
             .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
               | Ignore previous
       template(v-if="!input.uploaded_image_b64")
-        FileUploadButton.main-slider
+        .flex.flex-column.align-items-center
+          .or OR
+          FileUploadButton.main-slider
+        .flex.flex-column.align-items-center
+          .or OR
+          Button.p-button-secondary.p-button-outlined.p-button-sm.p-button-text(@click="drawSomething")
+            font-awesome-icon(icon="fa-solid fa-paintbrush")
+            | draw something
 </template>
 
 <style scoped>
+.enter-a-prompt {
+  font-weight: 700;
+  color: #64748b;
+}
+
+:deep() .p-button-secondary:not(.p-disabled):hover {
+  background-color: transparent !important;
+  color: #64748b !important;
+  border-color: transparent !important;
+  text-decoration: underline !important;
+}
+
+:deep() .p-button-secondary:not(.p-disabled):focus {
+  box-shadow: none;
+}
+
+:deep() .p-button-secondary {
+  font-weight: 700;
+}
+
+.fa-paintbrush {
+  margin-right: 3px;
+}
+
+.or {
+  font-size: 12px;
+  font-weight: lighter;
+}
+
 .main-slider {
   padding-top: 10px;
   margin-top: auto 20px;
