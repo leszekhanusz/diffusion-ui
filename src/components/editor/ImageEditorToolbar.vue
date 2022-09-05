@@ -17,7 +17,7 @@ const ui = useUIStore();
 <template lang="pug">
 .flex.flex-row.justify-content-center
   .toolbar-left
-    Button.toolbar-button(:style="{visibility: ui.editor_view==='composite' ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to inpaint'}")
+    Button.toolbar-button(:style="{visibility: ui.editor_view==='composite' ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to modify'}")
       font-awesome-icon(icon="fa-solid fa-eraser")
   .toolbar-center
     Button.toolbar-button(:style="{visibility: input.canvas_history.undo.length > 0 ? 'visible' : 'hidden'}", label="Primary", @click="undo", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'undo'}")

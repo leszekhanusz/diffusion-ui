@@ -4,13 +4,15 @@ import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
 
-function undo() {
+function undo({ save_redo = true } = {}) {
   const input = useInputStore();
 
   const undo_action = input.canvas_history.undo.pop();
 
   if (undo_action) {
-    input.canvas_history.redo.push(undo_action);
+    if (save_redo) {
+      input.canvas_history.redo.push(undo_action);
+    }
 
     switch (undo_action.type) {
       case "erase":
@@ -44,6 +46,16 @@ function redo() {
         break;
     }
   }
+}
+
+function resetMask() {
+  const input = useInputStore();
+
+  for (var i = 0; i < input.canvas_history.undo.length; i++) {
+    undo({ save_redo: false });
+  }
+
+  input.mask_image_b64 = null;
 }
 
 function keyUpHandler(event) {
@@ -83,7 +95,8 @@ function initCanvas(canvas_id) {
 
   input.emphasize = new fabric.Group([], {
     absolutePositioned: true,
-    opacity: 0.4,
+    opacity: 0.2,
+    selectable: false,
   });
 
   input.brush = new fabric.PencilBrush();
@@ -194,6 +207,8 @@ function editNewImage(image_b64) {
   input.uploaded_image_b64 = image_b64;
 
   fabric.Image.fromURL(image_b64, async function (image) {
+    image.selectable = false;
+
     // Waiting that the canvas has been created asynchronously by Vue
     while (input.canvas === null) {
       console.log(".");
@@ -219,22 +234,6 @@ function editNewImage(image_b64) {
   });
 }
 
-function resetMask() {
-  const input = useInputStore();
-
-  input.canvas_history.undo.forEach(function (history_event) {
-    if (history_event.type === "erase") {
-      const path = history_event.path;
-      input.canvas.remove(path);
-      input.canvas_mask.remove(path);
-    }
-  });
-
-  // Clear the history
-  input.canvas_history.undo.length = 0;
-  input.mask_image_b64 = null;
-}
-
 function resetEditorButtons() {
   const ui = useUIStore();
   const input = useInputStore();
@@ -255,6 +254,7 @@ function closeImage() {
   const input = useInputStore();
 
   resetMask();
+  resetEditorButtons();
   input.canvas.clear();
   input.uploaded_image_b64 = null;
 }
