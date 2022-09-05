@@ -14,8 +14,8 @@ function undo() {
 
     switch (undo_action.type) {
       case "erase":
-        input.canvas.remove(undo_action.path);
-        input.canvas_mask.remove(undo_action.path);
+        input.canvas_clip.remove(undo_action.path);
+        input.canvas_mask.remove(undo_action.mask_path);
 
         input.mask_image_b64 = input.canvas_mask.toDataURL();
         input.canvas.renderAll();
@@ -34,8 +34,8 @@ function redo() {
 
     switch (redo_action.type) {
       case "erase":
-        input.canvas.add(redo_action.path);
-        input.canvas_mask.add(redo_action.path);
+        input.canvas_clip.add(redo_action.path);
+        input.canvas_mask.add(redo_action.mask_path);
 
         input.mask_image_b64 = input.canvas_mask.toDataURL();
         input.canvas.renderAll();
@@ -76,24 +76,74 @@ function initCanvas(canvas_id) {
   input.canvas_mask.setHeight(512);
   input.canvas_mask.setWidth(512);
 
+  input.canvas_clip = new fabric.Group([], { absolutePositioned: true });
+  input.canvas_clip.inverted = true;
+
   input.brush = new fabric.PencilBrush();
   input.brush.color = "white";
   input.brush.width = 40;
   input.canvas.freeDrawingBrush = input.brush;
   input.brush.initialize(input.canvas);
 
+  const transparentBackground = function () {
+    const chess_canvas = new fabric.StaticCanvas(null, {
+      enableRetinaScaling: false,
+    });
+    chess_canvas.setHeight(10);
+    chess_canvas.setWidth(10);
+    chess_canvas.setBackgroundColor("lightgrey");
+
+    const rect1 = new fabric.Rect({
+      width: 5,
+      height: 5,
+      left: 0,
+      top: 0,
+      fill: "rgba(150, 150, 150, 1)",
+    });
+
+    const rect2 = new fabric.Rect({
+      width: 5,
+      height: 5,
+      left: 5,
+      top: 5,
+      fill: "rgba(150, 150, 150, 1)",
+    });
+
+    chess_canvas.add(rect1);
+    chess_canvas.add(rect2);
+
+    const transparent_pattern = new fabric.Pattern({
+      source: chess_canvas.getElement(),
+      repeat: "repeat",
+    });
+    return transparent_pattern;
+  };
+
+  input.canvas.setBackgroundColor(transparentBackground());
+
   input.canvas.on("path:created", function (e) {
     const path = e.path;
     path.selectable = false;
 
     path.opacity = 1;
+    path.color = "white";
 
-    input.canvas_mask.add(path);
+    path.clone(function (mask_path) {
+      input.canvas_mask.add(mask_path);
 
-    input.canvas_history.undo.push({ type: "erase", path: path });
-    input.canvas_history.redo.length = 0;
+      input.mask_image_b64 = input.canvas_mask.toDataURL();
+      input.canvas.remove(path);
+      input.canvas_clip.addWithUpdate(path);
 
-    input.mask_image_b64 = input.canvas_mask.toDataURL();
+      input.canvas_history.undo.push({
+        type: "erase",
+        path: path,
+        mask_path: mask_path,
+      });
+      input.canvas_history.redo.length = 0;
+
+      input.canvas.renderAll();
+    });
   });
 
   document.addEventListener("keyup", keyUpHandler);
@@ -114,12 +164,12 @@ function editNewImage(image_b64) {
     }
 
     image.scaleToHeight(input.canvas.height);
-    image.set("strokeWidth", 0);
-    image.clipTo = function (ctx) {
-      ctx.rect(0, 0, 512, 512);
-    };
+
     input.canvas.add(image);
-    input.canvas.renderAll();
+
+    image.clipPath = input.canvas_clip;
+
+    input.canvas_image = image;
   });
 }
 
