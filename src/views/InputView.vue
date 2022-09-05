@@ -1,12 +1,23 @@
 <script setup>
+import { ref, watch } from "vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
+import Slider from "primevue/slider";
 
 import { useBackendStore } from "@/stores/backend";
 import { useInputStore } from "@/stores/input";
 const backend = useBackendStore();
 const input = useInputStore();
+
+const strength_input = ref(backend.strength_input);
+
+watch(backend.strength_input, function (strength_input) {
+  if (strength_input) {
+    input.canvas_draw.set("opacity", 1 - strength_input.value);
+    input.canvas.renderAll();
+  }
+});
 </script>
 
 <template lang="pug">
@@ -16,6 +27,46 @@ div
     div(v-show="backend.has_image_input")
       template(v-if="input.uploaded_image_b64")
         ImageEditor
+        .main-slider(v-if="strength_input", :class="{visible: (input.mask_image_b64 != null)}")
+          .flex.flex-row.justify-content-center
+            .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
+              | Low variations
+            Slider.align-items-center(v-model="strength_input.value" :min="0.2" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + strength_input.value}")
+            .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
+              | Ignore previous
       template(v-if="!input.uploaded_image_b64")
-        FileUploadButton
+        FileUploadButton.main-slider
 </template>
+
+<style scoped>
+.main-slider {
+  padding-top: 10px;
+  margin-top: auto 20px;
+  visibility: hidden;
+}
+
+.main-slider.visible {
+  visibility: initial;
+}
+
+.slider-label {
+  font-weight: bold;
+  text-align: center;
+}
+
+:deep() .p-slider-horizontal {
+  margin: 10px 20px 10px 20px;
+  color: black;
+  height: 0.15rem !important;
+  width: 80%;
+  max-width: 300px;
+}
+
+:deep() .p-slider-range {
+  background: black !important;
+}
+
+:deep() .p-slider-handle {
+  border: 4px solid #273767 !important;
+}
+</style>
