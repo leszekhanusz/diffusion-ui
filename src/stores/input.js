@@ -9,7 +9,9 @@ export const useInputStore = defineStore({
     mask_image_b64: null,
     canvas: null,
     canvas_image: null,
-    canvas_clip: null,
+    canvas_draw: null,
+    image_clip: null,
+    emphasize: null,
     brush: null,
     canvas_history: {
       undo: [],

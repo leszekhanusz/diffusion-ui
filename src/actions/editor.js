@@ -14,8 +14,9 @@ function undo() {
 
     switch (undo_action.type) {
       case "erase":
-        input.canvas_clip.remove(undo_action.path);
+        input.image_clip.remove(undo_action.path);
         input.canvas_mask.remove(undo_action.mask_path);
+        input.emphasize.remove(undo_action.emphasize_path);
 
         input.mask_image_b64 = input.canvas_mask.toDataURL();
         input.canvas.renderAll();
@@ -34,8 +35,9 @@ function redo() {
 
     switch (redo_action.type) {
       case "erase":
-        input.canvas_clip.add(redo_action.path);
+        input.image_clip.add(redo_action.path);
         input.canvas_mask.add(redo_action.mask_path);
+        input.emphasize.add(redo_action.emphasize_path);
 
         input.mask_image_b64 = input.canvas_mask.toDataURL();
         input.canvas.renderAll();
@@ -76,8 +78,13 @@ function initCanvas(canvas_id) {
   input.canvas_mask.setHeight(512);
   input.canvas_mask.setWidth(512);
 
-  input.canvas_clip = new fabric.Group([], { absolutePositioned: true });
-  input.canvas_clip.inverted = true;
+  input.image_clip = new fabric.Group([], { absolutePositioned: true });
+  input.image_clip.inverted = true;
+
+  input.emphasize = new fabric.Group([], {
+    absolutePositioned: true,
+    opacity: 0.4,
+  });
 
   input.brush = new fabric.PencilBrush();
   input.brush.color = "white";
@@ -129,20 +136,31 @@ function initCanvas(canvas_id) {
     path.color = "white";
 
     path.clone(function (mask_path) {
-      input.canvas_mask.add(mask_path);
+      path.clone(function (emphasize_path) {
+        // Add the path to the mask canvas and regenerate the mask image
+        input.canvas_mask.add(mask_path);
+        input.mask_image_b64 = input.canvas_mask.toDataURL();
 
-      input.mask_image_b64 = input.canvas_mask.toDataURL();
-      input.canvas.remove(path);
-      input.canvas_clip.addWithUpdate(path);
+        // Remove the path from the main canvas and add it to the image clip group
+        input.canvas.remove(path);
+        input.image_clip.addWithUpdate(path);
 
-      input.canvas_history.undo.push({
-        type: "erase",
-        path: path,
-        mask_path: mask_path,
+        // Add the path to the emphasize front layer
+        emphasize_path.color = "blue";
+        emphasize_path.opacity = 1;
+        input.emphasize.addWithUpdate(emphasize_path);
+
+        input.canvas_history.undo.push({
+          type: "erase",
+          path: path,
+          mask_path: mask_path,
+          emphasize_path: emphasize_path,
+        });
+
+        input.canvas_history.redo.length = 0;
+
+        input.canvas.renderAll();
       });
-      input.canvas_history.redo.length = 0;
-
-      input.canvas.renderAll();
     });
   });
 
@@ -165,11 +183,20 @@ function editNewImage(image_b64) {
 
     image.scaleToHeight(input.canvas.height);
 
-    input.canvas.add(image);
+    image.clone(function (transparent_image) {
+      input.canvas_draw = transparent_image;
 
-    image.clipPath = input.canvas_clip;
+      transparent_image.set("opacity", 0.5);
 
-    input.canvas_image = image;
+      input.canvas.add(transparent_image);
+
+      input.canvas.add(image);
+      input.canvas.add(input.emphasize);
+
+      image.clipPath = input.image_clip;
+
+      input.canvas_image = image;
+    });
   });
 }
 
