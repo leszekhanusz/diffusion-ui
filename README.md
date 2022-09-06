@@ -29,7 +29,8 @@ TODO:
 
 ## Frontend
 
-The frontend is available at [diffusionui.com](http://diffusionui.com).
+The frontend is available at [diffusionui.com](http://diffusionui.com)
+(**Note:** You still need to have a local backend to make if work with Stable diffusion)
 
 Or alternatively you can run it locally.
 
