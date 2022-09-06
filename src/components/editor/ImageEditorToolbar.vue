@@ -1,5 +1,7 @@
 <script setup>
 import Button from "primevue/button";
+import OverlayPanel from "primevue/overlaypanel";
+import Slider from "primevue/slider";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
 import {
@@ -8,15 +10,28 @@ import {
   toggleEraser,
   toggleMaskView,
   undo,
+  updateBrushSize,
 } from "@/actions/editor";
+import { ref } from "vue";
 
 const input = useInputStore();
 const ui = useUIStore();
+
+const op = ref(null);
+
+function brushSizeButton() {
+  op.value.toggle(event);
+}
 </script>
 
 <template lang="pug">
 .flex.flex-row.justify-content-center
   .toolbar-left
+    Button.toolbar-button.brush-circle(:style="{visibility: ui.cursor_mode==='eraser' ? 'visible' : 'hidden'}", label="Primary", @click="brushSizeButton", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'Brush size'}")
+      font-awesome-icon(icon="fa-solid fa-circle")
+    OverlayPanel(ref="op", :showCloseIcon="false", :dismissable="true", :breakpoints="{'960px': '150px', '640px': '150px'}" :style="{width: '15Opx'}")
+      Slider(@change="updateBrushSize" v-model="input.brush_size" :min="1" :max="150" :step="2")
+
     Button.toolbar-button(:style="{visibility: ui.editor_view==='composite' ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to modify'}")
       font-awesome-icon(icon="fa-solid fa-eraser")
   .toolbar-center
@@ -32,6 +47,10 @@ const ui = useUIStore();
 </template>
 
 <style scoped>
+.brush-circle {
+  padding-left: 6px !important;
+}
+
 .toolbar-center {
   margin-left: auto;
   margin-right: auto;

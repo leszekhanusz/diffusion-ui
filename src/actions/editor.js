@@ -80,6 +80,7 @@ function keyUpHandler(event) {
 
 function initCanvas(canvas_id) {
   const input = useInputStore();
+  const ui = useUIStore();
 
   input.canvas = new fabric.Canvas(canvas_id);
   input.canvas.selection = false;
@@ -101,7 +102,7 @@ function initCanvas(canvas_id) {
 
   input.brush = new fabric.PencilBrush();
   input.brush.color = "white";
-  input.brush.width = 40;
+  input.brush.width = input.brush_size;
   input.canvas.freeDrawingBrush = input.brush;
   input.brush.initialize(input.canvas);
 
@@ -141,6 +142,42 @@ function initCanvas(canvas_id) {
 
   input.canvas.setBackgroundColor(transparentBackground());
 
+  input.brush_outline = new fabric.Circle({
+    left: 0,
+    right: 0,
+    originX: "center",
+    originY: "center",
+    radius: input.brush_size,
+    angle: 0,
+    fill: "",
+    stroke: "#b25d5d",
+    strokeDashArray: [4, 6, 1],
+    strokeWidth: 3,
+    opacity: 0,
+  });
+
+  input.canvas.add(input.brush_outline);
+  input.canvas.freeDrawingCursor = "none";
+
+  input.canvas.on("mouse:move", function (o) {
+    if (ui.cursor_mode === "eraser") {
+      var pointer = input.canvas.getPointer(o.e);
+
+      input.brush_outline.set("radius", input.brush_size / 2);
+      input.brush_outline.left = pointer.x;
+      input.brush_outline.top = pointer.y;
+      input.brush_outline.opacity = 0.9;
+
+      input.canvas.renderAll();
+    }
+  });
+
+  input.canvas.on("mouse:out", function () {
+    input.brush_outline.opacity = 0;
+
+    input.canvas.renderAll();
+  });
+
   input.canvas.on("path:created", function (e) {
     const path = e.path;
     path.selectable = false;
@@ -178,6 +215,12 @@ function initCanvas(canvas_id) {
   });
 
   document.addEventListener("keyup", keyUpHandler);
+}
+
+function updateBrushSize() {
+  const input = useInputStore();
+
+  input.brush.width = input.brush_size;
 }
 
 function renderImage() {
@@ -230,6 +273,8 @@ function editNewImage(image_b64) {
       image.clipPath = input.image_clip;
 
       input.canvas_image = image;
+
+      input.canvas.bringToFront(input.brush_outline);
     });
   });
 }
@@ -243,6 +288,8 @@ function resetEditorButtons() {
   if (input.canvas) {
     input.canvas.isDrawingMode = false;
   }
+  input.brush_outline.opacity = 0;
+  input.canvas.renderAll();
 }
 
 function editResultImage(image_index) {
@@ -295,4 +342,5 @@ export {
   toggleEraser,
   toggleMaskView,
   undo,
+  updateBrushSize,
 };

@@ -13,6 +13,8 @@ export const useInputStore = defineStore({
     image_clip: null,
     emphasize: null,
     brush: null,
+    brush_size: 40,
+    brush_outline: null,
     canvas_history: {
       undo: [],
       redo: [],
