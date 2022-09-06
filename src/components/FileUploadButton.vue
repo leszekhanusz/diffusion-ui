@@ -18,7 +18,7 @@ function fileUploaded(event) {
 </script>
 
 <template lang="pug">
-FileUpload(name="image_upload", url="false", mode="basic", :customUpload="true", @uploader="fileUploaded", accept="image/*", :auto="true", chooseLabel="Upload image", showUploadButton=false, class="p-button-secondary p-button-outlined p-button-sm p-button-text")
+FileUpload(name="image_upload", url="false", mode="basic", :customUpload="true", @uploader="fileUploaded", accept="image/*", :auto="true", chooseLabel="Upload an image", showUploadButton=false, class="p-button-secondary p-button-outlined p-button-sm p-button-text")
 </template>
 
 <style scoped>

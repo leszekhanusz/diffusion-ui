@@ -17,7 +17,22 @@ onMounted(() => {
 </script>
 
 <template lang="pug">
-.p-inputgroup
+.p-inputgroup.shadow-3
   InputText(type="text", v-model="input.prompt", @keyup.enter="generate")
-  Button(label='Generate image', @click="generate", :disabled="(output.loading || backend.show_license) ? 'disabled' : null")
+  Button(@click="generate", :disabled="(output.loading || backend.show_license) ? 'disabled' : null")
+    span.hide-sm Generate image
+    span.show-sm
+      font-awesome-icon(icon="fa-solid fa-angles-right")
 </template>
+
+<style scoped>
+.p-inputgroup input:first-child {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.p-inputgroup button:last-child {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+</style>

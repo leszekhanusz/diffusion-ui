@@ -24,7 +24,7 @@ const ui = useUIStore();
 
 <style scoped>
 .toolbar {
-  width: 512px;
+  max-width: 512px;
   height: 45px;
 }
 </style>

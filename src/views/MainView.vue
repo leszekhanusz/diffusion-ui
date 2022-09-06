@@ -10,7 +10,7 @@ const ui = useUIStore();
 </script>
 
 <template lang="pug">
-main
+main.main.flex.flex-column.justify-content-center
   PanelHeader
   div(v-show="!ui.show_results")
     InputView
@@ -18,3 +18,18 @@ main
     ResultView
 LicenseDialog
 </template>
+
+<style scoped>
+.main {
+  height: 100vh;
+  width: 100vw;
+  max-width: 100%;
+  padding: 2rem;
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 0;
+  }
+}
+</style>
