@@ -32,7 +32,7 @@ function brushSizeButton() {
     ColorPicker(v-model="input.chosen_color", format="hex" :style="{visibility: ui.cursor_mode === 'draw' ? 'visible' : 'hidden'}")
     Button.toolbar-button.brush-circle(:style="{visibility: ui.cursor_mode !== 'idle' ? 'visible' : 'hidden'}", label="Primary", @click="brushSizeButton", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'Brush size'}")
       font-awesome-icon(icon="fa-solid fa-circle")
-    OverlayPanel(ref="op", :showCloseIcon="false", :dismissable="true", :breakpoints="{'960px': '150px', '640px': '150px'}" :style="{width: '15Opx'}")
+    OverlayPanel(ref="op", :showCloseIcon="false", :dismissable="true" class="brush-size-overlay")
       Slider(@change="updateBrushSize" v-model="input.brush_size.slider" :min="1" :max="150" :step="2")
 
     Button.toolbar-button(:style="{visibility: ui.editor_view === 'composite' ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to modify'}")
@@ -50,6 +50,12 @@ function brushSizeButton() {
     Button.toolbar-button.close-button(label="Primary", @click="closeImage", class="p-button-text", v-tooltip.bottom="{ value: 'Close'}", style="margin-left: 60px")
       font-awesome-icon(icon="fa-solid fa-xmark")
 </template>
+
+<style>
+.brush-size-overlay {
+  width: 150px;
+}
+</style>
 
 <style scoped>
 .p-colorpicker {
