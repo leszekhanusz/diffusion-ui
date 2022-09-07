@@ -2,6 +2,7 @@
 import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";
 import Slider from "primevue/slider";
+import ColorPicker from "primevue/colorpicker";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
 import {
@@ -28,6 +29,7 @@ function brushSizeButton() {
 <template lang="pug">
 .flex.flex-row.justify-content-center
   .toolbar-left
+    ColorPicker(v-model="input.chosen_color", format="hex" :style="{visibility: ui.cursor_mode === 'draw' ? 'visible' : 'hidden'}")
     Button.toolbar-button.brush-circle(:style="{visibility: ui.cursor_mode !== 'idle' ? 'visible' : 'hidden'}", label="Primary", @click="brushSizeButton", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'Brush size'}")
       font-awesome-icon(icon="fa-solid fa-circle")
     OverlayPanel(ref="op", :showCloseIcon="false", :dismissable="true", :breakpoints="{'960px': '150px', '640px': '150px'}" :style="{width: '15Opx'}")
@@ -50,6 +52,10 @@ function brushSizeButton() {
 </template>
 
 <style scoped>
+.p-colorpicker {
+  margin-bottom: 4px;
+}
+
 .brush-circle {
   padding-left: 6px !important;
 }

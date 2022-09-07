@@ -39,7 +39,7 @@ function drawSomething() {
         .flex.flex-row.justify-content-center
           .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
             | Low variations
-          Slider.align-items-center(v-model="strength_input.value" :min="0.2" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + strength_input.value}")
+          Slider.align-items-center(v-model="strength_input.value" :min="0" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + strength_input.value}")
           .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
             | Ignore previous
     template(v-if="!input.uploaded_image_b64")

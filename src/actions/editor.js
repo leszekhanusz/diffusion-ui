@@ -188,6 +188,7 @@ function initCanvas(canvas_id) {
           input.brush_outline.set("strokeWidth", 0);
           input.brush_outline.set("fill", input.color);
           input.brush_outline.set("radius", input.brush_size.draw / 2);
+          input.brush.color = input.color;
           break;
       }
 
@@ -223,7 +224,7 @@ function initCanvas(canvas_id) {
             input.image_clip.addWithUpdate(path);
 
             // Add the path to the emphasize front layer
-            emphasize_path.color = "blue";
+            emphasize_path.stroke = "lightgrey";
             emphasize_path.opacity = 1;
             input.emphasize.addWithUpdate(emphasize_path);
 
@@ -238,6 +239,7 @@ function initCanvas(canvas_id) {
         break;
 
       case "draw":
+        path.stroke = input.color;
         input.canvas_draw.addWithUpdate(path);
 
         input.canvas_history.undo.push({
@@ -379,6 +381,7 @@ function setCursorMode(cursor_mode) {
     }
 
     input.brush.width = input.brush_size.slider;
+    input.canvas.renderAll();
   }
 
   console.log(`UI cursor mode set to ${ui.cursor_mode}`);
