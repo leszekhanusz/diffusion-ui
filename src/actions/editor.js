@@ -1,5 +1,6 @@
 import { fabric } from "fabric";
 import { nextTick } from "vue";
+import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
@@ -207,6 +208,7 @@ function initCanvas(canvas_id) {
     path.opacity = 1;
 
     input.canvas_history.redo.length = 0;
+    input.canvas.remove(path);
 
     switch (ui.cursor_mode) {
       case "eraser":
@@ -217,8 +219,7 @@ function initCanvas(canvas_id) {
             input.canvas_mask.add(mask_path);
             input.mask_image_b64 = input.canvas_mask.toDataURL();
 
-            // Remove the path from the main canvas and add it to the image clip group
-            input.canvas.remove(path);
+            // Add the path to the image clip group
             input.image_clip.addWithUpdate(path);
 
             // Add the path to the emphasize front layer
@@ -232,16 +233,12 @@ function initCanvas(canvas_id) {
               mask_path: mask_path,
               emphasize_path: emphasize_path,
             });
-
-            input.canvas.renderAll();
           });
         });
         break;
 
       case "draw":
         input.canvas_draw.addWithUpdate(path);
-        input.canvas.remove(path);
-        input.canvas.renderAll();
 
         input.canvas_history.undo.push({
           type: "draw",
@@ -250,6 +247,8 @@ function initCanvas(canvas_id) {
 
         break;
     }
+
+    input.canvas.renderAll();
   });
 
   document.addEventListener("keyup", keyUpHandler);
@@ -289,8 +288,13 @@ function renderImage() {
 
 function editNewImage(image_b64) {
   const input = useInputStore();
+  const backend = useBackendStore();
 
   resetMask();
+
+  // Forget history
+  input.canvas_history.undo.length = 0;
+  input.canvas_history.redo.length = 0;
 
   input.uploaded_image_b64 = image_b64;
 
@@ -310,7 +314,9 @@ function editNewImage(image_b64) {
         absolutePositioned: true,
       });
 
-      transparent_image.set("opacity", 0.5);
+      if (backend.strength_input) {
+        input.canvas_draw.set("opacity", 1 - backend.strength_input.value);
+      }
 
       input.canvas.add(input.canvas_draw);
 
