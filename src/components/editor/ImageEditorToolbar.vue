@@ -7,6 +7,7 @@ import { useUIStore } from "@/stores/ui";
 import {
   closeImage,
   redo,
+  toggleDraw,
   toggleEraser,
   toggleMaskView,
   undo,
@@ -27,13 +28,15 @@ function brushSizeButton() {
 <template lang="pug">
 .flex.flex-row.justify-content-center
   .toolbar-left
-    Button.toolbar-button.brush-circle(:style="{visibility: ui.cursor_mode==='eraser' ? 'visible' : 'hidden'}", label="Primary", @click="brushSizeButton", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'Brush size'}")
+    Button.toolbar-button.brush-circle(:style="{visibility: ui.cursor_mode !== 'idle' ? 'visible' : 'hidden'}", label="Primary", @click="brushSizeButton", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'Brush size'}")
       font-awesome-icon(icon="fa-solid fa-circle")
     OverlayPanel(ref="op", :showCloseIcon="false", :dismissable="true", :breakpoints="{'960px': '150px', '640px': '150px'}" :style="{width: '15Opx'}")
-      Slider(@change="updateBrushSize" v-model="input.brush_size" :min="1" :max="150" :step="2")
+      Slider(@change="updateBrushSize" v-model="input.brush_size.slider" :min="1" :max="150" :step="2")
 
-    Button.toolbar-button(:style="{visibility: ui.editor_view==='composite' ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to modify'}")
+    Button.toolbar-button(:style="{visibility: ui.editor_view === 'composite' ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to modify'}")
       font-awesome-icon(icon="fa-solid fa-eraser")
+    Button.toolbar-button(:style="{visibility: (ui.editor_view === 'composite' && input.mask_image_b64 !== null) ? 'visible' : 'hidden'}", label="Primary", @click="toggleDraw", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'draw'}", v-tooltip.bottom="{ value: 'Draw'}")
+      font-awesome-icon(icon="fa-solid fa-pencil")
   .toolbar-center
     Button.toolbar-button(:style="{visibility: input.canvas_history.undo.length > 0 ? 'visible' : 'hidden'}", label="Primary", @click="undo", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'undo'}")
       font-awesome-icon(icon="fa-solid fa-rotate-left")
