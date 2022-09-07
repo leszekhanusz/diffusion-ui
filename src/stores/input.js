@@ -13,7 +13,12 @@ export const useInputStore = defineStore({
     image_clip: null,
     emphasize: null,
     brush: null,
-    brush_size: 40,
+    chosen_color: "0000ff",
+    brush_size: {
+      eraser: 60,
+      draw: 10,
+      slider: 60,
+    },
     brush_outline: null,
     canvas_history: {
       undo: [],
@@ -22,6 +27,10 @@ export const useInputStore = defineStore({
     canvas_mask: null,
     undo_levels: 0,
   }),
-  getters: {},
+  getters: {
+    color: function (state) {
+      return "#" + state.chosen_color;
+    },
+  },
   actions: {},
 });

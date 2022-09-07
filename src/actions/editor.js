@@ -1,5 +1,6 @@
 import { fabric } from "fabric";
 import { nextTick } from "vue";
+import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
@@ -21,9 +22,14 @@ function undo({ save_redo = true } = {}) {
         input.emphasize.remove(undo_action.emphasize_path);
 
         input.mask_image_b64 = input.canvas_mask.toDataURL();
-        input.canvas.renderAll();
+        break;
+
+      case "draw":
+        input.canvas_draw.remove(undo_action.path);
         break;
     }
+
+    input.canvas.renderAll();
   }
 }
 
@@ -42,9 +48,14 @@ function redo() {
         input.emphasize.add(redo_action.emphasize_path);
 
         input.mask_image_b64 = input.canvas_mask.toDataURL();
-        input.canvas.renderAll();
+        break;
+
+      case "draw":
+        input.canvas_draw.add(redo_action.path);
         break;
     }
+
+    input.canvas.renderAll();
   }
 }
 
@@ -102,7 +113,7 @@ function initCanvas(canvas_id) {
 
   input.brush = new fabric.PencilBrush();
   input.brush.color = "white";
-  input.brush.width = input.brush_size;
+  input.brush.width = input.brush_size.eraser;
   input.canvas.freeDrawingBrush = input.brush;
   input.brush.initialize(input.canvas);
 
@@ -147,7 +158,7 @@ function initCanvas(canvas_id) {
     right: 0,
     originX: "center",
     originY: "center",
-    radius: input.brush_size,
+    radius: input.brush_size.eraser,
     angle: 0,
     fill: "",
     stroke: "#b25d5d",
@@ -160,13 +171,26 @@ function initCanvas(canvas_id) {
   input.canvas.freeDrawingCursor = "none";
 
   input.canvas.on("mouse:move", function (o) {
-    if (ui.cursor_mode === "eraser") {
+    if (ui.cursor_mode !== "idle") {
       var pointer = input.canvas.getPointer(o.e);
-
-      input.brush_outline.set("radius", input.brush_size / 2);
       input.brush_outline.left = pointer.x;
       input.brush_outline.top = pointer.y;
       input.brush_outline.opacity = 0.9;
+
+      switch (ui.cursor_mode) {
+        case "eraser":
+          input.brush_outline.set("strokeWidth", 3);
+          input.brush_outline.set("fill", "");
+          input.brush_outline.set("radius", input.brush_size.eraser / 2);
+          break;
+
+        case "draw":
+          input.brush_outline.set("strokeWidth", 0);
+          input.brush_outline.set("fill", input.color);
+          input.brush_outline.set("radius", input.brush_size.draw / 2);
+          input.brush.color = input.color;
+          break;
+      }
 
       input.canvas.renderAll();
     }
@@ -183,35 +207,50 @@ function initCanvas(canvas_id) {
     path.selectable = false;
 
     path.opacity = 1;
-    path.color = "white";
 
-    path.clone(function (mask_path) {
-      path.clone(function (emphasize_path) {
-        // Add the path to the mask canvas and regenerate the mask image
-        input.canvas_mask.add(mask_path);
-        input.mask_image_b64 = input.canvas_mask.toDataURL();
+    input.canvas_history.redo.length = 0;
+    input.canvas.remove(path);
 
-        // Remove the path from the main canvas and add it to the image clip group
-        input.canvas.remove(path);
-        input.image_clip.addWithUpdate(path);
+    switch (ui.cursor_mode) {
+      case "eraser":
+        path.color = "white";
+        path.clone(function (mask_path) {
+          path.clone(function (emphasize_path) {
+            // Add the path to the mask canvas and regenerate the mask image
+            input.canvas_mask.add(mask_path);
+            input.mask_image_b64 = input.canvas_mask.toDataURL();
 
-        // Add the path to the emphasize front layer
-        emphasize_path.color = "blue";
-        emphasize_path.opacity = 1;
-        input.emphasize.addWithUpdate(emphasize_path);
+            // Add the path to the image clip group
+            input.image_clip.addWithUpdate(path);
+
+            // Add the path to the emphasize front layer
+            emphasize_path.stroke = "lightgrey";
+            emphasize_path.opacity = 1;
+            input.emphasize.addWithUpdate(emphasize_path);
+
+            input.canvas_history.undo.push({
+              type: "erase",
+              path: path,
+              mask_path: mask_path,
+              emphasize_path: emphasize_path,
+            });
+          });
+        });
+        break;
+
+      case "draw":
+        path.stroke = input.color;
+        input.canvas_draw.addWithUpdate(path);
 
         input.canvas_history.undo.push({
-          type: "erase",
+          type: "draw",
           path: path,
-          mask_path: mask_path,
-          emphasize_path: emphasize_path,
         });
 
-        input.canvas_history.redo.length = 0;
+        break;
+    }
 
-        input.canvas.renderAll();
-      });
-    });
+    input.canvas.renderAll();
   });
 
   document.addEventListener("keyup", keyUpHandler);
@@ -219,8 +258,15 @@ function initCanvas(canvas_id) {
 
 function updateBrushSize() {
   const input = useInputStore();
+  const ui = useUIStore();
 
-  input.brush.width = input.brush_size;
+  input.brush.width = input.brush_size.slider;
+
+  if (ui.cursor_mode === "eraser") {
+    input.brush_size.eraser = input.brush_size.slider;
+  } else if (ui.cursor_mode === "draw") {
+    input.brush_size.draw = input.brush_size.slider;
+  }
 }
 
 function renderImage() {
@@ -244,8 +290,13 @@ function renderImage() {
 
 function editNewImage(image_b64) {
   const input = useInputStore();
+  const backend = useBackendStore();
 
   resetMask();
+
+  // Forget history
+  input.canvas_history.undo.length = 0;
+  input.canvas_history.redo.length = 0;
 
   input.uploaded_image_b64 = image_b64;
 
@@ -261,11 +312,15 @@ function editNewImage(image_b64) {
     image.scaleToHeight(input.canvas.height);
 
     image.clone(function (transparent_image) {
-      input.canvas_draw = transparent_image;
+      input.canvas_draw = new fabric.Group([transparent_image], {
+        absolutePositioned: true,
+      });
 
-      transparent_image.set("opacity", 0.5);
+      if (backend.strength_input) {
+        input.canvas_draw.set("opacity", 1 - backend.strength_input.value);
+      }
 
-      input.canvas.add(transparent_image);
+      input.canvas.add(input.canvas_draw);
 
       input.canvas.add(image);
       input.canvas.add(input.emphasize);
@@ -287,9 +342,9 @@ function resetEditorButtons() {
   ui.editor_view = "composite";
   if (input.canvas) {
     input.canvas.isDrawingMode = false;
+    input.brush_outline.opacity = 0;
+    input.canvas.renderAll();
   }
-  input.brush_outline.opacity = 0;
-  input.canvas.renderAll();
 }
 
 function editResultImage(image_index) {
@@ -306,18 +361,50 @@ function closeImage() {
   input.uploaded_image_b64 = null;
 }
 
-function toggleEraser() {
+function setCursorMode(cursor_mode) {
   const ui = useUIStore();
   const input = useInputStore();
 
-  if (ui.cursor_mode != "eraser") {
-    ui.cursor_mode = "eraser";
-    input.canvas.isDrawingMode = true;
-  } else {
-    ui.cursor_mode = "idle";
+  ui.cursor_mode = cursor_mode;
+
+  if (ui.cursor_mode === "idle") {
     input.canvas.isDrawingMode = false;
+  } else {
+    input.canvas.isDrawingMode = true;
+
+    if (ui.cursor_mode === "eraser") {
+      input.brush_size.slider = input.brush_size.eraser;
+      input.brush.color = "white";
+    } else if (ui.cursor_mode === "draw") {
+      input.brush_size.slider = input.brush_size.draw;
+      input.brush.color = input.color;
+    }
+
+    input.brush.width = input.brush_size.slider;
+    input.canvas.renderAll();
   }
+
   console.log(`UI cursor mode set to ${ui.cursor_mode}`);
+}
+
+function toggleEraser() {
+  const ui = useUIStore();
+
+  if (ui.cursor_mode !== "eraser") {
+    setCursorMode("eraser");
+  } else {
+    setCursorMode("idle");
+  }
+}
+
+function toggleDraw() {
+  const ui = useUIStore();
+
+  if (ui.cursor_mode !== "draw") {
+    setCursorMode("draw");
+  } else {
+    setCursorMode("idle");
+  }
 }
 
 function toggleMaskView() {
@@ -339,6 +426,7 @@ export {
   redo,
   renderImage,
   resetEditorButtons,
+  toggleDraw,
   toggleEraser,
   toggleMaskView,
   undo,

@@ -30,6 +30,7 @@ import {
   faImage,
   faLeftLong,
   faPaintbrush,
+  faPencil,
   faRotateLeft,
   faRotateRight,
   faXmark,
@@ -46,6 +47,7 @@ library.add(
   faImage,
   faLeftLong,
   faPaintbrush,
+  faPencil,
   faRotateLeft,
   faRotateRight,
   faXmark

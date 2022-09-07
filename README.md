@@ -19,7 +19,6 @@ TODO:
 
 * Saving generated images in a gallery in a panel to the right
 * Using localStorage to save generated pictures and configuration options
-* Drawing option to draw inside the masked area
 * Allow to add custom backends saved to localStorage using a json file
 * Zoom out functionality
 * Support image sizes different than 512x512
