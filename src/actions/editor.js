@@ -62,7 +62,9 @@ function redo() {
 function resetMask() {
   const input = useInputStore();
 
-  for (var i = 0; i < input.canvas_history.undo.length; i++) {
+  const nb_undo = input.canvas_history.undo.length;
+
+  for (var i = 0; i < nb_undo; i++) {
     undo({ save_redo: false });
   }
 
@@ -110,6 +112,8 @@ function initCanvas(canvas_id) {
     opacity: 0.2,
     selectable: false,
   });
+
+  input.canvas.add(input.emphasize);
 
   input.brush = new fabric.PencilBrush();
   input.brush.color = "white";
@@ -295,10 +299,19 @@ function editNewImage(image_b64) {
   resetMask();
 
   // Forget history
-  input.canvas_history.undo.length = 0;
   input.canvas_history.redo.length = 0;
 
   input.uploaded_image_b64 = image_b64;
+
+  if (input.canvas_image) {
+    input.canvas.remove(input.canvas_image);
+    input.canvas_image = null;
+  }
+
+  if (input.canvas_draw) {
+    input.canvas.remove(input.canvas_draw);
+    input.canvas_draw = null;
+  }
 
   fabric.Image.fromURL(image_b64, async function (image) {
     image.selectable = false;
@@ -323,12 +336,12 @@ function editNewImage(image_b64) {
       input.canvas.add(input.canvas_draw);
 
       input.canvas.add(image);
-      input.canvas.add(input.emphasize);
 
       image.clipPath = input.image_clip;
 
       input.canvas_image = image;
 
+      input.canvas.bringToFront(input.emphasize);
       input.canvas.bringToFront(input.brush_outline);
     });
   });
