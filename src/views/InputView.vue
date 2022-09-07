@@ -5,11 +5,14 @@ import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
 import Button from "primevue/button";
 import Slider from "primevue/slider";
+import { newDrawing } from "@/actions/editor";
 
 import { useBackendStore } from "@/stores/backend";
 import { useInputStore } from "@/stores/input";
+import { useUIStore } from "@/stores/ui";
 const backend = useBackendStore();
 const input = useInputStore();
+const ui = useUIStore();
 
 const strength_input = ref(backend.strength_input);
 
@@ -19,36 +22,32 @@ watch(backend.strength_input, function (strength_input) {
     input.canvas.renderAll();
   }
 });
-
-function drawSomething() {
-  alert("Not yet implemented");
-}
 </script>
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!input.uploaded_image_b64")
+  template(v-if="!input.has_image")
     .flex.flex-column.align-items-center
       .enter-a-prompt
         | Enter a prompt:
   PromptInput
   div(v-show="backend.has_image_input")
-    template(v-if="input.uploaded_image_b64")
+    div(v-show="input.has_image")
       ImageEditor
-      .main-slider(v-if="strength_input", :class="{visible: (input.mask_image_b64 != null)}")
+      .main-slider(v-if="strength_input", :class="{visible: ui.show_strength_slider}")
         .flex.flex-row.justify-content-center
           .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
             | Low variations
           Slider.align-items-center(v-model="strength_input.value" :min="0" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + strength_input.value}")
           .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
             | Ignore previous
-    template(v-if="!input.uploaded_image_b64")
+    template(v-if="!input.has_image")
       .flex.flex-column.align-items-center
         .or OR
         FileUploadButton.main-slider
       .flex.flex-column.align-items-center
         .or OR
-        Button.p-button-secondary.p-button-outlined.p-button-sm.p-button-text(@click="drawSomething")
+        Button.p-button-secondary.p-button-outlined.p-button-sm.p-button-text(@click="newDrawing")
           font-awesome-icon(icon="fa-solid fa-paintbrush")
           | draw something
 </template>

@@ -22,7 +22,7 @@ async function generateImageGradio() {
     );
 
     if (image_input) {
-      if (input.uploaded_image_b64) {
+      if (input.has_image) {
         // Create final image in input.init_image_b64
         renderImage();
 

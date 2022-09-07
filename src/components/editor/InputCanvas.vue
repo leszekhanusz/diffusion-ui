@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import { initCanvas } from "@/actions/editor";
 
 onMounted(() => {
+  console.log("InputCanvas onMounted");
   initCanvas("canvas");
 });
 </script>
