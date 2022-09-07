@@ -342,9 +342,9 @@ function resetEditorButtons() {
   ui.editor_view = "composite";
   if (input.canvas) {
     input.canvas.isDrawingMode = false;
+    input.brush_outline.opacity = 0;
+    input.canvas.renderAll();
   }
-  input.brush_outline.opacity = 0;
-  input.canvas.renderAll();
 }
 
 function editResultImage(image_index) {
