@@ -77,6 +77,9 @@ async function generateImageGradio() {
     output.images = [data_images];
   }
 
+  // Saving the latest images in the gallery
+  output.gallery.push(output.images);
+
   console.log("Images received!");
 }
 
