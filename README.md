@@ -17,7 +17,6 @@ THIS IS STILL A WORK IN PROGRESS!
 
 TODO:
 
-* Saving generated images in a gallery in a panel to the right
 * Using localStorage to save generated pictures and configuration options
 * Allow to add custom backends saved to localStorage using a json file
 * Zoom out functionality

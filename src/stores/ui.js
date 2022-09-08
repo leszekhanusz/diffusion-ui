@@ -5,6 +5,7 @@ export const useUIStore = defineStore({
   id: "ui",
   state: () => ({
     left_panel_visible: false,
+    right_panel_visible: false,
     cursor_mode: "idle", // idle, eraser or draw
     editor_view: "composite", // "composite" for the normal view or "mask" to show the mask
     show_results: false,
@@ -52,6 +53,12 @@ export const useUIStore = defineStore({
     },
     hideLeftPanel() {
       this.left_panel_visible = false;
+    },
+    showRightPanel() {
+      this.right_panel_visible = true;
+    },
+    hideRightPanel() {
+      this.right_panel_visible = false;
     },
   },
 });
