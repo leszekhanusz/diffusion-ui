@@ -91,9 +91,33 @@ function keyUpHandler(event) {
   }
 }
 
+/*
+DEBUG
+function print_objects() {
+  const input = useInputStore();
+
+  const objects = input.canvas.getObjects();
+
+  console.log("PRINT");
+  objects.forEach(object => console.log(object.nam));
+}
+*/
+
+function add_to_canvas(name, item) {
+  const input = useInputStore();
+
+  item.nam = name;
+
+  input.canvas.add(item);
+
+  console.log(`Adding ${name} to canvas.`);
+}
+
 function initCanvas(canvas_id) {
   const input = useInputStore();
   const ui = useUIStore();
+
+  console.log("Init canvas!");
 
   input.canvas = new fabric.Canvas(canvas_id);
   input.canvas.selection = false;
@@ -113,7 +137,7 @@ function initCanvas(canvas_id) {
     selectable: false,
   });
 
-  input.canvas.add(input.emphasize);
+  add_to_canvas("emphasize", input.emphasize);
 
   input.brush = new fabric.PencilBrush();
   input.brush.color = "white";
@@ -171,7 +195,7 @@ function initCanvas(canvas_id) {
     opacity: 0,
   });
 
-  input.canvas.add(input.brush_outline);
+  add_to_canvas("brush_outline", input.brush_outline);
   input.canvas.freeDrawingCursor = "none";
 
   input.canvas.on("mouse:move", function (o) {
@@ -292,16 +316,69 @@ function renderImage() {
   input.canvas_draw.set("opacity", draw_opacity);
 }
 
-function editNewImage(image_b64) {
-  const input = useInputStore();
+function _editNewImage(image, transparent_image) {
   const backend = useBackendStore();
+  const input = useInputStore();
+
+  const is_drawing = image === undefined;
+  input.is_drawing = is_drawing;
+
+  var canvas_draw_background;
+
+  if (is_drawing) {
+    if (backend.strength_input) {
+      backend.strength_input.value = 0;
+    }
+    canvas_draw_background = new fabric.Rect({
+      width: 512,
+      height: 512,
+      left: 0,
+      top: 0,
+      fill: "white",
+      absolutePositioned: true,
+      selectable: false,
+    });
+  } else {
+    input.uploaded_image_b64 = image;
+    canvas_draw_background = transparent_image;
+  }
+
+  input.canvas_draw = new fabric.Group([canvas_draw_background], {
+    selectable: false,
+    absolutePositioned: true,
+  });
+
+  if (backend.strength_input) {
+    input.canvas_draw.set("opacity", 1 - backend.strength_input.value);
+  }
+
+  add_to_canvas("draw", input.canvas_draw);
+
+  if (image) {
+    add_to_canvas("image", image);
+    image.clipPath = input.image_clip;
+    input.canvas_image = image;
+  }
+
+  if (is_drawing) {
+    input.emphasize.set("opacity", 0);
+  } else {
+    input.emphasize.set("opacity", 0.2);
+  }
+
+  input.canvas.bringToFront(input.emphasize);
+  input.canvas.bringToFront(input.brush_outline);
+}
+
+async function editNewImage(image_b64) {
+  const input = useInputStore();
 
   resetMask();
 
   // Forget history
   input.canvas_history.redo.length = 0;
 
-  input.uploaded_image_b64 = image_b64;
+  input.has_image = true;
 
   if (input.canvas_image) {
     input.canvas.remove(input.canvas_image);
@@ -313,38 +390,24 @@ function editNewImage(image_b64) {
     input.canvas_draw = null;
   }
 
-  fabric.Image.fromURL(image_b64, async function (image) {
-    image.selectable = false;
+  // Waiting that the canvas has been created asynchronously by Vue
+  while (input.canvas === null) {
+    console.log(".");
+    await nextTick();
+  }
 
-    // Waiting that the canvas has been created asynchronously by Vue
-    while (input.canvas === null) {
-      console.log(".");
-      await nextTick();
-    }
+  if (image_b64) {
+    fabric.Image.fromURL(image_b64, function (image) {
+      image.selectable = false;
+      image.scaleToHeight(input.canvas.height);
 
-    image.scaleToHeight(input.canvas.height);
-
-    image.clone(function (transparent_image) {
-      input.canvas_draw = new fabric.Group([transparent_image], {
-        absolutePositioned: true,
+      image.clone(function (transparent_image) {
+        _editNewImage(image, transparent_image);
       });
-
-      if (backend.strength_input) {
-        input.canvas_draw.set("opacity", 1 - backend.strength_input.value);
-      }
-
-      input.canvas.add(input.canvas_draw);
-
-      input.canvas.add(image);
-
-      image.clipPath = input.image_clip;
-
-      input.canvas_image = image;
-
-      input.canvas.bringToFront(input.emphasize);
-      input.canvas.bringToFront(input.brush_outline);
     });
-  });
+  } else {
+    _editNewImage();
+  }
 }
 
 function resetEditorButtons() {
@@ -365,13 +428,18 @@ function editResultImage(image_index) {
   editNewImage(output.images[image_index]);
 }
 
+function newDrawing() {
+  console.log("New drawing requested");
+  editNewImage();
+}
+
 function closeImage() {
   const input = useInputStore();
 
   resetMask();
   resetEditorButtons();
-  input.canvas.clear();
   input.uploaded_image_b64 = null;
+  input.has_image = false;
 }
 
 function setCursorMode(cursor_mode) {
@@ -436,6 +504,7 @@ export {
   editNewImage,
   editResultImage,
   initCanvas,
+  newDrawing,
   redo,
   renderImage,
   resetEditorButtons,

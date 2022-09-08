@@ -4,13 +4,15 @@ import PanelHeader from "@/components/PanelHeader.vue";
 import ResultView from "@/views/ResultView.vue";
 import LicenseDialog from "@/components/LicenseDialog.vue";
 
+import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
 
+const input = useInputStore();
 const ui = useUIStore();
 </script>
 
 <template lang="pug">
-main.main.flex.flex-column.justify-content-center
+main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.show_results && !input.has_image}")
   PanelHeader
   div(v-show="!ui.show_results")
     InputView
@@ -21,10 +23,15 @@ LicenseDialog
 
 <style scoped>
 .main {
-  height: 100vh;
   width: 100vw;
   max-width: 100%;
   padding: 2rem;
+  padding-top: 5rem;
+}
+
+.main.verticalcenter {
+  height: max(300px, 100vh);
+  padding-top: 0;
 }
 
 @media (max-width: 600px) {
