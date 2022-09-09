@@ -5,6 +5,10 @@ This is a web interface frontend for the generation of images using diffusion mo
 The goal is to provide an interface to online and offline backends doing image generation
 and inpainting like [Stable Diffusion](https://github.com/CompVis/stable-diffusion).
 
+<p align="center">
+  <img src="https://github.com/leszekhanusz/diffusion-ui/blob/main/doc/cute_bunny.gif" />
+</p>
+
 It was made using:
 
 * [Vue 3](https://vuejs.org/) with [Pinia](https://pinia.vuejs.org/)
