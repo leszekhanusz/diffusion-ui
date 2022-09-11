@@ -53,23 +53,7 @@ npm run dev
 
 ## Stable Diffusion local backend
 
-To be able to run the Stable Diffusion backend on your computer:
-
-### Installation
-
-Install the latest version of [diffusers](https://github.com/huggingface/diffusers) and
-follow [the instructions](https://github.com/huggingface/diffusers#text-to-image-generation-with-stable-diffusion)
-to download the model and create an image.
-
-Install gradio:
-
-```bash
-pip install gradio
-```
-
-then run this [script](https://github.com/leszekhanusz/diffusers/blob/feature_unified_stable_diffusion_pipeline/examples/inference/unified_gradio.py)
-to provide a gradio interface to an unified pipeline for Stable Diffusion
-(doing text-to-image, image-to-image, and inpainting with the same backend).
+To install the Stable Diffusion backend, follow the instructions [here](https://github.com/leszekhanusz/diffusion-ui-backend)
 
 ## License
 [MIT License](https://github.com/leszekhanusz/diffusion-ui/blob/main/LICENSE) for the code here.
