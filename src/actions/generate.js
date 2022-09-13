@@ -49,6 +49,11 @@ async function generateImageGradio() {
     }
   });
 
+  // Add dummy data at the end to support using the web ui with a newer backend version
+  for (let i = 0; i < 10; i++) {
+    full_input_data.push(null);
+  }
+
   console.log("full_input_data", full_input_data);
 
   const response = await fetch(current_backend.url, {

@@ -6,6 +6,13 @@
   "type": "gradio",
   "inputs": [
     {
+      "label": "API Version",
+      "id": "api_version",
+      "description": "Used to add a warning to ask to update the backend when the API changes",
+      "type": "int",
+      "visible": false,
+      "default": 1
+    }, {
       "label": "Prompt",
       "id": "prompt",
       "description": "try adding increments to your prompt such as 'oil on canvas', 'a painting', 'a book cover'",
