@@ -18,15 +18,17 @@ const strength_input = ref(backend.strength_input);
 
 watch(backend.strength_input, function (strength_input) {
   if (strength_input) {
-    input.canvas_draw.set("opacity", 1 - strength_input.value);
-    input.canvas.renderAll();
+    if (input.canvas_draw && input.canvas) {
+      input.canvas_draw.set("opacity", 1 - strength_input.value);
+      input.canvas.renderAll();
+    }
   }
 });
 </script>
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!input.has_image")
+  template(v-if="!input.has_image && !input.seeds")
     .flex.flex-column.align-items-center
       .enter-a-prompt
         | Enter a prompt:

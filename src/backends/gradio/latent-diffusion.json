@@ -8,7 +8,8 @@
       "label": "Prompt",
       "id": "prompt",
       "description": "try adding increments to your prompt such as 'oil on canvas', 'a painting', 'a book cover'",
-      "type": "text"
+      "type": "text",
+      "default": ""
     }, {
       "label": "Steps",
       "id": "nb_steps",

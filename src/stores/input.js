@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
+import { useBackendStore } from "@/stores/backend";
 
 export const useInputStore = defineStore({
   id: "input",
   state: () => ({
-    prompt: "Cute bunny",
     has_image: false, // false = prompt only, true = image or drawing
     is_drawing: false, // wether the canvas is only a drawing or not
     uploaded_image_b64: null, // original image uploaded
@@ -31,6 +31,23 @@ export const useInputStore = defineStore({
   getters: {
     color: function (state) {
       return "#" + state.chosen_color;
+    },
+    prompt_input: function () {
+      const backend = useBackendStore();
+      return backend.findInput("prompt");
+    },
+    seed_input: function () {
+      const backend = useBackendStore();
+      return backend.findInput("seeds");
+    },
+    seeds: function () {
+      const seed_input = this.seed_input;
+
+      if (seed_input) {
+        return seed_input.value;
+      } else {
+        return "";
+      }
     },
   },
   actions: {},

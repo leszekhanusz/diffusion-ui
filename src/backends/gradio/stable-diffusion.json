@@ -6,10 +6,18 @@
   "type": "gradio",
   "inputs": [
     {
+      "label": "API Version",
+      "id": "api_version",
+      "description": "Used to add a warning to ask to update the backend when the API changes",
+      "type": "int",
+      "visible": false,
+      "default": 1
+    }, {
       "label": "Prompt",
       "id": "prompt",
       "description": "try adding increments to your prompt such as 'oil on canvas', 'a painting', 'a book cover'",
-      "type": "text"
+      "type": "text",
+      "default": "Doll from a horror movie"
     }, {
       "label": "Image",
       "id": "image",
@@ -42,7 +50,7 @@
       "default": 50,
       "validation": {
         "min": 1,
-        "max": 50
+        "max": 200
       }
     }, {
       "label": "Strength",
@@ -66,6 +74,12 @@
         "min": 0.1,
         "max": 20
       }
+    }, {
+      "label": "Seeds",
+      "id": "seeds",
+      "description": "Comma separated list of numbers to generate initial latent images. Random if empty",
+      "type": "text",
+      "default": ""
     }
   ],
   "outputs": [
