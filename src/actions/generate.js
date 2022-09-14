@@ -104,14 +104,16 @@ async function generateImageGradio() {
   const seed_metadata = images_with_metadata.metadata.find(
     (data) => data.id === "seeds"
   );
-  seed_metadata.value = data_seeds;
+
+  if (seed_metadata) {
+    seed_metadata.value = data_seeds;
+    console.log(`Images received with seeds: ${data_seeds}`);
+  }
 
   output.images = images_with_metadata;
 
   // Saving the latest images in the gallery
   output.gallery.push(images_with_metadata);
-
-  console.log(`Images received with seeds: ${data_seeds}`);
 }
 
 async function generateImages() {
