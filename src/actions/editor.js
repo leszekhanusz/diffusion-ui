@@ -36,8 +36,6 @@ function undo({ save_redo = true } = {}) {
 function redo_action(action) {
   const input = useInputStore();
 
-  console.log(`redo action ${action.type}`);
-
   switch (action.type) {
     case "erase":
       input.image_clip.add(action.path);
@@ -61,6 +59,8 @@ function redo() {
   if (action) {
     redo_action(action);
     input.canvas.renderAll();
+
+    input.canvas_history.undo.push(action);
   }
 }
 
@@ -348,7 +348,6 @@ function renderImage() {
 }
 
 function _editNewImage(image, transparent_image) {
-  console.log("_editNewImage");
   const backend = useBackendStore();
   const input = useInputStore();
 
@@ -399,7 +398,6 @@ function _editNewImage(image, transparent_image) {
 
   input.canvas.bringToFront(input.emphasize);
   input.canvas.bringToFront(input.brush_outline);
-  console.log("_editNewImage end");
 }
 
 async function fabricImageFromURL(image_url) {
@@ -492,7 +490,6 @@ async function generateAgainResultImage(image_index) {
   const output = useOutputStore();
 
   const metadata = output.images.metadata;
-  console.log("metadata", metadata);
 
   metadata.forEach(function (data) {
     if (data.id === "seeds") {
@@ -502,15 +499,19 @@ async function generateAgainResultImage(image_index) {
       const seed = seeds.split(",")[image_index];
 
       if (found_input) {
-        console.log(`input ${data.id} set to ${seed}.`);
-        found_input.value = seed;
+        if (found_input.value !== seed) {
+          console.log(`input ${data.id} set to ${seed}.`);
+          found_input.value = seed;
+        }
       }
     } else {
       const found_input = backend.findInput(data.id);
 
       if (found_input) {
-        found_input.value = data.value;
-        console.log(`input ${data.id} set to ${data.value}.`);
+        if (found_input.value !== data.value) {
+          found_input.value = data.value;
+          console.log(`input ${data.id} set to ${data.value}.`);
+        }
       } else {
         console.log(`input ${data.id} not found.`);
       }

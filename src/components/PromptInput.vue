@@ -43,6 +43,11 @@ ul.p-chips-multiple-container {
   list-style: none;
   cursor: pointer;
 }
+
+span.p-chips-token-icon {
+  vertical-align: middle;
+}
+
 .p-inputgroup input:first-child {
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
