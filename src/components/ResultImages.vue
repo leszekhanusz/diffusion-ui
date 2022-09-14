@@ -19,11 +19,13 @@ const output = useOutputStore();
       template(v-if="output.images.content.length == 1")
         ResultImage(:src="output.images.content[0]", :index="0")
       template(v-else)
-        Galleria(:value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 3)")
+        Galleria(:value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)")
           template(#item="slotProps")
-            ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
+            template(v-if="slotProps.item")
+              ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
           template(#thumbnail="slotProps")
-            img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px; display: block;")
+            template(v-if="slotProps.item")
+              img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px; display: block;")
 </template>
 
 <style scoped>
