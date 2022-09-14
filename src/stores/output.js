@@ -4,13 +4,16 @@ export const useOutputStore = defineStore({
   id: "output",
   state: () => ({
     loading: false,
-    images: [],
+    images: {
+      content: [],
+      metadata: null,
+    },
     gallery: [],
     error_message: null,
   }),
   getters: {
     gallery_images: (state) =>
-      state.images.map((image, idx) => ({
+      state.images.content.map((image, idx) => ({
         itemImageSrc: image,
         thumbnailImageSrc: image,
         index: idx,

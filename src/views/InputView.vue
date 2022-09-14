@@ -26,7 +26,7 @@ watch(backend.strength_input, function (strength_input) {
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!input.has_image")
+  template(v-if="!input.has_image && !input.seeds")
     .flex.flex-column.align-items-center
       .enter-a-prompt
         | Enter a prompt:

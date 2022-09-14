@@ -41,25 +41,28 @@ async function generateImageGradio() {
     }
   }
 
-  const full_input_data = inputs_config.map(function (input_config) {
-    if (input_config.id in input) {
-      return input[input_config.id];
-    } else {
-      return input_config["value"];
-    }
+  const input_data = inputs_config.map(function (input_config) {
+    return {
+      id: input_config["id"],
+      value: input_config["value"],
+    };
   });
+
+  const input_data_values = Object.keys(input_data).map(
+    (key) => input_data[key].value
+  );
 
   // Add dummy data at the end to support using the web ui with a newer backend version
   for (let i = 0; i < 10; i++) {
-    full_input_data.push(null);
+    input_data_values.push(null);
   }
 
-  console.log("full_input_data", full_input_data);
+  console.log("input", input_data_values);
 
   const response = await fetch(current_backend.url, {
     method: "POST",
     body: JSON.stringify({
-      data: full_input_data,
+      data: input_data_values,
     }),
     headers: { "Content-Type": "application/json" },
   });
@@ -74,18 +77,33 @@ async function generateImageGradio() {
 
   const data_field = json_result["data"];
   const data_images = data_field[0];
+  const data_seeds = data_field[1];
 
   // We receive either a single image or a list of images
+  let images;
   if (typeof data_images == "object") {
-    output.images = data_images;
+    images = data_images;
   } else {
-    output.images = [data_images];
+    images = [data_images];
   }
 
-  // Saving the latest images in the gallery
-  output.gallery.push(output.images);
+  const images_with_metadata = {
+    content: images,
+    metadata: input_data,
+  };
 
-  console.log("Images received!");
+  // Save the generated seeds in the image metadata
+  const seed_metadata = images_with_metadata.metadata.find(
+    (data) => data.id === "seeds"
+  );
+  seed_metadata.value = data_seeds;
+
+  output.images = images_with_metadata;
+
+  // Saving the latest images in the gallery
+  output.gallery.push(images_with_metadata);
+
+  console.log(`Images received with seeds: ${data_seeds}`);
 }
 
 async function generateImages() {

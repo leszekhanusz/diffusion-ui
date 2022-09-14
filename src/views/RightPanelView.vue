@@ -9,7 +9,6 @@ const ui = useUIStore();
 const output = useOutputStore();
 
 function thumbnailClick(index) {
-  console.log(index);
   output.images = output.gallery[index];
   ui.show_results = true;
   ui.hideRightPanel();
@@ -25,7 +24,7 @@ Sidebar.p-sidebar-md(:visible="ui.right_panel_visible", :showCloseIcon="false" p
 
   .flex.flex-column.thumbnails
     template(v-for="(images, index) in output.gallery" :key="index")
-      ImageThumbnails(:images="images" @click="thumbnailClick(index)")
+      ImageThumbnails(:images="images.content" @click="thumbnailClick(index)")
 </template>
 
 <style>

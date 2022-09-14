@@ -425,7 +425,55 @@ function resetEditorButtons() {
 
 function editResultImage(image_index) {
   const output = useOutputStore();
-  editNewImage(output.images[image_index]);
+  editNewImage(output.images.content[image_index]);
+}
+
+function generateAgainResultImage(image_index) {
+  const backend = useBackendStore();
+  const output = useOutputStore();
+
+  const metadata = output.images.metadata;
+  console.log("metadata", metadata);
+
+  metadata.forEach(function (data) {
+    if (data.id === "seeds") {
+      const found_input = backend.current.inputs.find(
+        (input) => input.id === "seeds"
+      );
+
+      const seeds = data.value;
+      const seed = seeds.split(",")[image_index];
+
+      if (found_input) {
+        console.log(`input ${data.id} set to ${seed}.`);
+        found_input.value = seed;
+      }
+    } else {
+      const found_input = backend.current.inputs.find(
+        (input) => input.id === data.id
+      );
+
+      if (found_input) {
+        found_input.value = data.value;
+        console.log(`input ${data.id} set to ${data.value}.`);
+      } else {
+        console.log(`input ${data.id} not found.`);
+      }
+    }
+  });
+  closeImage();
+}
+
+function resetSeeds() {
+  const backend = useBackendStore();
+
+  const found_input = backend.current.inputs.find(
+    (input) => input.id === "seeds"
+  );
+
+  if (found_input) {
+    found_input.value = "";
+  }
 }
 
 function newDrawing() {
@@ -503,11 +551,13 @@ export {
   closeImage,
   editNewImage,
   editResultImage,
+  generateAgainResultImage,
   initCanvas,
   newDrawing,
   redo,
   renderImage,
   resetEditorButtons,
+  resetSeeds,
   toggleDraw,
   toggleEraser,
   toggleMaskView,

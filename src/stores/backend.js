@@ -45,5 +45,12 @@ export const useBackendStore = defineStore({
     acceptLicense() {
       this.current.license_accepted = true;
     },
+    findInput(input_id) {
+      if (this.current) {
+        return this.current.inputs.find((input) => input.id === input_id);
+      } else {
+        return null;
+      }
+    },
   },
 });

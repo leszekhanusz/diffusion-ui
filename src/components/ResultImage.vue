@@ -2,7 +2,7 @@
 import Image from "primevue/image";
 import SpeedDial from "primevue/speeddial";
 import { useUIStore } from "@/stores/ui";
-import { editResultImage } from "@/actions/editor";
+import { editResultImage, generateAgainResultImage } from "@/actions/editor";
 
 const ui = useUIStore();
 
@@ -15,11 +15,21 @@ function editImage() {
   editResultImage(props.index);
   ui.show_results = false;
 }
+function generateAgain() {
+  generateAgainResultImage(props.index);
+  ui.show_results = false;
+}
 const buttons = [
   {
     label: "Edit",
     icon: "pi pi-pencil",
     command: editImage,
+  },
+  {
+    label: "Generate again",
+    icon: "pi pi-undo",
+    command: generateAgain,
+    tootipOptions: "{value: 'Enter your username}'}",
   },
 ];
 </script>
@@ -27,7 +37,7 @@ const buttons = [
 <template lang="pug">
 .result-image
   Image(:src="props.src")
-  SpeedDial(:model="buttons", direction="down", showIcon="pi pi-bars", hideIcon="pi pi-times")
+  SpeedDial(:model="buttons", direction="down", showIcon="pi pi-bars", hideIcon="pi pi-times", :tooltipOptions="{position: 'left'}")
 </template>
 
 <style>

@@ -17,9 +17,9 @@ const output = useOutputStore();
       ErrorMessage
     template(v-else)
       template(v-if="output.images.length == 1")
-        ResultImage(:src="output.images[0]", :index="0")
+        ResultImage(:src="output.images.content[0]", :index="0")
       template(v-else)
-        Galleria(:value="output.gallery_images", :numVisible="4")
+        Galleria(:value="output.gallery_images", :numVisible="output.images.length")
           template(#item="slotProps")
             ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
           template(#thumbnail="slotProps")
