@@ -92,6 +92,14 @@ async function generateImageGradio() {
     metadata: input_data,
   };
 
+  if (input.has_image) {
+    images_with_metadata.original_image = input.uploaded_image_b64;
+    images_with_metadata.canvas_history = input.canvas_history;
+  } else {
+    images_with_metadata.original_image = null;
+    images_with_metadata.canvas_history = null;
+  }
+
   // Save the generated seeds in the image metadata
   const seed_metadata = images_with_metadata.metadata.find(
     (data) => data.id === "seeds"

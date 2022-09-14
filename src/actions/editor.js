@@ -33,42 +33,73 @@ function undo({ save_redo = true } = {}) {
   }
 }
 
+function redo_action(action) {
+  const input = useInputStore();
+
+  console.log(`redo action ${action.type}`);
+
+  switch (action.type) {
+    case "erase":
+      input.image_clip.add(action.path);
+      input.canvas_mask.add(action.mask_path);
+      input.emphasize.add(action.emphasize_path);
+
+      input.mask_image_b64 = input.canvas_mask.toDataURL();
+      break;
+
+    case "draw":
+      input.canvas_draw.add(action.path);
+      break;
+  }
+}
+
 function redo() {
   const input = useInputStore();
 
-  const redo_action = input.canvas_history.redo.pop();
+  const action = input.canvas_history.redo.pop();
 
-  if (redo_action) {
-    input.canvas_history.undo.push(redo_action);
-
-    switch (redo_action.type) {
-      case "erase":
-        input.image_clip.add(redo_action.path);
-        input.canvas_mask.add(redo_action.mask_path);
-        input.emphasize.add(redo_action.emphasize_path);
-
-        input.mask_image_b64 = input.canvas_mask.toDataURL();
-        break;
-
-      case "draw":
-        input.canvas_draw.add(redo_action.path);
-        break;
-    }
-
+  if (action) {
+    redo_action(action);
     input.canvas.renderAll();
   }
 }
 
-function resetMask() {
+function redo_whole_history(undo) {
+  const nb_undo = undo.length;
+  for (let i = 0; i < nb_undo; i++) {
+    const action = undo[i];
+    redo_action(action);
+  }
+}
+
+function resetEditorActions() {
   const input = useInputStore();
 
-  const nb_undo = input.canvas_history.undo.length;
+  input.image_clip._objects.length = 0;
+  input.image_clip.dirty = true;
 
-  for (var i = 0; i < nb_undo; i++) {
-    undo({ save_redo: false });
-  }
+  input.canvas_mask = new fabric.Canvas();
+  input.canvas_mask.selection = false;
+  input.canvas_mask.setBackgroundColor("black");
+  input.canvas_mask.setHeight(512);
+  input.canvas_mask.setWidth(512);
 
   input.mask_image_b64 = null;
+
+  input.emphasize._objects.length = 0;
+  input.emphasize.dirty = true;
+
+  if (input.canvas_draw) {
+    input.canvas_draw._objects.length = 0;
+    input.canvas_draw.dirty = true;
+  }
+
+  input.canvas_history = {
+    undo: [],
+    redo: [],
+  };
+
+  input.canvas.renderAll();
 }
 
 function keyUpHandler(event) {
@@ -317,6 +348,7 @@ function renderImage() {
 }
 
 function _editNewImage(image, transparent_image) {
+  console.log("_editNewImage");
   const backend = useBackendStore();
   const input = useInputStore();
 
@@ -339,7 +371,6 @@ function _editNewImage(image, transparent_image) {
       selectable: false,
     });
   } else {
-    input.uploaded_image_b64 = image;
     canvas_draw_background = transparent_image;
   }
 
@@ -368,12 +399,37 @@ function _editNewImage(image, transparent_image) {
 
   input.canvas.bringToFront(input.emphasize);
   input.canvas.bringToFront(input.brush_outline);
+  console.log("_editNewImage end");
+}
+
+async function fabricImageFromURL(image_url) {
+  return new Promise(function (resolve, reject) {
+    try {
+      fabric.Image.fromURL(image_url, function (image) {
+        resolve(image);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+async function fabricImageClone(image) {
+  return new Promise(function (resolve, reject) {
+    try {
+      image.clone(function (cloned_image) {
+        resolve(cloned_image);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 async function editNewImage(image_b64) {
   const input = useInputStore();
 
-  resetMask();
+  resetEditorActions();
 
   // Forget history
   input.canvas_history.redo.length = 0;
@@ -397,14 +453,16 @@ async function editNewImage(image_b64) {
   }
 
   if (image_b64) {
-    fabric.Image.fromURL(image_b64, function (image) {
-      image.selectable = false;
-      image.scaleToHeight(input.canvas.height);
+    input.uploaded_image_b64 = image_b64;
 
-      image.clone(function (transparent_image) {
-        _editNewImage(image, transparent_image);
-      });
-    });
+    const image = await fabricImageFromURL(image_b64);
+
+    image.selectable = false;
+    image.scaleToHeight(input.canvas.height);
+
+    const transparent_image = await fabricImageClone(image);
+
+    _editNewImage(image, transparent_image);
   } else {
     _editNewImage();
   }
@@ -428,8 +486,9 @@ function editResultImage(image_index) {
   editNewImage(output.images.content[image_index]);
 }
 
-function generateAgainResultImage(image_index) {
+async function generateAgainResultImage(image_index) {
   const backend = useBackendStore();
+  const input = useInputStore();
   const output = useOutputStore();
 
   const metadata = output.images.metadata;
@@ -437,9 +496,7 @@ function generateAgainResultImage(image_index) {
 
   metadata.forEach(function (data) {
     if (data.id === "seeds") {
-      const found_input = backend.current.inputs.find(
-        (input) => input.id === "seeds"
-      );
+      const found_input = backend.findInput("seeds");
 
       const seeds = data.value;
       const seed = seeds.split(",")[image_index];
@@ -449,9 +506,7 @@ function generateAgainResultImage(image_index) {
         found_input.value = seed;
       }
     } else {
-      const found_input = backend.current.inputs.find(
-        (input) => input.id === data.id
-      );
+      const found_input = backend.findInput(data.id);
 
       if (found_input) {
         found_input.value = data.value;
@@ -461,7 +516,14 @@ function generateAgainResultImage(image_index) {
       }
     }
   });
-  closeImage();
+
+  if (output.images.original_image) {
+    await editNewImage(output.images.original_image);
+    redo_whole_history(output.images.canvas_history.undo);
+    input.canvas_history.undo = output.images.canvas_history.undo;
+  } else {
+    closeImage();
+  }
 }
 
 function resetSeeds() {
@@ -484,7 +546,7 @@ function newDrawing() {
 function closeImage() {
   const input = useInputStore();
 
-  resetMask();
+  resetEditorActions();
   resetEditorButtons();
   input.uploaded_image_b64 = null;
   input.has_image = false;

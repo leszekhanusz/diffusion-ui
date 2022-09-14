@@ -16,10 +16,10 @@ const output = useOutputStore();
     template(v-if="output.error_message")
       ErrorMessage
     template(v-else)
-      template(v-if="output.images.length == 1")
+      template(v-if="output.images.content.length == 1")
         ResultImage(:src="output.images.content[0]", :index="0")
       template(v-else)
-        Galleria(:value="output.gallery_images", :numVisible="output.images.length")
+        Galleria(:value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 3)")
           template(#item="slotProps")
             ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
           template(#thumbnail="slotProps")
