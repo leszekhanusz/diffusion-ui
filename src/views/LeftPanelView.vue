@@ -1,14 +1,14 @@
 <script setup>
 import Sidebar from "primevue/sidebar";
 import Button from "primevue/button";
+import TabView from "primevue/tabview";
+import TabPanel from "primevue/tabpanel";
+
 import BackendSelector from "@/components/BackendSelector.vue";
-import InputSlider from "@/components/InputSlider.vue";
-import InputText from "primevue/inputtext";
+import ModelParameters from "@/components/ModelParameters.vue";
 import { useUIStore } from "@/stores/ui";
-import { useBackendStore } from "@/stores/backend";
 
 const ui = useUIStore();
-const backend = useBackendStore();
 </script>
 
 <template lang="pug">
@@ -17,18 +17,25 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
     Button.p-button-secondary.toggler(label="Close", @click="ui.hideLeftPanel")
       font-awesome-icon(icon="fa-solid fa-angle-left")
   BackendSelector
-  template(v-if="backend.current")
-    template(v-for="input in backend.current.inputs")
-      div(v-if="!(input.visible===false)", :key="input.id")
-        template(v-if="input.type == 'int'")
-          InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="1" :description="input.description")
-        template(v-if="input.type == 'float'")
-          InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="input.step" :description="input.description")
-        template(v-if="input.type == 'text' && input.id !=='prompt'")
-          span.p-float-label
-            InputText(type="text", id="input.id", v-model="input.value", :title="input.description")
-            label(for="input.id") {{ input.label }}
+  TabView
+    TabPanel
+      template(#header)
+        .text-center.w-full
+          font-awesome-icon(icon="fa-solid fa-sliders")
+      ModelParameters
+    TabPanel
+      template(#header)
+        .text-center.w-full
+          font-awesome-icon(icon="fa-solid fa-circle-info")
+      div
+        | Info tab
 </template>
+
+<style scoped>
+.p-tabview.p-component {
+  margin-top: 10px;
+}
+</style>
 
 <style>
 .p-sidebar {
@@ -49,5 +56,9 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
 }
 .p-dropdown-panel {
   z-index: 1;
+}
+
+ul.p-tabview-nav > li {
+  flex-grow: 1;
 }
 </style>

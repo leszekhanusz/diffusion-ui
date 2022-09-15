@@ -26,6 +26,7 @@ import {
   faAnglesRight,
   faArrowsRotate,
   faCircle,
+  faCircleInfo,
   faEraser,
   faGears,
   faImage,
@@ -35,6 +36,7 @@ import {
   faPencil,
   faRotateLeft,
   faRotateRight,
+  faSliders,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -45,6 +47,7 @@ library.add(
   faAnglesRight,
   faArrowsRotate,
   faCircle,
+  faCircleInfo,
   faEraser,
   faGears,
   faImage,
@@ -54,6 +57,7 @@ library.add(
   faPencil,
   faRotateLeft,
   faRotateRight,
+  faSliders,
   faXmark
 );
 

@@ -7,9 +7,7 @@ const backend = useBackendStore();
 </script>
 
 <template lang="pug">
-.field.grid
-  label.col-fixed(for="model")
-    | Diffusion model
+.flex.flex-column.align-items-center
   Dropdown#model(optionLabel="name", optionValue="code", v-model="backend.current_id", :options="backend.options")
 </template>
 
