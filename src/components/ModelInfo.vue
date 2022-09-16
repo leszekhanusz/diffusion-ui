@@ -23,10 +23,12 @@ div
     Divider(type="dashed")
     .flex.flex-column.align-items-center
       .api-url(v-if="backend.api_url" title="the URL used to generate the images")
-        span.text-align-center
-          font-awesome-icon(icon="fa-solid fa-link")
-          span  API URL 
-        span.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.api_url }}
+        .field.grid
+          label.col-fixed(for="api-url" style="margin:auto")
+            font-awesome-icon(icon="fa-solid fa-link")
+            span  API url
+          .col
+            #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.api_url }}
 </template>
 
 <style scoped>
@@ -46,6 +48,8 @@ div
   color: white;
   padding: 5px;
   font-size: small;
+  max-width: 300px;
+  overflow: none;
 }
 
 .p-card.p-component {
