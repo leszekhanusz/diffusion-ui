@@ -1,4 +1,6 @@
 import { defineStore } from "pinia";
+import { useStorage } from "@vueuse/core";
+import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
 
@@ -10,12 +12,34 @@ backends_json.forEach(function (backend) {
   });
 });
 
+function mergeBackend(storageValue, defaults) {
+  // Merging the backend data from the config json file
+  // and from the saved values in local storage
+
+  const merged = deepmerge(defaults, storageValue, {
+    arrayMerge: function (defaultArray, storageArray) {
+      // If the saved array does not have the same number of items
+      // than the config (after an update probably)
+      // then reset the array to the default value
+      if (defaultArray.length === storageArray.length) {
+        return storageArray;
+      } else {
+        return defaultArray;
+      }
+    },
+  });
+
+  return merged;
+}
+
 const backends = backends_json.map(function (backend) {
   const backend_original = JSON.parse(JSON.stringify(backend));
 
   return {
     original: backend_original,
-    current: backend,
+    current: useStorage("backend_" + backend.name, backend, localStorage, {
+      mergeDefaults: mergeBackend,
+    }),
   };
 });
 
