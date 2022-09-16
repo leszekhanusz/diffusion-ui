@@ -59,7 +59,7 @@ async function generateImageGradio() {
 
   console.log("input", input_data_values);
 
-  const response = await fetch(current_backend.url, {
+  const response = await fetch(current_backend.api_url, {
     method: "POST",
     body: JSON.stringify({
       data: input_data_values,

@@ -12,6 +12,8 @@
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/vue-fontawesome": "^3.0.1",
+    "@vueuse/core": "^9.2.0",
+    "deepmerge": "^4.2.2",
     "fabric": "^5.2.4",
     "pinia": "^2.0.17",
     "primeflex": "^3.2.1",

@@ -7,8 +7,8 @@ const backend = useBackendStore();
 </script>
 
 <template lang="pug">
-Dialog(:visible="backend.show_license", :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}", :closable="false")
-  div(v-html="backend.license")
+Dialog(:modal="true" :visible="backend.show_license", :breakpoints="{'960px': '75vw', '640px': '100vw'}" :style="{width: '50vw'}", :closable="false")
+  div(v-html="backend.license_html")
 
   template(#header)
     h3

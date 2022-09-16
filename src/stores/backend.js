@@ -1,13 +1,46 @@
 import { defineStore } from "pinia";
+import { useStorage } from "@vueuse/core";
+import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
 
-const backends = [backend_latent_diffusion, backend_stable_diffusion];
+const backends_json = [backend_latent_diffusion, backend_stable_diffusion];
 
-backends.forEach(function (backend) {
+backends_json.forEach(function (backend) {
   backend.inputs.forEach(function (input) {
     input.value = input.default;
   });
+});
+
+function mergeBackend(storageValue, defaults) {
+  // Merging the backend data from the config json file
+  // and from the saved values in local storage
+
+  const merged = deepmerge(defaults, storageValue, {
+    arrayMerge: function (defaultArray, storageArray) {
+      // If the saved array does not have the same number of items
+      // than the config (after an update probably)
+      // then reset the array to the default value
+      if (defaultArray.length === storageArray.length) {
+        return storageArray;
+      } else {
+        return defaultArray;
+      }
+    },
+  });
+
+  return merged;
+}
+
+const backends = backends_json.map(function (backend) {
+  const backend_original = JSON.parse(JSON.stringify(backend));
+
+  return {
+    original: backend_original,
+    current: useStorage("backend_" + backend.name, backend, localStorage, {
+      mergeDefaults: mergeBackend,
+    }),
+  };
 });
 
 export const useBackendStore = defineStore({
@@ -17,18 +50,19 @@ export const useBackendStore = defineStore({
     configs: backends,
   }),
   getters: {
-    current: (state) => state.configs[state.current_id],
+    selected_config: (state) => state.configs[state.current_id],
+    current: (state) => state.selected_config.current,
+    original: (state) => state.selected_config.original,
     options: (state) =>
       state.configs.map((backend, index) => ({
-        name: backend.name,
+        name: backend.current.name,
         code: index,
       })),
-    license: (state) => state.current.license,
     show_license(state) {
       if (state.current.license_accepted) {
         return false;
       } else {
-        if (state.license) {
+        if (state.license_html) {
           return true;
         } else {
           return false;
@@ -40,6 +74,11 @@ export const useBackendStore = defineStore({
     strength_input: (state) => {
       return state.current.inputs.find((input) => input.id === "strength");
     },
+    license: (state) => state.getBackendField("license"),
+    license_html: (state) => state.getBackendField("license_html"),
+    description: (state) => state.getBackendField("description"),
+    doc_url: (state) => state.getBackendField("doc_url"),
+    api_url: (state) => state.getBackendField("api_url"),
   },
   actions: {
     acceptLicense() {
@@ -51,6 +90,32 @@ export const useBackendStore = defineStore({
       } else {
         return null;
       }
+    },
+    getBackendField(field_name) {
+      if (this.current) {
+        if (this.current[field_name]) {
+          return this.current[field_name];
+        }
+      }
+      return "";
+    },
+    showLicense() {
+      this.current.license_accepted = false;
+    },
+    resetCurrentBackendToDefaults() {
+      this.$confirm.require({
+        message: `Reset ${this.current.name} to default values?`,
+        header: "Confirmation",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          console.log(
+            `Resetting backend ${this.current.name} to default values.`
+          );
+          this.selected_config.current = JSON.parse(
+            JSON.stringify(this.selected_config.original)
+          );
+        },
+      });
     },
   },
 });
