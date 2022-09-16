@@ -42,6 +42,10 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
   z-index: 1;
 }
 
+.p-tabview .p-tabview-nav li .p-tabview-nav-link:not(.p-disabled):focus {
+  box-shadow: none !important;
+}
+
 .p-sidebar .p-sidebar-header {
   padding: 0px !important;
 }
