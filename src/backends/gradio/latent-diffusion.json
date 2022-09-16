@@ -1,7 +1,7 @@
 {
   "name": "latent-diffusion",
   "description": "Generate images from text with Latent Diffusion LAION-400M",
-  "url": "https://huggingface.co/gradioiframe/multimodalart/latentdiffusion/api/predict/",
+  "api_url": "https://huggingface.co/gradioiframe/multimodalart/latentdiffusion/api/predict/",
   "type": "gradio",
   "inputs": [
     {
