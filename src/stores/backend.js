@@ -2,12 +2,21 @@ import { defineStore } from "pinia";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
 
-const backends = [backend_latent_diffusion, backend_stable_diffusion];
+const backends_json = [backend_latent_diffusion, backend_stable_diffusion];
 
-backends.forEach(function (backend) {
+backends_json.forEach(function (backend) {
   backend.inputs.forEach(function (input) {
     input.value = input.default;
   });
+});
+
+const backends = backends_json.map(function (backend) {
+  const backend_original = JSON.parse(JSON.stringify(backend));
+
+  return {
+    original: backend_original,
+    current: backend,
+  };
 });
 
 export const useBackendStore = defineStore({
@@ -17,10 +26,11 @@ export const useBackendStore = defineStore({
     configs: backends,
   }),
   getters: {
-    current: (state) => state.configs[state.current_id],
+    current: (state) => state.configs[state.current_id].current,
+    original: (state) => state.configs[state.current_id].original,
     options: (state) =>
       state.configs.map((backend, index) => ({
-        name: backend.name,
+        name: backend.current.name,
         code: index,
       })),
     show_license(state) {
