@@ -6,6 +6,7 @@ import TabPanel from "primevue/tabpanel";
 
 import BackendSelector from "@/components/BackendSelector.vue";
 import ModelParameters from "@/components/ModelParameters.vue";
+import ModelInfo from "@/components/ModelInfo.vue";
 import { useUIStore } from "@/stores/ui";
 
 const ui = useUIStore();
@@ -27,8 +28,7 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
       template(#header)
         .text-center.w-full
           font-awesome-icon(icon="fa-solid fa-circle-info")
-      div
-        | Info tab
+      ModelInfo
 </template>
 
 <style scoped>
@@ -54,8 +54,19 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
   background-color: lightgray !important;
   border-radius: 5px 0px 0px 5px !important;
 }
+
+.p-tabview-panels {
+  min-height: 100%;
+}
+
 .p-dropdown-panel {
   z-index: 1;
+}
+
+.p-sidebar-content {
+  min-height: 100%;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 ul.p-tabview-nav > li {

@@ -1,11 +1,14 @@
 import { defineStore } from "pinia";
 import { useInputStore } from "@/stores/input";
+import { useBackendStore } from "@/stores/backend";
 
 export const useUIStore = defineStore({
   id: "ui",
   state: () => ({
     left_panel_visible: false,
     right_panel_visible: false,
+    edit_url_visible: false,
+    edit_url_new_url: "",
     cursor_mode: "idle", // idle, eraser or draw
     editor_view: "composite", // "composite" for the normal view or "mask" to show the mask
     show_results: false,
@@ -48,6 +51,14 @@ export const useUIStore = defineStore({
     },
   },
   actions: {
+    showEditURL() {
+      const backend = useBackendStore();
+      this.edit_url_new_url = backend.current.api_url;
+      this.edit_url_visible = true;
+    },
+    hideEditURL() {
+      this.edit_url_visible = false;
+    },
     showLeftPanel() {
       this.left_panel_visible = true;
     },

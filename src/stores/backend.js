@@ -23,12 +23,11 @@ export const useBackendStore = defineStore({
         name: backend.name,
         code: index,
       })),
-    license: (state) => state.current.license,
     show_license(state) {
       if (state.current.license_accepted) {
         return false;
       } else {
-        if (state.license) {
+        if (state.license_html) {
           return true;
         } else {
           return false;
@@ -40,6 +39,11 @@ export const useBackendStore = defineStore({
     strength_input: (state) => {
       return state.current.inputs.find((input) => input.id === "strength");
     },
+    license: (state) => state.getBackendField("license"),
+    license_html: (state) => state.getBackendField("license_html"),
+    description: (state) => state.getBackendField("description"),
+    doc_url: (state) => state.getBackendField("doc_url"),
+    api_url: (state) => state.getBackendField("api_url"),
   },
   actions: {
     acceptLicense() {
@@ -51,6 +55,17 @@ export const useBackendStore = defineStore({
       } else {
         return null;
       }
+    },
+    getBackendField(field_name) {
+      if (this.current) {
+        if (this.current[field_name]) {
+          return this.current[field_name];
+        }
+      }
+      return "";
+    },
+    showLicense() {
+      this.current.license_accepted = false;
     },
   },
 });

@@ -3,6 +3,7 @@ import InputView from "@/views/InputView.vue";
 import PanelHeader from "@/components/PanelHeader.vue";
 import ResultView from "@/views/ResultView.vue";
 import LicenseDialog from "@/components/LicenseDialog.vue";
+import EditURLDialog from "@/components/EditURLDialog.vue";
 
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
@@ -19,6 +20,7 @@ main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.s
   div(v-show="ui.show_results")
     ResultView
 LicenseDialog
+EditURLDialog
 </template>
 
 <style scoped>
