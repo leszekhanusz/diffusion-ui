@@ -50,8 +50,9 @@ export const useBackendStore = defineStore({
     configs: backends,
   }),
   getters: {
-    current: (state) => state.configs[state.current_id].current,
-    original: (state) => state.configs[state.current_id].original,
+    selected_config: (state) => state.configs[state.current_id],
+    current: (state) => state.selected_config.current,
+    original: (state) => state.selected_config.original,
     options: (state) =>
       state.configs.map((backend, index) => ({
         name: backend.current.name,
@@ -100,6 +101,21 @@ export const useBackendStore = defineStore({
     },
     showLicense() {
       this.current.license_accepted = false;
+    },
+    resetCurrentBackendToDefaults() {
+      this.$confirm.require({
+        message: `Reset ${this.current.name} to default values?`,
+        header: "Confirmation",
+        icon: "pi pi-exclamation-triangle",
+        accept: () => {
+          console.log(
+            `Resetting backend ${this.current.name} to default values.`
+          );
+          this.selected_config.current = JSON.parse(
+            JSON.stringify(this.selected_config.original)
+          );
+        },
+      });
     },
   },
 });

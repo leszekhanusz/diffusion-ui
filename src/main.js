@@ -12,6 +12,8 @@ import "primevue/resources/primevue.min.css";
 import "primeflex/primeflex.css";
 import "primeicons/primeicons.css";
 import Tooltip from "primevue/tooltip";
+import ConfirmationService from "primevue/confirmationservice";
+import { useConfirm } from "primevue/useconfirm";
 
 /* import the fontawesome core */
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -67,9 +69,18 @@ library.add(
 
 const app = createApp(App);
 
-app.use(createPinia());
+const pinia = createPinia();
+app.use(pinia);
 app.use(router);
 app.use(PrimeVue);
+app.use(ConfirmationService);
+
+function confirmDialogPiniaPlugin() {
+  return {
+    $confirm: useConfirm(),
+  };
+}
+pinia.use(confirmDialogPiniaPlugin);
 
 app.component("font-awesome-icon", FontAwesomeIcon);
 

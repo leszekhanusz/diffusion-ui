@@ -1,4 +1,5 @@
 <script setup>
+import Button from "primevue/button";
 import Divider from "primevue/divider";
 import { useBackendStore } from "@/stores/backend";
 import { useUIStore } from "@/stores/ui";
@@ -29,6 +30,9 @@ div
             span  API url
           .col
             #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.api_url }}
+      Button.p-button-outlined.p-button-danger(@click="backend.resetCurrentBackendToDefaults")
+        span Reset to default values
+
 </template>
 
 <style scoped>

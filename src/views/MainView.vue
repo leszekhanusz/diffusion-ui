@@ -2,6 +2,7 @@
 import InputView from "@/views/InputView.vue";
 import PanelHeader from "@/components/PanelHeader.vue";
 import ResultView from "@/views/ResultView.vue";
+import ConfirmDialog from "primevue/confirmdialog";
 import LicenseDialog from "@/components/LicenseDialog.vue";
 import EditURLDialog from "@/components/EditURLDialog.vue";
 
@@ -21,6 +22,7 @@ main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.s
     ResultView
 LicenseDialog
 EditURLDialog
+ConfirmDialog
 </template>
 
 <style scoped>
