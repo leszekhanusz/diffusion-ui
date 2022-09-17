@@ -6,6 +6,20 @@ import ResultImage from "@/components/ResultImage.vue";
 import { useOutputStore } from "@/stores/output";
 
 const output = useOutputStore();
+const responsiveOptions = [
+  {
+    breakpoint: "960px",
+    numVisible: 4,
+  },
+  {
+    breakpoint: "768px",
+    numVisible: 3,
+  },
+  {
+    breakpoint: "560px",
+    numVisible: 2,
+  },
+];
 </script>
 
 <template lang="pug">
@@ -19,17 +33,18 @@ const output = useOutputStore();
       template(v-if="output.images.content.length == 1")
         ResultImage(:src="output.images.content[0]", :index="0")
       template(v-else)
-        Galleria(:value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)")
+        Galleria(:value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)", :responsiveOptions="responsiveOptions")
           template(#item="slotProps")
             template(v-if="slotProps.item")
               ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
           template(#thumbnail="slotProps")
             template(v-if="slotProps.item")
-              img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px; display: block;")
+              img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px;")
 </template>
 
 <style scoped>
 .result-images {
+  max-width: 100vw;
   width: 100%;
   display: flex;
   justify-content: center;
