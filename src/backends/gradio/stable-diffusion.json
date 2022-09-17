@@ -13,7 +13,7 @@
       "description": "Used to add a warning to ask to update the backend when the API changes",
       "type": "int",
       "visible": false,
-      "default": 1
+      "default": 2
     }, {
       "label": "Prompt",
       "id": "prompt",
