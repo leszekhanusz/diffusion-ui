@@ -82,6 +82,12 @@
       "description": "Comma separated list of numbers to generate initial latent images. Random if empty",
       "type": "text",
       "default": ""
+    }, {
+      "label": "Access code",
+      "id": "access_code",
+      "description": "Optional access code for the backend",
+      "type": "text",
+      "default": ""
     }
   ],
   "outputs": [

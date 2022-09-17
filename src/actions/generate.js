@@ -68,6 +68,19 @@ async function generateImageGradio() {
   });
 
   if (!response.ok) {
+    var json_error = null;
+    try {
+      json_error = await response.json();
+    } catch (e) {
+      // Ignore here, error thrown below
+    }
+
+    if (json_error) {
+      if (json_error.error) {
+        throw new Error(json_error.error);
+      }
+    }
+
     throw new Error(
       `Error! The backend returned the http code: ${response.status}`
     );
