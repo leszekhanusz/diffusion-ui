@@ -41,6 +41,7 @@ ConfirmDialog
 @media (max-width: 600px) {
   .main {
     padding: 0;
+    padding-top: 3.5rem;
   }
 }
 </style>
