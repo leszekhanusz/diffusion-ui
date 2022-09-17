@@ -1,6 +1,7 @@
 <script setup>
 import Button from "primevue/button";
 import Divider from "primevue/divider";
+import Password from "primevue/password";
 import { useBackendStore } from "@/stores/backend";
 import { useUIStore } from "@/stores/ui";
 
@@ -30,6 +31,12 @@ div
             span  API url
           .col
             #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.api_url }}
+      template(v-if="backend.has_access_code")
+        .field.grid(:title="backend.access_code_input.description")
+          label.col-fixed(style="min-width: 150px; margin:auto")
+            span Access code
+          .col
+            Password.min-w-full(v-model="backend.access_code_input.value" :feedback="false" inputStyle="margin: auto;")
       Button.p-button-outlined.p-button-danger(@click="backend.resetCurrentBackendToDefaults")
         span Reset to default values
 

@@ -15,6 +15,7 @@ function editImage() {
   editResultImage(props.index);
   ui.show_results = false;
 }
+
 function generateAgain() {
   generateAgainResultImage(props.index);
   ui.show_results = false;
@@ -36,13 +37,14 @@ const buttons = [
 
 <template lang="pug">
 .result-image
-  Image(:src="props.src")
+  Image(:src="props.src" imageStyle="max-width: 100vw;")
   SpeedDial(:model="buttons", direction="down", showIcon="pi pi-bars", hideIcon="pi pi-times", :tooltipOptions="{position: 'left'}")
 </template>
 
 <style>
 .result-image {
   position: relative;
+  max-width: 100vw;
 }
 .result-image > .p-speeddial {
   visibility: hidden;

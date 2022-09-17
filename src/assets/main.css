@@ -1,6 +1,10 @@
 @import "./base.css";
 
 
+body {
+  overscroll-behavior: contain;
+}
+
 #app {
   max-width: 1280px;
   margin: 0 auto;

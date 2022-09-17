@@ -71,9 +71,9 @@ export const useBackendStore = defineStore({
     },
     has_image_input: (state) =>
       state.current.inputs.some((input) => input.type === "image"),
-    strength_input: (state) => {
-      return state.current.inputs.find((input) => input.id === "strength");
-    },
+    strength_input: (state) => state.findInput("strength"),
+    access_code_input: (state) => state.findInput("access_code"),
+    has_access_code: (state) => !!state.access_code_input,
     license: (state) => state.getBackendField("license"),
     license_html: (state) => state.getBackendField("license_html"),
     description: (state) => state.getBackendField("description"),

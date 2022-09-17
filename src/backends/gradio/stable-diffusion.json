@@ -13,7 +13,7 @@
       "description": "Used to add a warning to ask to update the backend when the API changes",
       "type": "int",
       "visible": false,
-      "default": 1
+      "default": 2
     }, {
       "label": "Prompt",
       "id": "prompt",
@@ -80,6 +80,12 @@
       "label": "Seeds",
       "id": "seeds",
       "description": "Comma separated list of numbers to generate initial latent images. Random if empty",
+      "type": "text",
+      "default": ""
+    }, {
+      "label": "Access code",
+      "id": "access_code",
+      "description": "Optional access code for the backend",
       "type": "text",
       "default": ""
     }
