@@ -35,6 +35,7 @@ Diffusion UI was made using:
 * Modification of model parameters in left tab
 * Image gallery of previous image in the right tab
 * Allow to do variations and inpainting edits to previously generated images
+* [Share the backend on your PC](https://diffusionui.readthedocs.io/en/latest/backends/stable-diffusion.html#sharing) to use it on your smartphone or tablet
 
 ## Frontend
 
