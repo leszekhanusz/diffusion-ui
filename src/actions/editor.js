@@ -489,6 +489,15 @@ async function generateAgainResultImage(image_index) {
   const input = useInputStore();
   const output = useOutputStore();
 
+  if (output.images.canvas_history) {
+    // If the output was made using an uploaded image or a drawing
+    await editNewImage(output.images.original_image);
+    redo_whole_history(output.images.canvas_history.undo);
+    input.canvas_history.undo = output.images.canvas_history.undo;
+  } else {
+    closeImage();
+  }
+
   const metadata = output.images.metadata;
 
   metadata.forEach(function (data) {
@@ -517,14 +526,6 @@ async function generateAgainResultImage(image_index) {
       }
     }
   });
-
-  if (output.images.original_image) {
-    await editNewImage(output.images.original_image);
-    redo_whole_history(output.images.canvas_history.undo);
-    input.canvas_history.undo = output.images.canvas_history.undo;
-  } else {
-    closeImage();
-  }
 }
 
 function resetSeeds() {
