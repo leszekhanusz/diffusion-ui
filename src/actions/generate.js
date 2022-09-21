@@ -57,13 +57,20 @@ async function generateImageGradio() {
     input_data_values.push(null);
   }
 
-  console.log("input", input_data_values);
+  const payload = {
+    data: input_data_values,
+  };
+
+  if (current_backend.fn_index) {
+    // Some gradio interfaces need a function index
+    payload["fn_index"] = current_backend.fn_index;
+  }
+
+  console.log("payload", payload);
 
   const response = await fetch(current_backend.api_url, {
     method: "POST",
-    body: JSON.stringify({
-      data: input_data_values,
-    }),
+    body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
   });
 

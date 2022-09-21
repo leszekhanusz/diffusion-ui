@@ -3,8 +3,13 @@ import { useStorage } from "@vueuse/core";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
+import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
 
-const backends_json = [backend_latent_diffusion, backend_stable_diffusion];
+const backends_json = [
+  backend_latent_diffusion,
+  backend_stable_diffusion,
+  backend_stable_diffusion_automatic1111,
+];
 
 backends_json.forEach(function (backend) {
   backend.inputs.forEach(function (input) {
