@@ -504,12 +504,14 @@ async function generateAgainResultImage(image_index) {
 function resetSeeds() {
   const backend = useBackendStore();
 
+  const without_toast = false;
+
   if (backend.hasInput("seeds")) {
-    backend.setInput("seeds", "");
+    backend.setInput("seeds", "", without_toast);
   }
 
   if (backend.hasInput("seed")) {
-    backend.setInput("seed", -1);
+    backend.setInput("seed", -1, without_toast);
   }
 }
 

@@ -11,9 +11,11 @@ import "primevue/resources/themes/lara-light-indigo/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeflex/primeflex.css";
 import "primeicons/primeicons.css";
+import ToastService from "primevue/toastservice";
 import Tooltip from "primevue/tooltip";
 import ConfirmationService from "primevue/confirmationservice";
 import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
 
 /* import the fontawesome core */
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -74,10 +76,12 @@ app.use(pinia);
 app.use(router);
 app.use(PrimeVue);
 app.use(ConfirmationService);
+app.use(ToastService);
 
 function confirmDialogPiniaPlugin() {
   return {
     $confirm: useConfirm(),
+    $toast: useToast(),
   };
 }
 pinia.use(confirmDialogPiniaPlugin);

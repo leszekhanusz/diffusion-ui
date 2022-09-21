@@ -108,12 +108,24 @@ export const useBackendStore = defineStore({
 
       return default_value;
     },
-    setInput(input_id, value) {
+    setInput(input_id, value, with_toast) {
+      if (with_toast === undefined) {
+        with_toast = true;
+      }
       const input_found = this.findInput(input_id);
 
       if (input_found) {
         if (input_found.value !== value) {
-          console.log(`input ${input_id} set to ${value}.`);
+          const message = `input ${input_id} set to ${value}.`;
+          console.log(message);
+          if (with_toast) {
+            this.$toast.add({
+              severity: "info",
+              detail: message,
+              life: 3000,
+              closable: false,
+            });
+          }
           input_found.value = value;
         }
       } else {

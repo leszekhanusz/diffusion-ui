@@ -5,6 +5,7 @@ import ResultView from "@/views/ResultView.vue";
 import ConfirmDialog from "primevue/confirmdialog";
 import LicenseDialog from "@/components/LicenseDialog.vue";
 import EditURLDialog from "@/components/EditURLDialog.vue";
+import Toast from "primevue/toast";
 
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
@@ -23,6 +24,7 @@ main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.s
 LicenseDialog
 EditURLDialog
 ConfirmDialog
+Toast
 </template>
 
 <style scoped>
