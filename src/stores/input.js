@@ -36,18 +36,18 @@ export const useInputStore = defineStore({
       const backend = useBackendStore();
       return backend.findInput("prompt");
     },
-    seed_input: function () {
+    seed: function () {
       const backend = useBackendStore();
-      return backend.findInput("seeds");
-    },
-    seeds: function () {
-      const seed_input = this.seed_input;
 
-      if (seed_input) {
-        return seed_input.value;
-      } else {
-        return "";
+      if (backend.hasInput("seeds")) {
+        return backend.getInput("seeds");
       }
+
+      if (backend.hasInput("seed")) {
+        return backend.getInput("seed");
+      }
+
+      return "";
     },
   },
   actions: {},

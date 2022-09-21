@@ -96,7 +96,18 @@ export const useBackendStore = defineStore({
         return null;
       }
     },
-    hasInput: (input_id) => this.findInput(input_id) !== null,
+    hasInput: function (input_id) {
+      return this.findInput(input_id) !== undefined;
+    },
+    getInput: function (input_id, default_value) {
+      const input_found = this.findInput(input_id);
+
+      if (input_found) {
+        return input_found.value;
+      }
+
+      return default_value;
+    },
     setInput(input_id, value) {
       const input_found = this.findInput(input_id);
 
