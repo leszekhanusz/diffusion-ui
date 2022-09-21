@@ -48,7 +48,19 @@
       "label": "Sampling method",
       "id": "sampling_method",
       "description": "",
-      "type": "text",
+      "type": "choice",
+      "validation": {
+        "options": [
+          "Euler a",
+          "Euler",
+          "LMS",
+          "Heun",
+          "DPM2",
+          "DPM2 a",
+          "DDIM",
+          "PLMS"
+        ]
+      },
       "default": "Euler a"
     }, {
       "label": "Restore faces",
