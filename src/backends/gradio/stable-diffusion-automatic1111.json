@@ -109,11 +109,11 @@
       "label": "Seed",
       "id": "seed",
       "description": "Number to generate initial latent images. Random if -1",
-      "type": "int",
+      "type": "bigint",
       "default": -1,
       "validation": {
         "min": -1,
-        "max": 2000000000
+        "max": 4294967296
       }
     }, {
       "label": "Variation seed",
@@ -124,7 +124,7 @@
       "visible": false,
       "validation": {
         "min": -1,
-        "max": 2000000000
+        "max": 4294967296
       }
     }, {
       "label": "Variation strength",
@@ -200,12 +200,12 @@
     }, {
       "label": "Denoising Strength",
       "id": "strength",
-      "description": "How close we should follow the initial image",
+      "description": "",
       "type": "float",
       "default": 0.7,
       "step": 0.01,
       "validation": {
-        "min": 0.0,
+        "min": 0.01,
         "max": 1.0
       }
     }, {

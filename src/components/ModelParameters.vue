@@ -1,5 +1,6 @@
 <script setup>
 import Dropdown from "primevue/dropdown";
+import InputNumber from "primevue/inputnumber";
 import InputSlider from "@/components/InputSlider.vue";
 import InputSwitch from "primevue/inputswitch";
 import InputText from "primevue/inputtext";
@@ -16,17 +17,19 @@ template(v-if="backend.current")
         InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="input.step ? input.step: 1" :title="input.description")
       template(v-if="input.type == 'float'")
         InputSlider(:label="input.label" v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="input.step" :title="input.description")
-      template(v-if="(input.type == 'text' || input.type == 'boolean' || input.type == 'choice') && input.id !=='prompt' && input.id !=='access_code'")
+      template(v-if="(input.type == 'text' || input.type == 'boolean' || input.type == 'choice' || input.type == 'bigint') && input.id !=='prompt' && input.id !=='access_code'")
         .field.grid(:title="input.description")
           label.col-fixed(:for="'input_' + input.id" style="min-width: 150px; margin:auto")
             span {{ input.label }}
-          .col
+          .col.p-fluid
             template(v-if="input.type == 'text'")
               InputText.min-w-full(type="text", :id="'input_' + input.id", v-model="input.value")
             template(v-if="input.type == 'boolean'")
               InputSwitch(v-model="input.value")
             template(v-if="input.type == 'choice'")
               Dropdown(v-model="input.value" :options="input.validation.options")
+            template(v-if="input.type == 'bigint'")
+              InputNumber(mode="decimal" showButtons v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="input.step ? input.step: 1" :title="input.description" :useGrouping="false" style="min-width: 150px")
 </template>
 
 <style scoped>
