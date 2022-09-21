@@ -96,6 +96,19 @@ export const useBackendStore = defineStore({
         return null;
       }
     },
+    hasInput: (input_id) => this.findInput(input_id) !== null,
+    setInput(input_id, value) {
+      const input_found = this.findInput(input_id);
+
+      if (input_found) {
+        if (input_found.value !== value) {
+          console.log(`input ${input_id} set to ${value}.`);
+          input_found.value = value;
+        }
+      } else {
+        console.log(`input ${input_id} not found.`);
+      }
+    },
     getBackendField(field_name) {
       if (this.current) {
         if (this.current[field_name]) {

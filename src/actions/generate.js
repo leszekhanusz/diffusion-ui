@@ -3,10 +3,10 @@ import { useInputStore } from "@/stores/input";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
 import { renderImage, resetEditorButtons } from "@/actions/editor";
+import { handleOutput } from "@/actions/output";
 
 async function generateImageGradio() {
   const input = useInputStore();
-  const output = useOutputStore();
   const backend = useBackendStore();
 
   const current_backend = backend.current;
@@ -41,16 +41,12 @@ async function generateImageGradio() {
     }
   }
 
-  const input_data = inputs_config.map(function (input_config) {
-    return {
-      id: input_config["id"],
-      value: input_config["value"],
-    };
-  });
-
-  const input_data_values = Object.keys(input_data).map(
-    (key) => input_data[key].value
+  const input_data = Object.assign(
+    {},
+    ...inputs_config.map((x) => ({ [x["id"]]: x["value"] }))
   );
+
+  const input_data_values = Object.values(input_data);
 
   // Add dummy data at the end to support using the web ui with a newer backend version
   for (let i = 0; i < 10; i++) {
@@ -66,11 +62,13 @@ async function generateImageGradio() {
     payload["fn_index"] = current_backend.fn_index;
   }
 
-  console.log("payload", payload);
+  const body = JSON.stringify(payload);
+
+  console.log("sent", body);
 
   const response = await fetch(current_backend.api_url, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: body,
     headers: { "Content-Type": "application/json" },
   });
 
@@ -95,45 +93,7 @@ async function generateImageGradio() {
 
   const json_result = await response.json();
 
-  const data_field = json_result["data"];
-  const data_images = data_field[0];
-  const data_seeds = data_field[1];
-
-  // We receive either a single image or a list of images
-  let images;
-  if (typeof data_images == "object") {
-    images = data_images;
-  } else {
-    images = [data_images];
-  }
-
-  const images_with_metadata = {
-    content: images,
-    metadata: input_data,
-  };
-
-  if (input.has_image) {
-    images_with_metadata.original_image = input.uploaded_image_b64;
-    images_with_metadata.canvas_history = input.canvas_history;
-  } else {
-    images_with_metadata.original_image = null;
-    images_with_metadata.canvas_history = null;
-  }
-
-  // Save the generated seeds in the image metadata
-  const seed_metadata = images_with_metadata.metadata.find(
-    (data) => data.id === "seeds"
-  );
-
-  if (seed_metadata) {
-    seed_metadata.value = data_seeds;
-    console.log(`Images received with seeds: ${data_seeds}`);
-  }
-
-  output.images = images_with_metadata;
-
-  // Saving the latest images in the gallery
-  output.gallery.push(images_with_metadata);
+  handleOutput(input_data, json_result);
 }
 
 async function generateImages() {

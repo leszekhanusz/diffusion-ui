@@ -7,5 +7,8 @@ const output = useOutputStore();
 
 <template lang="pug">
 Message(severity="error")
-  | {{ output.error_message.message }}
+  div(v-if="output.error_message.message.startsWith('<')")
+    div(v-html="output.error_message.message")
+  div(v-else)
+    span {{ output.error_message.message }}
 </template>

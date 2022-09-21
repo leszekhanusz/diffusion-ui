@@ -4,6 +4,7 @@ import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
+import { resetInputsFromResultImage } from "@/actions/output";
 
 function undo({ save_redo = true } = {}) {
   const input = useInputStore();
@@ -485,7 +486,6 @@ function editResultImage(image_index) {
 }
 
 async function generateAgainResultImage(image_index) {
-  const backend = useBackendStore();
   const input = useInputStore();
   const output = useOutputStore();
 
@@ -498,34 +498,7 @@ async function generateAgainResultImage(image_index) {
     closeImage();
   }
 
-  const metadata = output.images.metadata;
-
-  metadata.forEach(function (data) {
-    if (data.id === "seeds") {
-      const found_input = backend.findInput("seeds");
-
-      const seeds = data.value;
-      const seed = seeds.split(",")[image_index];
-
-      if (found_input) {
-        if (found_input.value !== seed) {
-          console.log(`input ${data.id} set to ${seed}.`);
-          found_input.value = seed;
-        }
-      }
-    } else {
-      const found_input = backend.findInput(data.id);
-
-      if (found_input) {
-        if (found_input.value !== data.value) {
-          found_input.value = data.value;
-          console.log(`input ${data.id} set to ${data.value}.`);
-        }
-      } else {
-        console.log(`input ${data.id} not found.`);
-      }
-    }
-  });
+  resetInputsFromResultImage(image_index);
 }
 
 function resetSeeds() {
