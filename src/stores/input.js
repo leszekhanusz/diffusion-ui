@@ -49,6 +49,11 @@ export const useInputStore = defineStore({
 
       return "";
     },
+    seed_is_set: function (state) {
+      const seed = state.seed;
+
+      return seed !== -1 && seed !== "";
+    },
   },
   actions: {},
 });

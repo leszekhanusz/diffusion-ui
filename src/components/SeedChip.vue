@@ -6,7 +6,7 @@ const input = useInputStore();
 </script>
 
 <template lang="pug">
-.flex.flex-column.align-items-center(v-if="input.seed !== '' && input.seed !== -1")
+.flex.flex-column.align-items-center(v-if="input.seed_is_set")
   .p-chips.p-component(@click="resetSeeds")
     ul.p-chips-multiple-container
       li.p-chips-token

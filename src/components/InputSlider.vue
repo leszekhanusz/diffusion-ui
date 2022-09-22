@@ -19,26 +19,15 @@ function onChanged(e) {
 </script>
 
 <template lang="pug">
-.field.grid
-  label.col-fixed.first-col(for="model")
-    | {{ label }}: {{ modelValue }}
-  Slider.col-fixed(@change="onChanged" :modelValue="modelValue" :min="min" :max="max" :step="step")
-  label.col-fixed.description.text-overflow-clip
-    | {{ description }}
+Slider(@change="onChanged" :modelValue="modelValue" :min="min" :max="max" :step="step")
 </template>
 
 <style scoped>
-label.first-col {
-  width: 200px;
-}
-
-label.description {
-  color: lightgrey;
-  max-width: 100%;
-}
-
 .p-slider-horizontal {
-  width: 14rem;
-  margin-top: 10px;
+  width: 80%;
+  vertical-align: middle;
+  margin-left: 10%;
+  margin-right: 10%;
+  display: inline-block;
 }
 </style>
