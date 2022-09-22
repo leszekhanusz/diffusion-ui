@@ -132,6 +132,46 @@ export const useBackendStore = defineStore({
         console.log(`input ${input_id} not found.`);
       }
     },
+    isInputVisible(input_id) {
+      const input = this.findInput(input_id);
+
+      if (
+        input.id === "prompt" ||
+        input.id === "access_code" ||
+        input.type === "image" ||
+        input.type === "image_mask"
+      ) {
+        // Some inputs are always invisible
+        return false;
+      }
+
+      if (input) {
+        const visible_rule = input.visible;
+
+        if (visible_rule === undefined) {
+          return true;
+        }
+
+        if (visible_rule === false) {
+          return false;
+        }
+
+        if (typeof visible_rule === "object") {
+          const condition = visible_rule.condition;
+
+          if (condition === "===") {
+            const comparaison_input = this.findInput(visible_rule.input_id);
+
+            if (comparaison_input) {
+              const comp = comparaison_input.value === visible_rule.value;
+              return comp;
+            }
+          }
+        }
+      }
+
+      return true;
+    },
     getBackendField(field_name) {
       if (this.current) {
         if (this.current[field_name]) {

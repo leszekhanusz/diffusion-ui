@@ -259,6 +259,11 @@
       "type": "float",
       "default": 0.7,
       "step": 0.01,
+      "visible": {
+        "input_id": "enable_hr",
+        "condition": "===",
+        "value": true
+      },
       "validation": {
         "min": 0.01,
         "max": 1.0

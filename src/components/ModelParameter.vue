@@ -4,15 +4,23 @@ import InputNumber from "primevue/inputnumber";
 import ModelParameterSlider from "@/components/ModelParameterSlider.vue";
 import InputSwitch from "primevue/inputswitch";
 import InputText from "primevue/inputtext";
+import { useBackendStore } from "@/stores/backend";
+import { computed } from "vue";
+
+const backend = useBackendStore();
 
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "props" }]*/
 const props = defineProps({
   input: Object,
 });
+
+const isVisible = computed(() => {
+  return backend.isInputVisible(props.input.id);
+});
 </script>
 
 <template lang="pug">
-.field.grid(v-if="input.visible!==false && input.id !== 'prompt' && input.id !== 'access_code' && input.type!=='image' && input.type!=='image_mask'", :title="input.description" class="justify-content-center")
+.field.grid(v-if="isVisible", :title="input.description" class="justify-content-center")
   template(v-if="input.type === 'int' || input.type === 'float'")
     ModelParameterSlider(:input="input")
   template(v-if="input.type == 'text' || input.type == 'choice' || input.type == 'bigint'")
