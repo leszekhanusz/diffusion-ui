@@ -8,11 +8,11 @@ const backend = useBackendStore();
 
 <template lang="pug">
 template(v-if="backend.current")
-  template(v-if="backend.current.layout")
-    template(v-for="component in backend.current.layout" :key="component.id")
+  template(v-if="backend.current_function.layout")
+    template(v-for="component in backend.current_function.layout" :key="component.id")
       LayoutComponent(:component="component")
   template(v-else)
-    template(v-for="input in backend.current.inputs" :key="input.id")
+    template(v-for="input in backend.inputs" :key="input.id")
       ModelParameter(:input="input")
 </template>
 

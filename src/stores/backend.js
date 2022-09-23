@@ -12,9 +12,17 @@ const backends_json = [
 ];
 
 backends_json.forEach(function (backend) {
-  backend.inputs.forEach(function (input) {
-    input.value = input.default;
-  });
+  if (backend.inputs) {
+    backend.inputs.forEach(function (input) {
+      input.value = input.default;
+    });
+  } else {
+    backend.functions.forEach(function (fn) {
+      fn.inputs.forEach(function (input) {
+        input.value = input.default;
+      });
+    });
+  }
 });
 
 function mergeBackend(storageValue, defaults) {
@@ -53,11 +61,26 @@ export const useBackendStore = defineStore({
   state: () => ({
     current_id: 1,
     configs: backends,
+    fn_id: 0,
   }),
   getters: {
     selected_config: (state) => state.configs[state.current_id],
     current: (state) => state.selected_config.current,
     original: (state) => state.selected_config.original,
+    has_multiple_functions: (state) => !!state.current.functions,
+    current_function: function (state) {
+      if (state.has_multiple_functions) {
+        return state.current.functions[state.fn_id];
+      } else {
+        return state.current;
+      }
+    },
+    inputs: (state) => state.current_function.inputs,
+    function_options: (state) =>
+      state.current.functions.map((fn, index) => ({
+        label: fn.label,
+        code: index,
+      })),
     options: (state) =>
       state.configs.map((backend, index) => ({
         name: backend.current.name,
@@ -75,7 +98,7 @@ export const useBackendStore = defineStore({
       }
     },
     has_image_input: (state) =>
-      state.current.inputs.some((input) => input.type === "image"),
+      state.inputs.some((input) => input.type === "image"),
     strength_input: (state) => state.findInput("strength"),
     access_code_input: (state) => state.findInput("access_code"),
     has_access_code: (state) => !!state.access_code_input,
@@ -91,7 +114,7 @@ export const useBackendStore = defineStore({
     },
     findInput(input_id) {
       if (this.current) {
-        return this.current.inputs.find((input) => input.id === input_id);
+        return this.inputs.find((input) => input.id === input_id);
       } else {
         return null;
       }
