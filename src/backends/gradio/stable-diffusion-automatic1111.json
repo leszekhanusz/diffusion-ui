@@ -10,56 +10,84 @@
   "handle_output": "automatic1111",
   "layout": [
     {
-      "type": "input",
-      "id": "batch_count"
+      "type": "container",
+      "id": "sampling_options",
+      "label": "Sampling",
+      "components": [
+        {
+          "type": "input",
+          "id": "batch_count"
+        },
+        {
+          "type": "input",
+          "id": "batch_size"
+        },
+        {
+          "type": "input",
+          "id": "sampling_method"
+        },
+        {
+          "type": "input",
+          "id": "nb_steps"
+        }
+      ]
     },
     {
-      "type": "input",
-      "id": "batch_size"
+      "type": "container",
+      "id": "prompt_options",
+      "label": "Prompt options",
+      "components": [
+        {
+          "type": "input",
+          "id": "reverse_prompt"
+        },
+        {
+          "type": "input",
+          "id": "guidance_scale"
+        }
+      ]
     },
     {
-      "type": "input",
-      "id": "nb_steps"
-    },
-    {
-      "type": "input",
-      "id": "sampling_method"
-    },
-    {
-      "type": "input",
-      "id": "reverse_prompt"
-    },
-    {
-      "type": "input",
-      "id": "guidance_scale"
+      "type": "container",
+      "id": "image_options",
+      "label": "Image size",
+      "components": [
+        {
+          "type": "input",
+          "id": "width"
+        },
+        {
+          "type": "input",
+          "id": "height"
+        }
+      ]
     },
     {
       "type": "input",
       "id": "seed"
     },
     {
-      "type": "input",
-      "id": "width"
-    },
-    {
-      "type": "input",
-      "id": "height"
-    },
-    {
-      "type": "input",
-      "id": "restore_faces"
-    },
-    {
-      "type": "input",
-      "id": "tiling"
-    },
-    {
-      "type": "input",
-      "id": "enable_hr"
-    },
-    {
-      "type": "input",
-      "id": "strength"
+      "type": "container",
+      "id": "extra_options",
+      "label": "Extra",
+      "components": [
+        {
+          "type": "input",
+          "id": "restore_faces"
+        },
+        {
+          "type": "input",
+          "id": "tiling"
+        },
+        {
+          "type": "input",
+          "id": "enable_hr"
+        },
+        {
+          "type": "input",
+          "id": "strength"
+        }
+      ]
     }
   ],
   "inputs": [
