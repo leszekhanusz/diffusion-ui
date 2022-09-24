@@ -20,7 +20,7 @@ const isVisible = computed(() => {
 </script>
 
 <template lang="pug">
-.field.grid(v-if="isVisible", :title="input.description" class="justify-content-center")
+.field.grid(v-if="input && isVisible", :title="input.description" class="justify-content-center")
   template(v-if="input.type === 'int' || input.type === 'float'")
     ModelParameterSlider(:input="input")
   template(v-if="input.type == 'text' || input.type == 'choice' || input.type == 'bigint'")

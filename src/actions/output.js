@@ -76,8 +76,8 @@ function handleOutput(input_data, json_result) {
 
   output.images = images_with_metadata;
 
-  if (backend.current.handle_output) {
-    if (backend.current.handle_output === "automatic1111") {
+  if (backend.current_function.handle_output) {
+    if (backend.current_function.handle_output === "automatic1111") {
       handleOutputAutomatic1111(json_result);
     }
   } else {

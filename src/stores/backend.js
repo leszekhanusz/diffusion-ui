@@ -76,11 +76,16 @@ export const useBackendStore = defineStore({
       }
     },
     inputs: (state) => state.current_function.inputs,
-    function_options: (state) =>
-      state.current.functions.map((fn, index) => ({
+    function_options: function (state) {
+      if (!state.current.functions) {
+        return [];
+      }
+      const opts = state.current.functions.map((fn, index) => ({
         label: fn.label,
         code: index,
-      })),
+      }));
+      return opts;
+    },
     options: (state) =>
       state.configs.map((backend, index) => ({
         name: backend.current.name,
@@ -100,7 +105,7 @@ export const useBackendStore = defineStore({
     has_image_input: (state) =>
       state.inputs.some((input) => input.type === "image"),
     strength_input: (state) => state.findInput("strength"),
-    access_code_input: (state) => state.findInput("access_code"),
+    access_code_input: (state) => state.findInput("access_code", false),
     has_access_code: (state) => !!state.access_code_input,
     license: (state) => state.getBackendField("license"),
     license_html: (state) => state.getBackendField("license_html"),
@@ -112,18 +117,27 @@ export const useBackendStore = defineStore({
     acceptLicense() {
       this.current.license_accepted = true;
     },
-    findInput(input_id) {
+    findInput(input_id, warn) {
+      if (warn === undefined) {
+        warn = true;
+      }
       if (this.current) {
-        return this.inputs.find((input) => input.id === input_id);
+        const input = this.inputs.find((input) => input.id === input_id);
+        if (!input && warn) {
+          console.warn(`input ${input_id} not found`);
+        }
+        return input;
       } else {
         return null;
       }
     },
     hasInput: function (input_id) {
-      return this.findInput(input_id) !== undefined;
+      const warn = false;
+      return this.findInput(input_id, warn) !== undefined;
     },
     getInput: function (input_id, default_value) {
-      const input_found = this.findInput(input_id);
+      const warn = false;
+      const input_found = this.findInput(input_id, warn);
 
       if (input_found) {
         return input_found.value;

@@ -12,7 +12,7 @@ template(v-if="backend.current")
   template(v-if="backend.has_multiple_functions")
     .flex.flex-column.align-items-center
       Dropdown#fn_dropdown(optionLabel="label", optionValue="code", v-model="backend.fn_id", :options="backend.function_options")
-  template(v-if="backend.current_function.layout")
+  template(v-if="backend.current_function.layout !== undefined")
     template(v-for="component in backend.current_function.layout" :key="component.id")
       LayoutComponent(:component="component")
   template(v-else)

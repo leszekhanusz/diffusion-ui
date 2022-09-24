@@ -404,6 +404,543 @@
           "type": "html"
         }
       ]
+    },
+    {
+      "label": "Image to Image",
+      "fn_index": 27,
+      "handle_output": "automatic1111",
+      "layout": [
+        {
+          "type": "container",
+          "id": "sampling_options",
+          "label": "Sampling",
+          "components": [
+            {
+              "type": "input",
+              "id": "batch_count"
+            },
+            {
+              "type": "input",
+              "id": "batch_size"
+            },
+            {
+              "type": "input",
+              "id": "sampling_method"
+            },
+            {
+              "type": "input",
+              "id": "nb_steps"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "prompt_options",
+          "label": "Prompt options",
+          "components": [
+            {
+              "type": "input",
+              "id": "reverse_prompt"
+            },
+            {
+              "type": "input",
+              "id": "guidance_scale"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "image_options",
+          "label": "Image size",
+          "components": [
+            {
+              "type": "input",
+              "id": "width"
+            },
+            {
+              "type": "input",
+              "id": "height"
+            }
+          ]
+        },
+        {
+          "type": "input",
+          "id": "seed"
+        },
+        {
+          "type": "container",
+          "id": "extra_options",
+          "label": "Extra",
+          "components": [
+            {
+              "type": "input",
+              "id": "restore_faces"
+            },
+            {
+              "type": "input",
+              "id": "tiling"
+            },
+            {
+              "type": "input",
+              "id": "strength"
+            }
+          ]
+        }
+      ],
+      "inputs": [
+        {
+          "label": "Prompt",
+          "id": "prompt",
+          "description": "Description of the image to generate",
+          "type": "text",
+          "default": "Bouquet of roses"
+        }, {
+          "label": "Reverse prompt",
+          "id": "reverse_prompt",
+          "description": "What not to generate",
+          "type": "text",
+          "default": ""
+        }, {
+          "label": "Style",
+          "id": "style",
+          "description": "",
+          "type": "text",
+          "visible": false,
+          "default": "None"
+        }, {
+          "label": "Style2",
+          "id": "style2",
+          "description": "",
+          "type": "text",
+          "visible": false,
+          "default": "None"
+        }, {
+          "label": "Image",
+          "id": "image",
+          "description": "Initial image for inpainting or img to img",
+          "type": "image",
+          "required": false,
+          "default": null
+        }, {
+          "label": "Image",
+          "id": "image_with_mask",
+          "description": "Initial image for inpainting or img to img",
+          "type": "image",
+          "required": false,
+          "default": null
+        }, {
+          "label": "Image",
+          "id": "image_mask",
+          "description": "Initial image for inpainting or img to img",
+          "type": "image",
+          "required": false,
+          "default": null
+        }, {
+          "label": "Mask upload type",
+          "id": "mask_upload_type",
+          "description": "",
+          "type": "text",
+          "visible": false,
+          "default": "Upload mask"
+        }, {
+          "label": "Steps",
+          "id": "nb_steps",
+          "description": "More steps can increase quality but will take longer to generate",
+          "type": "int",
+          "default": 20,
+          "validation": {
+            "min": 1,
+            "max": 150
+          }
+        }, {
+          "label": "Sampling method",
+          "id": "sampling_method",
+          "description": "",
+          "type": "choice",
+          "validation": {
+            "options": [
+              "Euler a",
+              "Euler",
+              "LMS",
+              "Heun",
+              "DPM2",
+              "DPM2 a",
+              "DDIM",
+              "PLMS"
+            ]
+          },
+          "default": "Euler a"
+        }, {
+          "label": "Mask blur",
+          "id": "mask_blur",
+          "description": "",
+          "type": "int",
+          "default": 4,
+          "validation": {
+            "min": 0,
+            "max": 64
+          }
+        }, {
+          "label": "Masked content",
+          "id": "masked_content",
+          "description": "",
+          "type": "choice",
+          "validation": {
+            "options": [
+              "fill",
+              "original",
+              "latent noise",
+              "latent nothing"
+            ]
+          },
+          "default": "fill"
+        }, {
+          "label": "Restore faces",
+          "id": "restore_faces",
+          "description": "",
+          "type": "boolean",
+          "default": false
+        }, {
+          "label": "Tiling",
+          "id": "tiling",
+          "description": "",
+          "type": "boolean",
+          "default": false
+        }, {
+          "label": "Mode",
+          "id": "mode",
+          "description": "",
+          "type": "choice",
+          "validation": {
+            "options": [
+              "Redraw whole image",
+              "Inpaint a part of image",
+              "SD upscale"
+            ]
+          },
+          "visible": false,
+          "default": "Redraw whole image"
+        }, {
+          "label": "Batch count",
+          "id": "batch_count",
+          "description": "",
+          "type": "int",
+          "default": 1,
+          "validation": {
+            "min": 1,
+            "max": 16
+          }
+        }, {
+          "label": "Batch size",
+          "id": "batch_size",
+          "description": "",
+          "type": "int",
+          "default": 1,
+          "validation": {
+            "min": 1,
+            "max": 8
+          }
+        }, {
+          "label": "CFG Scale",
+          "id": "guidance_scale",
+          "description": "How closely we should follow the prompt",
+          "type": "float",
+          "default": 7,
+          "step": 0.5,
+          "validation": {
+            "min": 0.1,
+            "max": 30
+          }
+        }, {
+          "label": "Denoising Strength",
+          "id": "strength",
+          "description": "",
+          "type": "float",
+          "default": 0.7,
+          "step": 0.01,
+          "validation": {
+            "min": 0.01,
+            "max": 1.0
+          }
+        }, {
+          "label": "Seed",
+          "id": "seed",
+          "description": "Number to generate initial latent images. Random if -1",
+          "type": "bigint",
+          "default": -1,
+          "validation": {
+            "min": -1,
+            "max": 4294967296
+          }
+        }, {
+          "label": "Variation seed",
+          "id": "subseed",
+          "description": "",
+          "type": "int",
+          "default": -1,
+          "visible": false,
+          "validation": {
+            "min": -1,
+            "max": 4294967296
+          }
+        }, {
+          "label": "Variation strength",
+          "id": "subseed_strength",
+          "description": "",
+          "type": "float",
+          "default": 0,
+          "step": 0.05,
+          "visible": false,
+          "validation": {
+            "min": 0,
+            "max": 1.0
+          }
+        }, {
+          "label": "Resize seed from height",
+          "id": "seed_resize_from_h",
+          "description": "",
+          "type": "int",
+          "default": 0,
+          "step": 64,
+          "visible": false,
+          "validation": {
+            "min": 0,
+            "max": 2048
+          }
+        }, {
+          "label": "Resize seed from width",
+          "id": "seed_resize_from_w",
+          "description": "",
+          "type": "int",
+          "default": 0,
+          "step": 64,
+          "visible": false,
+          "validation": {
+            "min": 0,
+            "max": 2048
+          }
+        }, {
+          "label": "Height",
+          "id": "height",
+          "description": "",
+          "type": "int",
+          "default": 512,
+          "step": 64,
+          "validation": {
+            "min": 0,
+            "max": 2048
+          }
+        }, {
+          "label": "Width",
+          "id": "width",
+          "description": "",
+          "type": "int",
+          "default": 512,
+          "step": 64,
+          "validation": {
+            "min": 0,
+            "max": 2048
+          }
+        }, {
+          "label": "Resize image options",
+          "id": "resize_options",
+          "description": "",
+          "type": "choice",
+          "validation": {
+            "options": [
+              "Just resize",
+              "Crop and resize",
+              "Resize and fill"
+            ]
+          },
+          "default": "Just resize"
+        }, {
+          "label": "Upscaler",
+          "id": "upscaler",
+          "description": "",
+          "type": "choice",
+          "validation": {
+            "options": [
+              "None",
+              "Lanczos",
+              "Real-ESRGAN 4x plus",
+              "Real-ESRGAN 4x plus anime 6B",
+              "Real-ESRGAN 2x plus"
+            ]
+          },
+          "default": "None"
+        }, {
+          "label": "Tile overlap",
+          "id": "upscaler_overlap",
+          "description": "",
+          "type": "int",
+          "default": 64,
+          "step": 16,
+          "validation": {
+            "min": 0,
+            "max": 256
+          }
+        }, {
+          "label": "Inpaint full res",
+          "id": "inpaint_full_res",
+          "description": "",
+          "type": "boolean",
+          "visible": "false",
+          "default": false
+        }, {
+          "label": "Inpainting mask invert",
+          "id": "inpainting_mask_invert",
+          "description": "",
+          "type": "choice",
+          "validation": {
+            "options": [
+              "Inpaint masked",
+              "Inpaint not masked"
+            ]
+          },
+          "default": "Inpaint masked"
+        }, {
+          "id": "custom_0",
+          "default": "None",
+          "visible": false
+        }, {
+          "id": "custom_1",
+          "default": false,
+          "visible": false
+        }, {
+          "id": "custom_2",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_3",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_4",
+          "default": 4,
+          "visible": false
+        }, {
+          "id": "custom_5",
+          "default": 1,
+          "visible": false
+        }, {
+          "id": "custom_6",
+          "default": "Seed",
+          "visible": false
+        }, {
+          "id": "custom_7",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_8",
+          "default": "Steps",
+          "visible": false
+        }, {
+          "id": "custom_9",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_10",
+          "default": true,
+          "visible": false
+        }, {
+          "id": "custom_11",
+          "default": 128,
+          "visible": false
+        }, {
+          "id": "custom_12",
+          "default": 4,
+          "visible": false
+        }, {
+          "id": "custom_13",
+          "default": "fill",
+          "visible": false
+        }, {
+          "id": "custom_14",
+          "default": ["left", "right", "up", "down"],
+          "visible": false
+        }, {
+          "id": "custom_15",
+          "default": false,
+          "visible": false
+        }, {
+          "id": "custom_16",
+          "default": null,
+          "visible": false
+        }, {
+          "id": "custom_17",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_18",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_19",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_20",
+          "default": 1,
+          "visible": false
+        }, {
+          "id": "custom_21",
+          "default": 50,
+          "visible": false
+        }, {
+          "id": "custom_22",
+          "default": 0,
+          "visible": false
+        }, {
+          "id": "custom_23",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_24",
+          "default": 128,
+          "visible": false
+        }, {
+          "id": "custom_25",
+          "default": 4,
+          "visible": false
+        }, {
+          "id": "custom_26",
+          "default": ["left", "right", "up", "down"],
+          "visible": false
+        }, {
+          "id": "custom_27",
+          "default": 1,
+          "visible": false
+        }, {
+          "id": "custom_28",
+          "default": 0.05,
+          "visible": false
+        }, {
+          "id": "custom_29",
+          "default": null,
+          "visible": false
+        }, {
+          "id": "custom_30",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_31",
+          "default": "",
+          "visible": false
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Result",
+          "type": "image"
+        }, {
+          "label": "JSON metadata",
+          "type": "json"
+        }, {
+          "label": "HTML metadata",
+          "type": "html"
+        }
+      ]
     }
   ]
 }
