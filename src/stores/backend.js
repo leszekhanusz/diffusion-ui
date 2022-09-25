@@ -85,6 +85,7 @@ export const useBackendStore = defineStore({
         return state.current;
       }
     },
+    mode: (state) => state.current_function.mode,
     inputs: (state) => state.current_function.inputs,
     function_options: function (state) {
       if (!state.current.functions) {
@@ -273,6 +274,17 @@ export const useBackendStore = defineStore({
 
       this.fn_id = function_id;
     },
+    getAllowedModes(editor_mode) {
+      // Return the allow backend modes depending on the editor mode
+      switch (editor_mode) {
+        case "txt2img":
+          return ["txt2img"];
+        case "img2img":
+          return ["img2img", "inpainting"];
+        case "inpainting":
+          return ["inpainting"];
+      }
+    },
     changeFunctionForModes(modes) {
       if (!this.current.functions) {
         return;
@@ -280,11 +292,9 @@ export const useBackendStore = defineStore({
 
       console.log(`Changing for modes ${modes}`);
 
-      const current_mode = this.current_function.mode;
-
-      if (modes.includes(current_mode)) {
+      if (modes.includes(this.mode)) {
         console.log(
-          `The current function '${this.fn_id}' mode: '${this.current_function.mode}' is already in ${modes}`
+          `The current function '${this.fn_id}' mode: '${this.mode}' is already in ${modes}`
         );
         return;
       }

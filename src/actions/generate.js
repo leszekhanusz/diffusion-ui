@@ -110,10 +110,73 @@ async function generateImages() {
   }
 }
 
+function checkEditorMode() {
+  const backend = useBackendStore();
+  const input = useInputStore();
+
+  console.log("checkEditorMode()");
+
+  const backend_mode = backend.mode;
+
+  // Special case, reset editor mode to img2img if we are in inpainting mode
+  // and backend is in img2img mode
+  if (backend_mode === "img2img" && input.editor_mode === "inpainting") {
+    input.editor_mode = "img2img";
+  }
+
+  const editor_mode = input.editor_mode;
+
+  console.log(`backend_mode = ${backend_mode}`);
+  console.log(`editor_mode = ${editor_mode}`);
+
+  // Some backends have a single mode for everything
+  if (!backend_mode) {
+    return true;
+  }
+
+  const allowed_modes = backend.getAllowedModes(editor_mode);
+
+  console.log(`allowed_modes = ${allowed_modes}`);
+
+  const allowed = allowed_modes.includes(backend_mode);
+
+  console.log(`allowed = ${allowed}`);
+
+  if (!allowed) {
+    var message;
+    switch (backend_mode) {
+      case "txt2img":
+        message = "Text to Image mode cannot use an image!";
+        break;
+      case "img2img":
+      case "inpainting":
+        message = "You need an image!";
+        break;
+      default:
+        message = "Invalid backend mode!";
+    }
+
+    backend.$toast.add({
+      severity: "warn",
+      detail: message,
+      life: 3000,
+      closable: false,
+    });
+  }
+  return allowed;
+}
+
 async function generate() {
   const output = useOutputStore();
   const backend = useBackendStore();
   const ui = useUIStore();
+
+  console.log("checking allowed");
+  if (!checkEditorMode()) {
+    console.log("not allowed");
+    return;
+  }
+  console.log("apparently allowed...");
 
   ui.show_results = true;
   resetEditorButtons();

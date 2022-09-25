@@ -27,6 +27,7 @@ export const useInputStore = defineStore({
       redo: [],
     },
     canvas_mask: null,
+    editor_mode: "txt2img",
   }),
   getters: {
     color: function (state) {

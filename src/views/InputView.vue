@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, toRef, watch } from "vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
@@ -29,6 +29,13 @@ watch(
   },
   { deep: true }
 );
+
+watch(toRef(input, "editor_mode"), function (editor_mode) {
+  console.log(`editor_mode changed to ${editor_mode}`);
+
+  const possible_modes = backend.getAllowedModes(editor_mode);
+  backend.changeFunctionForModes(possible_modes);
+});
 </script>
 
 <template lang="pug">

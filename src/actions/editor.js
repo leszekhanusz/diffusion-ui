@@ -305,7 +305,7 @@ function initCanvas(canvas_id) {
             }
 
             // Change the mode to inpainting if needed
-            backend.changeFunctionForModes(["inpainting"]);
+            input.editor_mode = "inpainting";
           });
         });
         break;
@@ -438,7 +438,6 @@ async function fabricImageClone(image) {
 }
 
 async function editNewImage(image_b64) {
-  const backend = useBackendStore();
   const input = useInputStore();
 
   resetEditorActions();
@@ -479,8 +478,7 @@ async function editNewImage(image_b64) {
     _editNewImage();
   }
 
-  // Automatically set the backend function to one which uses images
-  backend.changeFunctionForModes(["img2img", "inpainting"]);
+  input.editor_mode = "img2img";
 }
 
 function resetEditorButtons() {
@@ -537,14 +535,13 @@ function newDrawing() {
 }
 
 function closeImage() {
-  const backend = useBackendStore();
   const input = useInputStore();
 
   resetEditorActions();
   resetEditorButtons();
   input.uploaded_image_b64 = null;
   input.has_image = false;
-  backend.changeFunctionForModes(["txt2img"]);
+  input.editor_mode = "txt2img";
 }
 
 function setCursorMode(cursor_mode) {
