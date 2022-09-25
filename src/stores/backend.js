@@ -263,6 +263,22 @@ export const useBackendStore = defineStore({
         },
       });
     },
+    changeBackend(backend_id) {
+      if (this.backend_id !== backend_id) {
+        const message = `Switching backend to ${backend_id}`;
+
+        console.log(message);
+
+        this.$toast.add({
+          severity: "info",
+          detail: message,
+          life: 3000,
+          closable: false,
+        });
+
+        this.backend_id = backend_id;
+      }
+    },
     changeFunction(function_id) {
       const message = `Switching to ${function_id}`;
 

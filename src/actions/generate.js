@@ -10,6 +10,8 @@ async function generateImageGradio() {
   const backend = useBackendStore();
 
   const inputs_config = backend.inputs;
+
+  const backend_id = backend.backend_id;
   const function_id = backend.current_function.id;
 
   if (backend.has_image_input) {
@@ -93,7 +95,7 @@ async function generateImageGradio() {
 
   const json_result = await response.json();
 
-  handleOutput(input_data, function_id, json_result);
+  handleOutput(input_data, backend_id, function_id, json_result);
 }
 
 async function generateImages() {
