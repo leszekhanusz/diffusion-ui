@@ -82,8 +82,8 @@ function resetEditorActions() {
   input.canvas_mask = new fabric.Canvas();
   input.canvas_mask.selection = false;
   input.canvas_mask.setBackgroundColor("black");
-  input.canvas_mask.setHeight(512);
-  input.canvas_mask.setWidth(512);
+  input.canvas_mask.setHeight(input.canvas_height);
+  input.canvas_mask.setWidth(input.canvas_width);
 
   input.mask_image_b64 = null;
 
@@ -158,8 +158,8 @@ function initCanvas(canvas_id) {
   input.canvas_mask = new fabric.Canvas();
   input.canvas_mask.selection = false;
   input.canvas_mask.setBackgroundColor("black");
-  input.canvas_mask.setHeight(512);
-  input.canvas_mask.setWidth(512);
+  input.canvas_mask.setHeight(input.canvas_height);
+  input.canvas_mask.setWidth(input.canvas_width);
 
   input.image_clip = new fabric.Group([], { absolutePositioned: true });
   input.image_clip.inverted = true;
@@ -374,8 +374,8 @@ function _editNewImage(image, transparent_image) {
       backend.strength_input.value = 0;
     }
     canvas_draw_background = new fabric.Rect({
-      width: 512,
-      height: 512,
+      width: input.canvas_width,
+      height: input.canvas_height,
       left: 0,
       top: 0,
       fill: "white",
@@ -467,9 +467,37 @@ async function editNewImage(image_b64) {
     input.uploaded_image_b64 = image_b64;
 
     const image = await fabricImageFromURL(image_b64);
-
     image.selectable = false;
-    image.scaleToHeight(input.canvas.height);
+
+    const width = image.width;
+    const height = image.height;
+    console.log(`Uploaded image with resolution: ${width}x${height}`);
+
+    if (width === 512 && height === 512) {
+      input.canvas_width = width;
+      input.canvas_height = height;
+    } else {
+      if (width > height) {
+        image.scaleToWidth(512);
+
+        input.canvas_width = 512;
+        input.canvas_height = 512 * (height / width);
+      } else {
+        image.scaleToHeight(512);
+
+        input.canvas_height = 512;
+        input.canvas_width = 512 * (width / height);
+      }
+      console.log(
+        `Scaled resolution: ${input.canvas_width}x${input.canvas_height}`
+      );
+    }
+
+    input.canvas.setWidth(input.canvas_width);
+    input.canvas.setHeight(input.canvas_height);
+
+    input.canvas_mask.setWidth(input.canvas_width);
+    input.canvas_mask.setHeight(input.canvas_height);
 
     const transparent_image = await fabricImageClone(image);
 

@@ -28,6 +28,8 @@ export const useInputStore = defineStore({
     },
     canvas_mask: null,
     editor_mode: "txt2img",
+    canvas_width: 512,
+    canvas_height: 512,
   }),
   getters: {
     color: function (state) {
