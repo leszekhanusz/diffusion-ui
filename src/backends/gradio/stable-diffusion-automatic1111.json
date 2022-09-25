@@ -9,6 +9,7 @@
   "functions": [
     {
       "id": "txt2img",
+      "mode": "txt2img",
       "label": "Text to Image",
       "fn_index": 10,
       "handle_output": "automatic1111",
@@ -408,6 +409,7 @@
     },
     {
       "id": "img2img",
+      "mode": "img2img",
       "label": "Image to Image",
       "fn_index": 27,
       "handle_output": "automatic1111",
@@ -957,6 +959,7 @@
     },
     {
       "id": "inpainting",
+      "mode": "inpainting",
       "label": "Inpainting",
       "fn_index": 27,
       "handle_output": "automatic1111",
@@ -1518,6 +1521,7 @@
     },
     {
       "id": "upscaling",
+      "mode": "img2img",
       "label": "Upscaling",
       "fn_index": 27,
       "handle_output": "automatic1111",

@@ -246,7 +246,10 @@ export const useBackendStore = defineStore({
       });
     },
     changeFunction(function_id) {
-      console.log(`Changing backend function to ${function_id}`);
+      const message = `Switching to ${function_id}`;
+
+      console.log(message);
+
       if (!this.current.functions) {
         console.warn(`Impossible to change function with this backend.`);
         return;
@@ -261,7 +264,43 @@ export const useBackendStore = defineStore({
         return;
       }
 
+      this.$toast.add({
+        severity: "info",
+        detail: message,
+        life: 3000,
+        closable: false,
+      });
+
       this.fn_id = function_id;
+    },
+    changeFunctionForModes(modes) {
+      if (!this.current.functions) {
+        return;
+      }
+
+      console.log(`Changing for modes ${modes}`);
+
+      const current_mode = this.current_function.mode;
+
+      if (modes.includes(current_mode)) {
+        console.log(
+          `The current function '${this.fn_id}' mode: '${this.current_function.mode}' is already in ${modes}`
+        );
+        return;
+      }
+
+      modes.every(
+        function (mode) {
+          const found_func = this.current.functions.find(
+            (func) => func.mode === mode
+          );
+          if (found_func) {
+            this.changeFunction(found_func.id);
+            return false;
+          }
+          return true;
+        }.bind(this)
+      );
     },
   },
 });

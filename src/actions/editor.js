@@ -303,6 +303,9 @@ function initCanvas(canvas_id) {
                 1 - backend.strength_input.value.value
               );
             }
+
+            // Change the mode to inpainting if needed
+            backend.changeFunctionForModes(["inpainting"]);
           });
         });
         break;
@@ -435,6 +438,7 @@ async function fabricImageClone(image) {
 }
 
 async function editNewImage(image_b64) {
+  const backend = useBackendStore();
   const input = useInputStore();
 
   resetEditorActions();
@@ -474,6 +478,9 @@ async function editNewImage(image_b64) {
   } else {
     _editNewImage();
   }
+
+  // Automatically set the backend function to one which uses images
+  backend.changeFunctionForModes(["img2img", "inpainting"]);
 }
 
 function resetEditorButtons() {
@@ -498,6 +505,8 @@ async function generateAgainResultImage(image_index) {
   const input = useInputStore();
   const output = useOutputStore();
 
+  resetInputsFromResultImage(image_index);
+
   if (output.images.canvas_history) {
     // If the output was made using an uploaded image or a drawing
     await editNewImage(output.images.original_image);
@@ -506,8 +515,6 @@ async function generateAgainResultImage(image_index) {
   } else {
     closeImage();
   }
-
-  resetInputsFromResultImage(image_index);
 }
 
 function resetSeeds() {
@@ -530,12 +537,14 @@ function newDrawing() {
 }
 
 function closeImage() {
+  const backend = useBackendStore();
   const input = useInputStore();
 
   resetEditorActions();
   resetEditorButtons();
   input.uploaded_image_b64 = null;
   input.has_image = false;
+  backend.changeFunctionForModes(["txt2img"]);
 }
 
 function setCursorMode(cursor_mode) {
