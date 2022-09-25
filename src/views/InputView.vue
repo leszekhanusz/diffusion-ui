@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, toRef, watch } from "vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
@@ -16,19 +16,31 @@ const ui = useUIStore();
 
 const strength_input = ref(backend.strength_input);
 
-watch(backend.strength_input, function (strength_input) {
-  if (strength_input) {
-    if (input.canvas_draw && input.canvas) {
-      input.canvas_draw.set("opacity", 1 - strength_input.value);
-      input.canvas.renderAll();
+watch(
+  backend.strength_input,
+  function (strength_input) {
+    console.log("Strength input changed");
+    if (strength_input) {
+      if (input.canvas_draw && input.canvas) {
+        input.canvas_draw.set("opacity", 1 - strength_input.value);
+        input.canvas.renderAll();
+      }
     }
-  }
+  },
+  { deep: true }
+);
+
+watch(toRef(input, "editor_mode"), function (editor_mode) {
+  console.log(`editor_mode changed to ${editor_mode}`);
+
+  const possible_modes = backend.getAllowedModes(editor_mode);
+  backend.changeFunctionForModes(possible_modes);
 });
 </script>
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!input.has_image && !input.seeds")
+  template(v-if="!input.has_image && !input.seed_is_set")
     .flex.flex-column.align-items-center
       .enter-a-prompt
         | Enter a prompt:

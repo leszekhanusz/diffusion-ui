@@ -4,6 +4,7 @@ import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
+import { resetInputsFromResultImage } from "@/actions/output";
 
 function undo({ save_redo = true } = {}) {
   const input = useInputStore();
@@ -145,6 +146,7 @@ function add_to_canvas(name, item) {
 }
 
 function initCanvas(canvas_id) {
+  const backend = useBackendStore();
   const input = useInputStore();
   const ui = useUIStore();
 
@@ -293,6 +295,17 @@ function initCanvas(canvas_id) {
               mask_path: mask_path,
               emphasize_path: emphasize_path,
             });
+
+            // Update the opacity depending on the strength
+            if (backend.strength_input) {
+              input.canvas_draw.set(
+                "opacity",
+                1 - backend.strength_input.value.value
+              );
+            }
+
+            // Change the mode to inpainting if needed
+            input.editor_mode = "inpainting";
           });
         });
         break;
@@ -464,6 +477,8 @@ async function editNewImage(image_b64) {
   } else {
     _editNewImage();
   }
+
+  input.editor_mode = "img2img";
 }
 
 function resetEditorButtons() {
@@ -485,9 +500,10 @@ function editResultImage(image_index) {
 }
 
 async function generateAgainResultImage(image_index) {
-  const backend = useBackendStore();
   const input = useInputStore();
   const output = useOutputStore();
+
+  resetInputsFromResultImage(image_index);
 
   if (output.images.canvas_history) {
     // If the output was made using an uploaded image or a drawing
@@ -497,46 +513,19 @@ async function generateAgainResultImage(image_index) {
   } else {
     closeImage();
   }
-
-  const metadata = output.images.metadata;
-
-  metadata.forEach(function (data) {
-    if (data.id === "seeds") {
-      const found_input = backend.findInput("seeds");
-
-      const seeds = data.value;
-      const seed = seeds.split(",")[image_index];
-
-      if (found_input) {
-        if (found_input.value !== seed) {
-          console.log(`input ${data.id} set to ${seed}.`);
-          found_input.value = seed;
-        }
-      }
-    } else {
-      const found_input = backend.findInput(data.id);
-
-      if (found_input) {
-        if (found_input.value !== data.value) {
-          found_input.value = data.value;
-          console.log(`input ${data.id} set to ${data.value}.`);
-        }
-      } else {
-        console.log(`input ${data.id} not found.`);
-      }
-    }
-  });
 }
 
 function resetSeeds() {
   const backend = useBackendStore();
 
-  const found_input = backend.current.inputs.find(
-    (input) => input.id === "seeds"
-  );
+  const without_toast = false;
 
-  if (found_input) {
-    found_input.value = "";
+  if (backend.hasInput("seeds")) {
+    backend.setInput("seeds", "", without_toast);
+  }
+
+  if (backend.hasInput("seed")) {
+    backend.setInput("seed", -1, without_toast);
   }
 }
 
@@ -552,6 +541,7 @@ function closeImage() {
   resetEditorButtons();
   input.uploaded_image_b64 = null;
   input.has_image = false;
+  input.editor_mode = "txt2img";
 }
 
 function setCursorMode(cursor_mode) {

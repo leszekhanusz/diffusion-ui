@@ -46,3 +46,22 @@ h2, h3 {
     display: initial;
   }
 }
+
+/* Fixing breakpoint different from primevue and primeflex */
+@media screen and (max-width: 64em) {
+    .p-sidebar-left.p-sidebar-lg,
+    .p-sidebar-left.p-sidebar-md,
+    .p-sidebar-right.p-sidebar-lg,
+    .p-sidebar-right.p-sidebar-md {
+        width: 40rem;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .p-sidebar-left.p-sidebar-lg,
+    .p-sidebar-left.p-sidebar-md,
+    .p-sidebar-right.p-sidebar-lg,
+    .p-sidebar-right.p-sidebar-md {
+        width: 20rem;
+    }
+}

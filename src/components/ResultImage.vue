@@ -37,14 +37,14 @@ const buttons = [
 
 <template lang="pug">
 .result-image
-  Image(:src="props.src" imageStyle="max-width: 100vw;")
+  Image(:src="props.src" imageStyle="max-width: min(100vw, 512px);")
   SpeedDial(:model="buttons", direction="down", showIcon="pi pi-bars", hideIcon="pi pi-times", :tooltipOptions="{position: 'left'}")
 </template>
 
 <style>
 .result-image {
   position: relative;
-  max-width: 100vw;
+  max-width: min(100vw, 512px);
 }
 .result-image > .p-speeddial {
   visibility: hidden;

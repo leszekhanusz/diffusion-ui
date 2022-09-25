@@ -3,14 +3,16 @@ import { useInputStore } from "@/stores/input";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
 import { renderImage, resetEditorButtons } from "@/actions/editor";
+import { handleOutput } from "@/actions/output";
 
 async function generateImageGradio() {
   const input = useInputStore();
-  const output = useOutputStore();
   const backend = useBackendStore();
 
-  const current_backend = backend.current;
-  const inputs_config = current_backend["inputs"];
+  const inputs_config = backend.inputs;
+
+  const backend_id = backend.backend_id;
+  const function_id = backend.current_function.id;
 
   if (backend.has_image_input) {
     let image_input = inputs_config.find(
@@ -41,29 +43,34 @@ async function generateImageGradio() {
     }
   }
 
-  const input_data = inputs_config.map(function (input_config) {
-    return {
-      id: input_config["id"],
-      value: input_config["value"],
-    };
-  });
-
-  const input_data_values = Object.keys(input_data).map(
-    (key) => input_data[key].value
+  const input_data = Object.assign(
+    {},
+    ...inputs_config.map((x) => ({ [x["id"]]: x["value"] }))
   );
+
+  const input_data_values = Object.values(input_data);
 
   // Add dummy data at the end to support using the web ui with a newer backend version
   for (let i = 0; i < 10; i++) {
     input_data_values.push(null);
   }
 
-  console.log("input", input_data_values);
+  const payload = {
+    data: input_data_values,
+  };
 
-  const response = await fetch(current_backend.api_url, {
+  if (backend.current_function.fn_index) {
+    // Some gradio interfaces need a function index
+    payload["fn_index"] = backend.current_function.fn_index;
+  }
+
+  const body = JSON.stringify(payload);
+
+  console.log("sent", body);
+
+  const response = await fetch(backend.current.api_url, {
     method: "POST",
-    body: JSON.stringify({
-      data: input_data_values,
-    }),
+    body: body,
     headers: { "Content-Type": "application/json" },
   });
 
@@ -88,45 +95,7 @@ async function generateImageGradio() {
 
   const json_result = await response.json();
 
-  const data_field = json_result["data"];
-  const data_images = data_field[0];
-  const data_seeds = data_field[1];
-
-  // We receive either a single image or a list of images
-  let images;
-  if (typeof data_images == "object") {
-    images = data_images;
-  } else {
-    images = [data_images];
-  }
-
-  const images_with_metadata = {
-    content: images,
-    metadata: input_data,
-  };
-
-  if (input.has_image) {
-    images_with_metadata.original_image = input.uploaded_image_b64;
-    images_with_metadata.canvas_history = input.canvas_history;
-  } else {
-    images_with_metadata.original_image = null;
-    images_with_metadata.canvas_history = null;
-  }
-
-  // Save the generated seeds in the image metadata
-  const seed_metadata = images_with_metadata.metadata.find(
-    (data) => data.id === "seeds"
-  );
-
-  if (seed_metadata) {
-    seed_metadata.value = data_seeds;
-    console.log(`Images received with seeds: ${data_seeds}`);
-  }
-
-  output.images = images_with_metadata;
-
-  // Saving the latest images in the gallery
-  output.gallery.push(images_with_metadata);
+  handleOutput(input_data, backend_id, function_id, json_result);
 }
 
 async function generateImages() {
@@ -143,10 +112,61 @@ async function generateImages() {
   }
 }
 
+function checkEditorMode() {
+  const backend = useBackendStore();
+  const input = useInputStore();
+
+  const backend_mode = backend.mode;
+
+  // Special case, reset editor mode to img2img if we are in inpainting mode
+  // and backend is in img2img mode
+  if (backend_mode === "img2img" && input.editor_mode === "inpainting") {
+    input.editor_mode = "img2img";
+  }
+
+  const editor_mode = input.editor_mode;
+
+  // Some backends have a single mode for everything
+  if (!backend_mode) {
+    return true;
+  }
+
+  const allowed_modes = backend.getAllowedModes(editor_mode);
+
+  const allowed = allowed_modes.includes(backend_mode);
+
+  if (!allowed) {
+    var message;
+    switch (backend_mode) {
+      case "txt2img":
+        message = "Text to Image mode cannot use an image!";
+        break;
+      case "img2img":
+      case "inpainting":
+        message = "You need an image!";
+        break;
+      default:
+        message = "Invalid backend mode!";
+    }
+
+    backend.$toast.add({
+      severity: "warn",
+      detail: message,
+      life: 3000,
+      closable: false,
+    });
+  }
+  return allowed;
+}
+
 async function generate() {
   const output = useOutputStore();
   const backend = useBackendStore();
   const ui = useUIStore();
+
+  if (!checkEditorMode()) {
+    return;
+  }
 
   ui.show_results = true;
   resetEditorButtons();

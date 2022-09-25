@@ -43,8 +43,15 @@ const responsiveOptions = [
 </template>
 
 <style scoped>
+:deep() .p-galleria-content {
+  max-width: min(100vw, 512px);
+}
+:deep() .p-galleria-item {
+  max-width: min(100vw, 512px);
+}
 .result-images {
-  max-width: 100vw;
+  margin: auto;
+  max-width: min(100vw, 512px);
   width: 100%;
   display: flex;
   justify-content: center;
