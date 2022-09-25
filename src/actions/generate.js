@@ -116,8 +116,6 @@ function checkEditorMode() {
   const backend = useBackendStore();
   const input = useInputStore();
 
-  console.log("checkEditorMode()");
-
   const backend_mode = backend.mode;
 
   // Special case, reset editor mode to img2img if we are in inpainting mode
@@ -128,9 +126,6 @@ function checkEditorMode() {
 
   const editor_mode = input.editor_mode;
 
-  console.log(`backend_mode = ${backend_mode}`);
-  console.log(`editor_mode = ${editor_mode}`);
-
   // Some backends have a single mode for everything
   if (!backend_mode) {
     return true;
@@ -138,11 +133,7 @@ function checkEditorMode() {
 
   const allowed_modes = backend.getAllowedModes(editor_mode);
 
-  console.log(`allowed_modes = ${allowed_modes}`);
-
   const allowed = allowed_modes.includes(backend_mode);
-
-  console.log(`allowed = ${allowed}`);
 
   if (!allowed) {
     var message;
@@ -173,12 +164,9 @@ async function generate() {
   const backend = useBackendStore();
   const ui = useUIStore();
 
-  console.log("checking allowed");
   if (!checkEditorMode()) {
-    console.log("not allowed");
     return;
   }
-  console.log("apparently allowed...");
 
   ui.show_results = true;
   resetEditorButtons();
