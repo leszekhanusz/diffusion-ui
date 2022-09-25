@@ -280,32 +280,34 @@ export const useBackendStore = defineStore({
       }
     },
     changeFunction(function_id) {
-      const message = `Switching to ${function_id}`;
+      if (this.fn_id !== function_id) {
+        const message = `Switching to ${function_id}`;
 
-      console.log(message);
+        console.log(message);
 
-      if (!this.current.functions) {
-        console.warn(`Impossible to change function with this backend.`);
-        return;
+        if (!this.current.functions) {
+          console.warn(`Impossible to change function with this backend.`);
+          return;
+        }
+
+        const new_function = this.current.functions.find(
+          (func) => func.id === function_id
+        );
+
+        if (!new_function) {
+          console.warn(`Function id ${function_id} not found.`);
+          return;
+        }
+
+        this.$toast.add({
+          severity: "info",
+          detail: message,
+          life: 3000,
+          closable: false,
+        });
+
+        this.fn_id = function_id;
       }
-
-      const new_function = this.current.functions.find(
-        (func) => func.id === function_id
-      );
-
-      if (!new_function) {
-        console.warn(`Function id ${function_id} not found.`);
-        return;
-      }
-
-      this.$toast.add({
-        severity: "info",
-        detail: message,
-        life: 3000,
-        closable: false,
-      });
-
-      this.fn_id = function_id;
     },
     getAllowedModes(editor_mode) {
       // Return the allow backend modes depending on the editor mode

@@ -33,9 +33,7 @@ function handleOutputDefault(json_result) {
   const data_seeds = data_field[1];
 
   // Save the generated seeds in the image metadata
-  const seed_metadata = output.images.metadata.find(
-    (data) => data.id === "seeds"
-  );
+  const seed_metadata = output.images.metadata.input["seeds"];
 
   if (seed_metadata) {
     seed_metadata.value = data_seeds;
