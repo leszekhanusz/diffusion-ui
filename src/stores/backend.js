@@ -62,7 +62,7 @@ export const useBackendStore = defineStore({
   state: () => ({
     current_id: 1,
     configs: backends,
-    fn_id: 0,
+    fn_id: null,
   }),
   getters: {
     selected_config: (state) => state.configs[state.current_id],
@@ -71,7 +71,16 @@ export const useBackendStore = defineStore({
     has_multiple_functions: (state) => !!state.current.functions,
     current_function: function (state) {
       if (state.has_multiple_functions) {
-        return state.current.functions[state.fn_id];
+        var current_fn = state.current.functions.find(
+          (func) => func.id == state.fn_id
+        );
+        if (!current_fn) {
+          state.fn_id = state.current.functions[0].id;
+          current_fn = state.current.functions.find(
+            (func) => func.id == state.fn_id
+          );
+        }
+        return current_fn;
       } else {
         return state.current;
       }
@@ -81,9 +90,9 @@ export const useBackendStore = defineStore({
       if (!state.current.functions) {
         return [];
       }
-      const opts = state.current.functions.map((fn, index) => ({
+      const opts = state.current.functions.map((fn) => ({
         label: fn.label,
-        code: index,
+        id: fn.id,
       }));
       return opts;
     },
@@ -235,6 +244,24 @@ export const useBackendStore = defineStore({
           );
         },
       });
+    },
+    changeFunction(function_id) {
+      console.log(`Changing backend function to ${function_id}`);
+      if (!this.current.functions) {
+        console.warn(`Impossible to change function with this backend.`);
+        return;
+      }
+
+      const new_function = this.current.functions.find(
+        (func) => func.id === function_id
+      );
+
+      if (!new_function) {
+        console.warn(`Function id ${function_id} not found.`);
+        return;
+      }
+
+      this.fn_id = function_id;
     },
   },
 });

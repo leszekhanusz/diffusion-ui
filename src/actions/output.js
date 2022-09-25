@@ -43,7 +43,7 @@ function handleOutputDefault(json_result) {
   }
 }
 
-function handleOutput(input_data, json_result) {
+function handleOutput(input_data, function_id, json_result) {
   const backend = useBackendStore();
   const input = useInputStore();
   const output = useOutputStore();
@@ -63,6 +63,7 @@ function handleOutput(input_data, json_result) {
     content: images,
     metadata: {
       input: input_data,
+      function_id: function_id,
     },
   };
 
@@ -94,6 +95,12 @@ function resetInputsFromResultImage(image_index) {
 
   const input_metadata = output.images.metadata.input;
   const output_metadata = output.images.metadata.output;
+
+  const function_id = output.images.metadata.function_id;
+
+  if (function_id) {
+    backend.changeFunction(function_id);
+  }
 
   Object.entries(input_metadata).forEach(function (entry) {
     const [data_id, data_value] = entry;

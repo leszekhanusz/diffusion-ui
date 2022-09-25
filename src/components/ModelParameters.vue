@@ -12,7 +12,7 @@ const backend = useBackendStore();
 template(v-if="backend.current")
   template(v-if="backend.has_multiple_functions")
     .flex.flex-column.align-items-center
-      Dropdown#fn_dropdown(optionLabel="label", optionValue="code", v-model="backend.fn_id", :options="backend.function_options")
+      Dropdown#fn_dropdown(optionLabel="label", optionValue="id", v-model="backend.fn_id", :options="backend.function_options")
     Divider
   template(v-if="backend.current_function.layout !== undefined")
     template(v-for="component in backend.current_function.layout" :key="component.id")

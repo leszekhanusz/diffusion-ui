@@ -8,6 +8,7 @@
   "type": "gradio",
   "functions": [
     {
+      "id": "txt2img",
       "label": "Text to Image",
       "fn_index": 10,
       "handle_output": "automatic1111",
@@ -406,6 +407,7 @@
       ]
     },
     {
+      "id": "img2img",
       "label": "Image to Image",
       "fn_index": 27,
       "handle_output": "automatic1111",
@@ -954,6 +956,7 @@
       ]
     },
     {
+      "id": "inpainting",
       "label": "Inpainting",
       "fn_index": 27,
       "handle_output": "automatic1111",
@@ -1514,6 +1517,7 @@
       ]
     },
     {
+      "id": "upscaling",
       "label": "Upscaling",
       "fn_index": 27,
       "handle_output": "automatic1111",
