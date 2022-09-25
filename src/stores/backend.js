@@ -57,17 +57,34 @@ const backends = backends_json.map(function (backend) {
   };
 });
 
+const default_backend = backends.find(
+  (backend) => backend.original.id === "stable_diffusion"
+);
+const default_backend_id = default_backend.original.id;
+
 export const useBackendStore = defineStore({
   id: "backends",
   state: () => ({
-    current_id: 1,
-    configs: backends,
+    backends: backends,
+    backend_id: useStorage("backend_id", default_backend_id),
     fn_id: null,
   }),
   getters: {
-    selected_config: (state) => state.configs[state.current_id],
-    current: (state) => state.selected_config.current,
-    original: (state) => state.selected_config.original,
+    selected_backend: function (state) {
+      var backend_found = state.backends.find(
+        (backend) => backend.original.id === state.backend_id
+      );
+      if (!backend_found) {
+        // Use default backend
+        state.backend_id = default_backend_id;
+        backend_found = state.backends.find(
+          (backend) => backend.original.id === state.backend_id
+        );
+      }
+      return backend_found;
+    },
+    current: (state) => state.selected_backend.current,
+    original: (state) => state.selected_backend.original,
     has_multiple_functions: (state) => !!state.current.functions,
     current_function: function (state) {
       if (state.has_multiple_functions) {
@@ -97,10 +114,10 @@ export const useBackendStore = defineStore({
       }));
       return opts;
     },
-    options: (state) =>
-      state.configs.map((backend, index) => ({
+    backend_options: (state) =>
+      state.backends.map((backend) => ({
         name: backend.current.name,
-        code: index,
+        id: backend.original.id,
       })),
     show_license(state) {
       if (state.current.license_accepted) {
@@ -240,8 +257,8 @@ export const useBackendStore = defineStore({
           console.log(
             `Resetting backend ${this.current.name} to default values.`
           );
-          this.selected_config.current = JSON.parse(
-            JSON.stringify(this.selected_config.original)
+          this.selected_backend.current = JSON.parse(
+            JSON.stringify(this.selected_backend.original)
           );
         },
       });

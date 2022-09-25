@@ -8,7 +8,7 @@ const backend = useBackendStore();
 
 <template lang="pug">
 .flex.flex-column.align-items-center
-  Dropdown#model(optionLabel="name", optionValue="code", v-model="backend.current_id", :options="backend.options")
+  Dropdown#model(optionLabel="name", optionValue="id", v-model="backend.backend_id", :options="backend.backend_options")
 </template>
 
 <style scoped>

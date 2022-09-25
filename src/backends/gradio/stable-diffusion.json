@@ -1,4 +1,5 @@
 {
+  "id": "stable_diffusion",
   "name": "Stable Diffusion",
   "description": "Generate images from text, init image and mask image with Latent Diffusion LAION-400M.",
   "api_url": "http://127.0.0.1:7860/api/predict/",
