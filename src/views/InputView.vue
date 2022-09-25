@@ -16,14 +16,19 @@ const ui = useUIStore();
 
 const strength_input = ref(backend.strength_input);
 
-watch(backend.strength_input, function (strength_input) {
-  if (strength_input) {
-    if (input.canvas_draw && input.canvas) {
-      input.canvas_draw.set("opacity", 1 - strength_input.value);
-      input.canvas.renderAll();
+watch(
+  backend.strength_input,
+  function (strength_input) {
+    console.log("Strength input changed");
+    if (strength_input) {
+      if (input.canvas_draw && input.canvas) {
+        input.canvas_draw.set("opacity", 1 - strength_input.value);
+        input.canvas.renderAll();
+      }
     }
-  }
-});
+  },
+  { deep: true }
+);
 </script>
 
 <template lang="pug">

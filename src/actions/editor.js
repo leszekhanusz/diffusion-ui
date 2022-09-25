@@ -146,6 +146,7 @@ function add_to_canvas(name, item) {
 }
 
 function initCanvas(canvas_id) {
+  const backend = useBackendStore();
   const input = useInputStore();
   const ui = useUIStore();
 
@@ -294,6 +295,14 @@ function initCanvas(canvas_id) {
               mask_path: mask_path,
               emphasize_path: emphasize_path,
             });
+
+            // Update the opacity depending on the strength
+            if (backend.strength_input) {
+              input.canvas_draw.set(
+                "opacity",
+                1 - backend.strength_input.value.value
+              );
+            }
           });
         });
         break;

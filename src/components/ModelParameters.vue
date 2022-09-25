@@ -2,6 +2,7 @@
 import ModelParameter from "@/components/ModelParameter.vue";
 import Dropdown from "primevue/dropdown";
 import LayoutComponent from "@/components/LayoutComponent.vue";
+import Divider from "primevue/divider";
 import { useBackendStore } from "@/stores/backend";
 
 const backend = useBackendStore();
@@ -12,6 +13,7 @@ template(v-if="backend.current")
   template(v-if="backend.has_multiple_functions")
     .flex.flex-column.align-items-center
       Dropdown#fn_dropdown(optionLabel="label", optionValue="code", v-model="backend.fn_id", :options="backend.function_options")
+    Divider
   template(v-if="backend.current_function.layout !== undefined")
     template(v-for="component in backend.current_function.layout" :key="component.id")
       LayoutComponent(:component="component")
