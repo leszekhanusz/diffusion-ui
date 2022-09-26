@@ -27,8 +27,8 @@ export const useEditorStore = defineStore({
     },
     canvas_mask: null,
     mode: "txt2img",
-    canvas_width: 512,
-    canvas_height: 512,
+    width: 512,
+    height: 512,
   }),
   getters: {
     color: function (state) {

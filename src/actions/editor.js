@@ -82,8 +82,8 @@ function resetEditorActions() {
   editor.canvas_mask = new fabric.Canvas();
   editor.canvas_mask.selection = false;
   editor.canvas_mask.setBackgroundColor("black");
-  editor.canvas_mask.setHeight(editor.canvas_height);
-  editor.canvas_mask.setWidth(editor.canvas_width);
+  editor.canvas_mask.setHeight(editor.height);
+  editor.canvas_mask.setWidth(editor.width);
 
   editor.mask_image_b64 = null;
 
@@ -158,8 +158,8 @@ function initCanvas(canvas_id) {
   editor.canvas_mask = new fabric.Canvas();
   editor.canvas_mask.selection = false;
   editor.canvas_mask.setBackgroundColor("black");
-  editor.canvas_mask.setHeight(editor.canvas_height);
-  editor.canvas_mask.setWidth(editor.canvas_width);
+  editor.canvas_mask.setHeight(editor.height);
+  editor.canvas_mask.setWidth(editor.width);
 
   editor.image_clip = new fabric.Group([], { absolutePositioned: true });
   editor.image_clip.inverted = true;
@@ -377,8 +377,8 @@ function _editNewImage(image, transparent_image) {
       backend.strength_input.value = 0;
     }
     canvas_draw_background = new fabric.Rect({
-      width: editor.canvas_width,
-      height: editor.canvas_height,
+      width: editor.width,
+      height: editor.height,
       left: 0,
       top: 0,
       fill: "white",
@@ -477,30 +477,28 @@ async function editNewImage(image_b64) {
     console.log(`Uploaded image with resolution: ${width}x${height}`);
 
     if (width === 512 && height === 512) {
-      editor.canvas_width = width;
-      editor.canvas_height = height;
+      editor.width = width;
+      editor.height = height;
     } else {
       if (width > height) {
         image.scaleToWidth(512);
 
-        editor.canvas_width = 512;
-        editor.canvas_height = 512 * (height / width);
+        editor.width = 512;
+        editor.height = 512 * (height / width);
       } else {
         image.scaleToHeight(512);
 
-        editor.canvas_height = 512;
-        editor.canvas_width = 512 * (width / height);
+        editor.height = 512;
+        editor.width = 512 * (width / height);
       }
-      console.log(
-        `Scaled resolution: ${editor.canvas_width}x${editor.canvas_height}`
-      );
+      console.log(`Scaled resolution: ${editor.width}x${editor.height}`);
     }
 
-    editor.canvas.setWidth(editor.canvas_width);
-    editor.canvas.setHeight(editor.canvas_height);
+    editor.canvas.setWidth(editor.width);
+    editor.canvas.setHeight(editor.height);
 
-    editor.canvas_mask.setWidth(editor.canvas_width);
-    editor.canvas_mask.setHeight(editor.canvas_height);
+    editor.canvas_mask.setWidth(editor.width);
+    editor.canvas_mask.setHeight(editor.height);
 
     const transparent_image = await asyncClone(image);
 

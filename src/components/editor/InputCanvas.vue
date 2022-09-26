@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template lang="pug">
-canvas#canvas.main-canvas(:width="editor.canvas_width", :height="editor.canvas_height", style="{max-width: 100vw}")
+canvas#canvas.main-canvas(:width="editor.width", :height="editor.height", style="{max-width: 100vw}")
 </template>
 
 <style>
