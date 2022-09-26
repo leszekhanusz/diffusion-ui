@@ -263,7 +263,7 @@ function initCanvas(canvas_id) {
     input.canvas.renderAll();
   });
 
-  input.canvas.on("path:created", function (e) {
+  input.canvas.on("path:created", async function (e) {
     const path = e.path;
     path.selectable = false;
 
@@ -274,40 +274,43 @@ function initCanvas(canvas_id) {
 
     switch (ui.cursor_mode) {
       case "eraser":
-        path.color = "white";
-        path.clone(function (mask_path) {
-          path.clone(function (emphasize_path) {
-            // Add the path to the mask canvas and regenerate the mask image
-            input.canvas_mask.add(mask_path);
-            input.mask_image_b64 = input.canvas_mask.toDataURL();
+        {
+          path.color = "white";
 
-            // Add the path to the image clip group
-            input.image_clip.addWithUpdate(path);
+          // Clone the path twice: for the mask and for the emphasize layer
+          const mask_path = await asyncClone(path);
+          const emphasize_path = await asyncClone(path);
 
-            // Add the path to the emphasize front layer
-            emphasize_path.stroke = "lightgrey";
-            emphasize_path.opacity = 1;
-            input.emphasize.addWithUpdate(emphasize_path);
+          // Add the path to the mask canvas and regenerate the mask image
+          input.canvas_mask.add(mask_path);
+          input.mask_image_b64 = input.canvas_mask.toDataURL();
 
-            input.canvas_history.undo.push({
-              type: "erase",
-              path: path,
-              mask_path: mask_path,
-              emphasize_path: emphasize_path,
-            });
+          // Add the path to the image clip group
+          input.image_clip.addWithUpdate(path);
 
-            // Update the opacity depending on the strength
-            if (backend.strength_input) {
-              input.canvas_draw.set(
-                "opacity",
-                1 - backend.strength_input.value.value
-              );
-            }
+          // Add the path to the emphasize front layer
+          emphasize_path.stroke = "lightgrey";
+          emphasize_path.opacity = 1;
+          input.emphasize.addWithUpdate(emphasize_path);
 
-            // Change the mode to inpainting if needed
-            input.editor_mode = "inpainting";
+          input.canvas_history.undo.push({
+            type: "erase",
+            path: path,
+            mask_path: mask_path,
+            emphasize_path: emphasize_path,
           });
-        });
+
+          // Update the opacity depending on the strength
+          if (backend.strength_input) {
+            input.canvas_draw.set(
+              "opacity",
+              1 - backend.strength_input.value.value
+            );
+          }
+
+          // Change the mode to inpainting if needed
+          input.editor_mode = "inpainting";
+        }
         break;
 
       case "draw":
@@ -425,11 +428,11 @@ async function fabricImageFromURL(image_url) {
   });
 }
 
-async function fabricImageClone(image) {
+async function asyncClone(object) {
   return new Promise(function (resolve, reject) {
     try {
-      image.clone(function (cloned_image) {
-        resolve(cloned_image);
+      object.clone(function (cloned_object) {
+        resolve(cloned_object);
       });
     } catch (error) {
       reject(error);
@@ -499,7 +502,7 @@ async function editNewImage(image_b64) {
     input.canvas_mask.setWidth(input.canvas_width);
     input.canvas_mask.setHeight(input.canvas_height);
 
-    const transparent_image = await fabricImageClone(image);
+    const transparent_image = await asyncClone(image);
 
     _editNewImage(image, transparent_image);
   } else {
