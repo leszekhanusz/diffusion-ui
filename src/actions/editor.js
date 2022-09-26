@@ -545,20 +545,6 @@ async function generateAgainResultImage(image_index) {
   }
 }
 
-function resetSeeds() {
-  const backend = useBackendStore();
-
-  const without_toast = false;
-
-  if (backend.hasInput("seeds")) {
-    backend.setInput("seeds", "", without_toast);
-  }
-
-  if (backend.hasInput("seed")) {
-    backend.setInput("seed", -1, without_toast);
-  }
-}
-
 function newDrawing() {
   console.log("New drawing requested");
   editNewImage();
@@ -641,7 +627,6 @@ export {
   redo,
   renderImage,
   resetEditorButtons,
-  resetSeeds,
   toggleDraw,
   toggleEraser,
   toggleMaskView,
