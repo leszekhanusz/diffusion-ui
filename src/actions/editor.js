@@ -537,7 +537,7 @@ async function generateAgainResultImage(image_index) {
     // If the output was made using an uploaded image or a drawing
     await editNewImage(output.images.original_image);
     redo_whole_history(output.images.canvas_history.undo);
-    input.canvas_history.undo = output.images.canvas_history.undo;
+    input.canvas_history.undo = [...output.images.canvas_history.undo];
   } else {
     closeImage();
   }
