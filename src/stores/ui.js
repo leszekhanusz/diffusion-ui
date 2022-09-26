@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useBackendStore } from "@/stores/backend";
 
 export const useUIStore = defineStore({
@@ -17,17 +17,17 @@ export const useUIStore = defineStore({
     show_brush: (state) => state.cursor_mode !== "idle",
     show_color_picker: (state) => state.cursor_mode === "draw",
     show_eraser: function (state) {
-      const input = useInputStore();
-      return state.editor_view === "composite" && !input.is_drawing;
+      const editor = useEditorStore();
+      return state.editor_view === "composite" && !editor.is_drawing;
     },
     show_pencil: function (state) {
-      const input = useInputStore();
-      if (input.has_image) {
-        if (input.is_drawing) {
+      const editor = useEditorStore();
+      if (editor.has_image) {
+        if (editor.is_drawing) {
           return state.editor_view === "composite";
         } else {
           return (
-            state.editor_view === "composite" && input.mask_image_b64 !== null
+            state.editor_view === "composite" && editor.mask_image_b64 !== null
           );
         }
       } else {
@@ -35,16 +35,16 @@ export const useUIStore = defineStore({
       }
     },
     show_undo: function () {
-      const input = useInputStore();
-      return input.canvas_history.undo.length > 0;
+      const editor = useEditorStore();
+      return editor.history.undo.length > 0;
     },
     show_redo: function () {
-      const input = useInputStore();
-      return input.canvas_history.redo.length > 0;
+      const editor = useEditorStore();
+      return editor.history.redo.length > 0;
     },
     show_mask_button: function (state) {
-      const input = useInputStore();
-      return state.cursor_mode === "idle" && input.mask_image_b64 !== null;
+      const editor = useEditorStore();
+      return state.cursor_mode === "idle" && editor.mask_image_b64 !== null;
     },
     show_strength_slider: function (state) {
       return state.show_pencil;

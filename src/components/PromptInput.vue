@@ -2,26 +2,20 @@
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import SeedChip from "@/components/SeedChip.vue";
-import { onMounted } from "vue";
-import { useInputStore } from "@/stores/input";
-import { useOutputStore } from "@/stores/output";
+
 import { useBackendStore } from "@/stores/backend";
+import { useOutputStore } from "@/stores/output";
 import { generate } from "@/actions/generate";
 
-const input = useInputStore();
-const output = useOutputStore();
 const backend = useBackendStore();
-
-onMounted(() => {
-  console.log(`The initial prompt is '${input.prompt_input.value}'.`);
-});
+const output = useOutputStore();
 </script>
 
 <template lang="pug">
 div
   SeedChip
   .p-inputgroup.shadow-3
-    InputText(type="text", v-model="input.prompt_input.value", @keyup.enter="generate")
+    InputText(type="text", v-model="backend.findInput('prompt').value", @keyup.enter="generate")
     Button(@click="generate", :disabled="(output.loading || backend.show_license) ? 'disabled' : null")
       span.hide-sm Generate image
       span.show-sm

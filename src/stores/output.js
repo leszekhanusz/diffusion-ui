@@ -8,7 +8,7 @@ export const useOutputStore = defineStore({
       content: [],
       metadata: null,
       original_image: null,
-      canvas_history: null,
+      history: null,
     },
     gallery: [],
     error_message: null,

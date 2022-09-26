@@ -1,5 +1,5 @@
 import { useBackendStore } from "@/stores/backend";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useOutputStore } from "@/stores/output";
 
 function handleOutputAutomatic1111(json_result) {
@@ -43,7 +43,7 @@ function handleOutputDefault(json_result) {
 
 function handleOutput(input_data, backend_id, function_id, json_result) {
   const backend = useBackendStore();
-  const input = useInputStore();
+  const editor = useEditorStore();
   const output = useOutputStore();
 
   const data_field = json_result["data"];
@@ -66,12 +66,12 @@ function handleOutput(input_data, backend_id, function_id, json_result) {
     },
   };
 
-  if (input.has_image) {
-    images_with_metadata.original_image = input.uploaded_image_b64;
-    images_with_metadata.canvas_history = input.canvas_history;
+  if (editor.has_image) {
+    images_with_metadata.original_image = editor.uploaded_image_b64;
+    images_with_metadata.history = editor.history;
   } else {
     images_with_metadata.original_image = null;
-    images_with_metadata.canvas_history = null;
+    images_with_metadata.history = null;
   }
 
   output.images = images_with_metadata;

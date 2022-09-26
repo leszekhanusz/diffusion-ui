@@ -3,7 +3,7 @@ import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";
 import Slider from "primevue/slider";
 import ColorPicker from "primevue/colorpicker";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useUIStore } from "@/stores/ui";
 import {
   closeImage,
@@ -16,7 +16,7 @@ import {
 } from "@/actions/editor";
 import { ref } from "vue";
 
-const input = useInputStore();
+const editor = useEditorStore();
 const ui = useUIStore();
 
 const op = ref(null);
@@ -29,11 +29,11 @@ function brushSizeButton() {
 <template lang="pug">
 .flex.flex-row.justify-content-center
   .toolbar-left
-    ColorPicker(v-model="input.chosen_color", format="hex" :style="{visibility: ui.show_color_picker ? 'visible' : 'hidden'}")
+    ColorPicker(v-model="editor.chosen_color", format="hex" :style="{visibility: ui.show_color_picker ? 'visible' : 'hidden'}")
     Button.toolbar-button.brush-circle(:style="{visibility: ui.show_brush ? 'visible' : 'hidden'}", label="Primary", @click="brushSizeButton", class="p-button-raised p-button-rounded p-button-outlined", v-tooltip.bottom="{ value: 'Brush size'}")
       font-awesome-icon(icon="fa-solid fa-circle")
     OverlayPanel(ref="op", :showCloseIcon="false", :dismissable="true" class="brush-size-overlay")
-      Slider(@change="updateBrushSize" v-model="input.brush_size.slider" :min="1" :max="150" :step="2")
+      Slider(@change="updateBrushSize" v-model="editor.brush_size.slider" :min="1" :max="150" :step="2")
 
     Button.toolbar-button(:style="{ visibility: ui.show_eraser ? 'visible' : 'hidden'}", label="Primary", @click="toggleEraser", class="p-button-raised p-button-rounded p-button-outlined", :class="{ active: ui.cursor_mode === 'eraser'}", v-tooltip.bottom="{ value: 'Draw zone to modify'}")
       font-awesome-icon(icon="fa-solid fa-eraser")
