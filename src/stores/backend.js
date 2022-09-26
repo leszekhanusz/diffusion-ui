@@ -120,7 +120,17 @@ export const useBackendStore = defineStore({
       }
     },
     mode: (state) => state.current_function.mode,
-    inputs: (state) => state.current_function.inputs,
+    common_inputs: (state) => state.current.common_inputs,
+    inputs: function (state) {
+      return state.current_function.inputs.map(function (input) {
+        if (input.type === "common_input") {
+          return state.common_inputs.find(
+            (common_input) => common_input.id === input.id
+          );
+        }
+        return input;
+      });
+    },
     function_options: function (state) {
       if (!state.current.functions) {
         return [];
@@ -163,6 +173,7 @@ export const useBackendStore = defineStore({
       }
       if (this.current) {
         const input = this.inputs.find((input) => input.id === input_id);
+
         if (!input && warn) {
           console.warn(`input ${input_id} not found`);
         }
