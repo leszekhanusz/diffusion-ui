@@ -32,10 +32,10 @@ watch(
   { deep: true }
 );
 
-watch(toRef(editor, "editor_mode"), function (editor_mode) {
-  console.log(`editor_mode changed to ${editor_mode}`);
+watch(toRef(editor, "mode"), function (mode) {
+  console.log(`editor mode changed to ${mode}`);
 
-  const possible_modes = backend.getAllowedModes(editor_mode);
+  const possible_modes = backend.getAllowedModes(mode);
   backend.changeFunctionForModes(possible_modes);
 });
 </script>

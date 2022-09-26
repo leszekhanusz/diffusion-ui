@@ -120,18 +120,16 @@ function checkEditorMode() {
 
   // Special case, reset editor mode to img2img if we are in inpainting mode
   // and backend is in img2img mode
-  if (backend_mode === "img2img" && editor.editor_mode === "inpainting") {
-    editor.editor_mode = "img2img";
+  if (backend_mode === "img2img" && editor.mode === "inpainting") {
+    editor.mode = "img2img";
   }
-
-  const editor_mode = editor.editor_mode;
 
   // Some backends have a single mode for everything
   if (!backend_mode) {
     return true;
   }
 
-  const allowed_modes = backend.getAllowedModes(editor_mode);
+  const allowed_modes = backend.getAllowedModes(editor.mode);
 
   const allowed = allowed_modes.includes(backend_mode);
 

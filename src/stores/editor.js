@@ -26,7 +26,7 @@ export const useEditorStore = defineStore({
       redo: [],
     },
     canvas_mask: null,
-    editor_mode: "txt2img",
+    mode: "txt2img",
     canvas_width: 512,
     canvas_height: 512,
   }),

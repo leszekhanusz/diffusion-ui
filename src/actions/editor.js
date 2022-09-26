@@ -309,7 +309,7 @@ function initCanvas(canvas_id) {
           }
 
           // Change the mode to inpainting if needed
-          editor.editor_mode = "inpainting";
+          editor.mode = "inpainting";
         }
         break;
 
@@ -509,7 +509,7 @@ async function editNewImage(image_b64) {
     _editNewImage();
   }
 
-  editor.editor_mode = "img2img";
+  editor.mode = "img2img";
 }
 
 function resetEditorButtons() {
@@ -572,7 +572,7 @@ function closeImage() {
   resetEditorButtons();
   editor.uploaded_image_b64 = null;
   editor.has_image = false;
-  editor.editor_mode = "txt2img";
+  editor.mode = "txt2img";
 }
 
 function setCursorMode(cursor_mode) {
