@@ -4,7 +4,6 @@ export const useEditorStore = defineStore({
   id: "editor",
   state: () => ({
     has_image: false, // false = prompt only, true = image or drawing
-    is_drawing: false, // wether the canvas is only a drawing or not
     uploaded_image_b64: null, // original image uploaded
     init_image_b64: null, // final generated image from canvas
     mask_image_b64: null, // final generated mask from canvas
@@ -47,6 +46,7 @@ export const useEditorStore = defineStore({
     color: function (state) {
       return "#" + state.chosen_color;
     },
+    is_drawing: (state) => state.uploaded_image_b64 !== null,
   },
   actions: {},
 });

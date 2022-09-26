@@ -370,12 +370,11 @@ async function _editNewImage(image) {
   const backend = useBackendStore();
   const editor = useEditorStore();
 
-  const is_drawing = image === undefined;
-  editor.is_drawing = is_drawing;
-
   var draw_background;
 
-  if (is_drawing) {
+  if (image) {
+    draw_background = await asyncClone(image);
+  } else {
     if (backend.strength_input) {
       backend.strength_input.value = 0;
     }
@@ -388,8 +387,6 @@ async function _editNewImage(image) {
       absolutePositioned: true,
       selectable: false,
     });
-  } else {
-    draw_background = await asyncClone(image);
   }
 
   editor.layers.draw = new fabric.Group([draw_background], {
@@ -407,12 +404,10 @@ async function _editNewImage(image) {
     add_to_canvas("image", image);
     image.clipPath = editor.image_clip;
     editor.layers.image = image;
-  }
 
-  if (is_drawing) {
-    editor.layers.emphasize.set("opacity", 0);
-  } else {
     editor.layers.emphasize.set("opacity", 0.2);
+  } else {
+    editor.layers.emphasize.set("opacity", 0);
   }
 
   editor.canvas.bringToFront(editor.layers.emphasize);
