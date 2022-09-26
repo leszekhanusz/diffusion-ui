@@ -20,13 +20,13 @@ function undo({ save_redo = true } = {}) {
       case "erase":
         editor.image_clip.remove(undo_action.path);
         editor.canvas_mask.remove(undo_action.mask_path);
-        editor.emphasize.remove(undo_action.emphasize_path);
+        editor.layers.emphasize.remove(undo_action.emphasize_path);
 
         editor.mask_image_b64 = editor.canvas_mask.toDataURL();
         break;
 
       case "draw":
-        editor.canvas_draw.remove(undo_action.path);
+        editor.layers.draw.remove(undo_action.path);
         break;
     }
 
@@ -41,13 +41,13 @@ function redo_action(action) {
     case "erase":
       editor.image_clip.add(action.path);
       editor.canvas_mask.add(action.mask_path);
-      editor.emphasize.add(action.emphasize_path);
+      editor.layers.emphasize.add(action.emphasize_path);
 
       editor.mask_image_b64 = editor.canvas_mask.toDataURL();
       break;
 
     case "draw":
-      editor.canvas_draw.add(action.path);
+      editor.layers.draw.add(action.path);
       break;
   }
 }
@@ -87,12 +87,12 @@ function resetEditorActions() {
 
   editor.mask_image_b64 = null;
 
-  editor.emphasize._objects.length = 0;
-  editor.emphasize.dirty = true;
+  editor.layers.emphasize._objects.length = 0;
+  editor.layers.emphasize.dirty = true;
 
-  if (editor.canvas_draw) {
-    editor.canvas_draw._objects.length = 0;
-    editor.canvas_draw.dirty = true;
+  if (editor.layers.draw) {
+    editor.layers.draw._objects.length = 0;
+    editor.layers.draw.dirty = true;
   }
 
   editor.history = {
@@ -164,13 +164,13 @@ function initCanvas(canvas_id) {
   editor.image_clip = new fabric.Group([], { absolutePositioned: true });
   editor.image_clip.inverted = true;
 
-  editor.emphasize = new fabric.Group([], {
+  editor.layers.emphasize = new fabric.Group([], {
     absolutePositioned: true,
     opacity: 0.2,
     selectable: false,
   });
 
-  add_to_canvas("emphasize", editor.emphasize);
+  add_to_canvas("emphasize", editor.layers.emphasize);
 
   editor.brush = new fabric.PencilBrush();
   editor.brush.color = "white";
@@ -214,7 +214,7 @@ function initCanvas(canvas_id) {
 
   editor.canvas.setBackgroundColor(transparentBackground());
 
-  editor.brush_outline = new fabric.Circle({
+  editor.layers.brush_outline = new fabric.Circle({
     left: 0,
     right: 0,
     originX: "center",
@@ -228,27 +228,30 @@ function initCanvas(canvas_id) {
     opacity: 0,
   });
 
-  add_to_canvas("brush_outline", editor.brush_outline);
+  add_to_canvas("brush_outline", editor.layers.brush_outline);
   editor.canvas.freeDrawingCursor = "none";
 
   editor.canvas.on("mouse:move", function (o) {
     if (ui.cursor_mode !== "idle") {
       var pointer = editor.canvas.getPointer(o.e);
-      editor.brush_outline.left = pointer.x;
-      editor.brush_outline.top = pointer.y;
-      editor.brush_outline.opacity = 0.9;
+      editor.layers.brush_outline.left = pointer.x;
+      editor.layers.brush_outline.top = pointer.y;
+      editor.layers.brush_outline.opacity = 0.9;
 
       switch (ui.cursor_mode) {
         case "eraser":
-          editor.brush_outline.set("strokeWidth", 3);
-          editor.brush_outline.set("fill", "");
-          editor.brush_outline.set("radius", editor.brush_size.eraser / 2);
+          editor.layers.brush_outline.set("strokeWidth", 3);
+          editor.layers.brush_outline.set("fill", "");
+          editor.layers.brush_outline.set(
+            "radius",
+            editor.brush_size.eraser / 2
+          );
           break;
 
         case "draw":
-          editor.brush_outline.set("strokeWidth", 0);
-          editor.brush_outline.set("fill", editor.color);
-          editor.brush_outline.set("radius", editor.brush_size.draw / 2);
+          editor.layers.brush_outline.set("strokeWidth", 0);
+          editor.layers.brush_outline.set("fill", editor.color);
+          editor.layers.brush_outline.set("radius", editor.brush_size.draw / 2);
           editor.brush.color = editor.color;
           break;
       }
@@ -258,7 +261,7 @@ function initCanvas(canvas_id) {
   });
 
   editor.canvas.on("mouse:out", function () {
-    editor.brush_outline.opacity = 0;
+    editor.layers.brush_outline.opacity = 0;
 
     editor.canvas.renderAll();
   });
@@ -291,7 +294,7 @@ function initCanvas(canvas_id) {
           // Add the path to the emphasize front layer
           emphasize_path.stroke = "lightgrey";
           emphasize_path.opacity = 1;
-          editor.emphasize.addWithUpdate(emphasize_path);
+          editor.layers.emphasize.addWithUpdate(emphasize_path);
 
           editor.history.undo.push({
             type: "erase",
@@ -302,7 +305,7 @@ function initCanvas(canvas_id) {
 
           // Update the opacity depending on the strength
           if (backend.strength_input) {
-            editor.canvas_draw.set(
+            editor.layers.draw.set(
               "opacity",
               1 - backend.strength_input.value.value
             );
@@ -315,7 +318,7 @@ function initCanvas(canvas_id) {
 
       case "draw":
         path.stroke = editor.color;
-        editor.canvas_draw.addWithUpdate(path);
+        editor.layers.draw.addWithUpdate(path);
 
         editor.history.undo.push({
           type: "draw",
@@ -348,35 +351,35 @@ function renderImage() {
   const editor = useEditorStore();
 
   // Save opacity of ignored layers
-  const emphasize_opacity = editor.emphasize.opacity;
-  const draw_opacity = editor.canvas_draw.opacity;
+  const emphasize_opacity = editor.layers.emphasize.opacity;
+  const draw_opacity = editor.layers.draw.opacity;
 
   // Set the opacity to capture final image
-  editor.emphasize.set("opacity", 0);
-  editor.canvas_draw.set("opacity", 1);
+  editor.layers.emphasize.set("opacity", 0);
+  editor.layers.draw.set("opacity", 1);
 
   // render the image in the store
   editor.init_image_b64 = editor.canvas.toDataURL();
 
   // Restore the initial opacity
-  editor.emphasize.set("opacity", emphasize_opacity);
-  editor.canvas_draw.set("opacity", draw_opacity);
+  editor.layers.emphasize.set("opacity", emphasize_opacity);
+  editor.layers.draw.set("opacity", draw_opacity);
 }
 
-function _editNewImage(image, transparent_image) {
+async function _editNewImage(image) {
   const backend = useBackendStore();
   const editor = useEditorStore();
 
   const is_drawing = image === undefined;
   editor.is_drawing = is_drawing;
 
-  var canvas_draw_background;
+  var draw_background;
 
   if (is_drawing) {
     if (backend.strength_input) {
       backend.strength_input.value = 0;
     }
-    canvas_draw_background = new fabric.Rect({
+    draw_background = new fabric.Rect({
       width: editor.width,
       height: editor.height,
       left: 0,
@@ -386,34 +389,34 @@ function _editNewImage(image, transparent_image) {
       selectable: false,
     });
   } else {
-    canvas_draw_background = transparent_image;
+    draw_background = await asyncClone(image);
   }
 
-  editor.canvas_draw = new fabric.Group([canvas_draw_background], {
+  editor.layers.draw = new fabric.Group([draw_background], {
     selectable: false,
     absolutePositioned: true,
   });
 
   if (backend.strength_input) {
-    editor.canvas_draw.set("opacity", 1 - backend.strength_input.value);
+    editor.layers.draw.set("opacity", 1 - backend.strength_input.value);
   }
 
-  add_to_canvas("draw", editor.canvas_draw);
+  add_to_canvas("draw", editor.layers.draw);
 
   if (image) {
     add_to_canvas("image", image);
     image.clipPath = editor.image_clip;
-    editor.canvas_image = image;
+    editor.layers.image = image;
   }
 
   if (is_drawing) {
-    editor.emphasize.set("opacity", 0);
+    editor.layers.emphasize.set("opacity", 0);
   } else {
-    editor.emphasize.set("opacity", 0.2);
+    editor.layers.emphasize.set("opacity", 0.2);
   }
 
-  editor.canvas.bringToFront(editor.emphasize);
-  editor.canvas.bringToFront(editor.brush_outline);
+  editor.canvas.bringToFront(editor.layers.emphasize);
+  editor.canvas.bringToFront(editor.layers.brush_outline);
 }
 
 async function fabricImageFromURL(image_url) {
@@ -450,14 +453,14 @@ async function editNewImage(image_b64) {
 
   editor.has_image = true;
 
-  if (editor.canvas_image) {
-    editor.canvas.remove(editor.canvas_image);
-    editor.canvas_image = null;
+  if (editor.layers.image) {
+    editor.canvas.remove(editor.layers.image);
+    editor.layers.image = null;
   }
 
-  if (editor.canvas_draw) {
-    editor.canvas.remove(editor.canvas_draw);
-    editor.canvas_draw = null;
+  if (editor.layers.draw) {
+    editor.canvas.remove(editor.layers.draw);
+    editor.layers.draw = null;
   }
 
   // Waiting that the canvas has been created asynchronously by Vue
@@ -500,11 +503,9 @@ async function editNewImage(image_b64) {
     editor.canvas_mask.setWidth(editor.width);
     editor.canvas_mask.setHeight(editor.height);
 
-    const transparent_image = await asyncClone(image);
-
-    _editNewImage(image, transparent_image);
+    await _editNewImage(image);
   } else {
-    _editNewImage();
+    await _editNewImage();
   }
 
   editor.mode = "img2img";
@@ -518,7 +519,7 @@ function resetEditorButtons() {
   ui.editor_view = "composite";
   if (editor.canvas) {
     editor.canvas.isDrawingMode = false;
-    editor.brush_outline.opacity = 0;
+    editor.layers.brush_outline.opacity = 0;
     editor.canvas.renderAll();
   }
 }

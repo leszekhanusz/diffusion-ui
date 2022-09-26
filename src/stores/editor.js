@@ -9,26 +9,39 @@ export const useEditorStore = defineStore({
     init_image_b64: null, // final generated image from canvas
     mask_image_b64: null, // final generated mask from canvas
     canvas: null, // fabric.js main canvas
-    canvas_image: null, // image layer with holes (mask)
-    canvas_draw: null, // draw layer with opacity changing with strength
-    image_clip: null, // holes in the image (mask)
-    emphasize: null, // layer above the image to emphasize the masked areas
-    brush: null,
-    chosen_color: "0000ff",
+    canvas_mask: null, // generated fabric.js canvas for the mask
+    layers: {
+      // layers from top to bottom
+      brush_outline: null, // Circle outline used to show a cursor for erasing or drawing
+      emphasize: null, // fabric.js Group layer above the image to emphasize the masked areas
+      image: null, // image layer with holes defined in image_clip
+      draw: null /* fabric.js Group containing:
+                      - for images:
+                        * the original image
+                        * all the drawn strokes
+                      - for drawings:
+                        * a white rectangle
+                        * all the drawn strokes
+                  This layer opacity will change depending on strength*/,
+      // Below is a simulated transparent pattern
+    },
+    image_clip: null, // holes defined in the image layer (same as mask)
+    brush: null, // fabric.PencilBrush
+    chosen_color: "0000ff", // value returned from the color picker component
     brush_size: {
+      // brush size, we're keeping different size for drawing or erasing
       eraser: 60,
       draw: 10,
       slider: 60,
     },
-    brush_outline: null,
     history: {
+      // complete history of the strokes (erasing and drawing)
       undo: [],
       redo: [],
     },
-    canvas_mask: null,
-    mode: "txt2img",
-    width: 512,
-    height: 512,
+    mode: "txt2img", // "txt2img", "img2img" or "inpainting"
+    width: 512, // canvas width
+    height: 512, // canvas height
   }),
   getters: {
     color: function (state) {

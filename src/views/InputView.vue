@@ -23,8 +23,8 @@ watch(
   function (strength_input) {
     console.log("Strength input changed");
     if (strength_input) {
-      if (editor.canvas_draw && editor.canvas) {
-        editor.canvas_draw.set("opacity", 1 - strength_input.value);
+      if (editor.layers.draw && editor.canvas) {
+        editor.layers.draw.set("opacity", 1 - strength_input.value);
         editor.canvas.renderAll();
       }
     }
