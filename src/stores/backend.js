@@ -57,6 +57,22 @@ const backends = backends_json.map(function (backend) {
   };
 });
 
+const backend_options = [
+  {
+    label: "Online",
+    id: "online",
+    backends: [{ label: "Latent Diffusion", id: "latent_diffusion" }],
+  },
+  {
+    label: "Local",
+    id: "local",
+    backends: [
+      { label: "Stable Diffusion", id: "stable_diffusion" },
+      { label: "Automatic1111 fork", id: "stable_diffusion_automatic1111" },
+    ],
+  },
+];
+
 const default_backend = backends.find(
   (backend) => backend.original.id === "stable_diffusion"
 );
@@ -66,6 +82,7 @@ export const useBackendStore = defineStore({
   id: "backends",
   state: () => ({
     backends: backends,
+    backend_options: backend_options,
     backend_id: useStorage("backend_id", default_backend_id),
     fn_id: null,
   }),
@@ -114,11 +131,6 @@ export const useBackendStore = defineStore({
       }));
       return opts;
     },
-    backend_options: (state) =>
-      state.backends.map((backend) => ({
-        name: backend.current.name,
-        id: backend.original.id,
-      })),
     show_license(state) {
       if (state.current.license_accepted) {
         return false;
