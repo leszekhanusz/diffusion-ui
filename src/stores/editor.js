@@ -46,7 +46,7 @@ export const useEditorStore = defineStore({
     color: function (state) {
       return "#" + state.chosen_color;
     },
-    is_drawing: (state) => state.uploaded_image_b64 !== null,
+    is_drawing: (state) => state.uploaded_image_b64 === null,
   },
   actions: {},
 });

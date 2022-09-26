@@ -145,8 +145,18 @@ function add_to_canvas(name, item) {
   console.log(`Adding ${name} to canvas.`);
 }
 
-function initCanvas(canvas_id) {
+function updateDrawLayerOpacity() {
   const backend = useBackendStore();
+  const editor = useEditorStore();
+
+  if (editor.layers.draw) {
+    const opacity = 1 - backend.getInput("strength", 0);
+
+    editor.layers.draw.set("opacity", opacity);
+  }
+}
+
+function initCanvas(canvas_id) {
   const editor = useEditorStore();
   const ui = useUIStore();
 
@@ -304,12 +314,7 @@ function initCanvas(canvas_id) {
           });
 
           // Update the opacity depending on the strength
-          if (backend.strength_input) {
-            editor.layers.draw.set(
-              "opacity",
-              1 - backend.strength_input.value.value
-            );
-          }
+          updateDrawLayerOpacity();
 
           // Change the mode to inpainting if needed
           editor.mode = "inpainting";
@@ -375,9 +380,8 @@ async function _editNewImage(image) {
   if (image) {
     draw_background = await asyncClone(image);
   } else {
-    if (backend.strength_input) {
-      backend.strength_input.value = 0;
-    }
+    backend.setInput("strength", 0, false);
+
     draw_background = new fabric.Rect({
       width: editor.width,
       height: editor.height,
@@ -394,9 +398,8 @@ async function _editNewImage(image) {
     absolutePositioned: true,
   });
 
-  if (backend.strength_input) {
-    editor.layers.draw.set("opacity", 1 - backend.strength_input.value);
-  }
+  // Update the opacity depending on the strength
+  updateDrawLayerOpacity();
 
   add_to_canvas("draw", editor.layers.draw);
 
@@ -612,6 +615,14 @@ function toggleMaskView() {
   console.log(`UI editor mode set to ${ui.editor_view}`);
 }
 
+function renderCanvas() {
+  const editor = useEditorStore();
+
+  if (editor.canvas) {
+    editor.canvas.renderAll();
+  }
+}
+
 export {
   closeImage,
   editNewImage,
@@ -620,6 +631,7 @@ export {
   initCanvas,
   newDrawing,
   redo,
+  renderCanvas,
   renderImage,
   resetEditorButtons,
   toggleDraw,
@@ -627,4 +639,5 @@ export {
   toggleMaskView,
   undo,
   updateBrushSize,
+  updateDrawLayerOpacity,
 };
