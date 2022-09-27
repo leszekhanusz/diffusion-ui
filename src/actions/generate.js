@@ -1,12 +1,12 @@
 import { useUIStore } from "@/stores/ui";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
 import { renderImage, resetEditorButtons } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
 
 async function generateImageGradio() {
-  const input = useInputStore();
+  const editor = useEditorStore();
   const backend = useBackendStore();
 
   const inputs_config = backend.inputs;
@@ -24,19 +24,19 @@ async function generateImageGradio() {
     );
 
     if (image_input) {
-      if (input.has_image) {
+      if (editor.has_image) {
         // Create final image in input.init_image_b64
         renderImage();
 
-        image_input.value = input.init_image_b64;
+        image_input.value = editor.init_image_b64;
       } else {
         image_input.value = null;
       }
     }
 
     if (mask_image_input) {
-      if (input.mask_image_b64) {
-        mask_image_input.value = input.mask_image_b64;
+      if (editor.mask_image_b64) {
+        mask_image_input.value = editor.mask_image_b64;
       } else {
         mask_image_input.value = null;
       }
@@ -114,24 +114,22 @@ async function generateImages() {
 
 function checkEditorMode() {
   const backend = useBackendStore();
-  const input = useInputStore();
+  const editor = useEditorStore();
 
   const backend_mode = backend.mode;
 
   // Special case, reset editor mode to img2img if we are in inpainting mode
   // and backend is in img2img mode
-  if (backend_mode === "img2img" && input.editor_mode === "inpainting") {
-    input.editor_mode = "img2img";
+  if (backend_mode === "img2img" && editor.mode === "inpainting") {
+    editor.mode = "img2img";
   }
-
-  const editor_mode = input.editor_mode;
 
   // Some backends have a single mode for everything
   if (!backend_mode) {
     return true;
   }
 
-  const allowed_modes = backend.getAllowedModes(editor_mode);
+  const allowed_modes = backend.getAllowedModes(editor.mode);
 
   const allowed = allowed_modes.includes(backend_mode);
 

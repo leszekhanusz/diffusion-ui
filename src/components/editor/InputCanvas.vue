@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted } from "vue";
 import { initCanvas } from "@/actions/editor";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 
-const input = useInputStore();
+const editor = useEditorStore();
 
 onMounted(() => {
   console.log("InputCanvas onMounted");
@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template lang="pug">
-canvas#canvas.main-canvas(:width="input.canvas_width", :height="input.canvas_height", style="{max-width: 100vw}")
+canvas#canvas.main-canvas(:width="editor.width", :height="editor.height", style="{max-width: 100vw}")
 </template>
 
 <style>

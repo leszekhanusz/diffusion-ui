@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
-import { computed } from "vue";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
@@ -154,7 +153,8 @@ export const useBackendStore = defineStore({
     },
     has_image_input: (state) =>
       state.inputs.some((input) => input.type === "image"),
-    strength_input: (state) => computed(() => state.findInput("strength")),
+    strength_input: (state) => state.findInput("strength"),
+    strength: (state) => state.getInput("strength", 0),
     access_code_input: (state) => state.findInput("access_code", false),
     has_access_code: (state) => !!state.access_code_input,
     license: (state) => state.getBackendField("license"),

@@ -2,115 +2,132 @@ import { fabric } from "fabric";
 import { nextTick } from "vue";
 import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useUIStore } from "@/stores/ui";
 import { resetInputsFromResultImage } from "@/actions/output";
 
 function undo({ save_redo = true } = {}) {
-  const input = useInputStore();
+  const editor = useEditorStore();
 
-  const undo_action = input.canvas_history.undo.pop();
+  const undo_action = editor.history.undo.pop();
 
   if (undo_action) {
     if (save_redo) {
-      input.canvas_history.redo.push(undo_action);
+      editor.history.redo.push(undo_action);
     }
 
     switch (undo_action.type) {
       case "erase":
-        input.image_clip.remove(undo_action.path);
-        input.canvas_mask.remove(undo_action.mask_path);
-        input.emphasize.remove(undo_action.emphasize_path);
+        editor.image_clip.remove(undo_action.clip_path);
+        editor.canvas_mask.remove(undo_action.mask_path);
+        editor.layers.emphasize.remove(undo_action.emphasize_path);
 
-        input.mask_image_b64 = input.canvas_mask.toDataURL();
+        delete undo_action.clip_path;
+        delete undo_action.mask_path;
+        delete undo_action.emphasize_path;
+
+        editor.mask_image_b64 = editor.canvas_mask.toDataURL();
         break;
 
       case "draw":
-        input.canvas_draw.remove(undo_action.path);
+        editor.layers.draw.remove(undo_action.draw_path);
+
+        delete undo_action.draw_path;
         break;
     }
 
-    input.canvas.renderAll();
+    editor.canvas.renderAll();
   }
 }
 
-function redo_action(action) {
-  const input = useInputStore();
+async function doAction(action) {
+  const editor = useEditorStore();
 
   switch (action.type) {
     case "erase":
-      input.image_clip.add(action.path);
-      input.canvas_mask.add(action.mask_path);
-      input.emphasize.add(action.emphasize_path);
+      action.clip_path = await asyncClone(action.path);
+      action.mask_path = await asyncClone(action.path);
+      action.emphasize_path = await asyncClone(action.path);
 
-      input.mask_image_b64 = input.canvas_mask.toDataURL();
+      action.emphasize_path.stroke = "lightgrey";
+
+      editor.image_clip.addWithUpdate(action.clip_path);
+      editor.canvas_mask.add(action.mask_path);
+      editor.layers.emphasize.addWithUpdate(action.emphasize_path);
+
+      editor.mask_image_b64 = editor.canvas_mask.toDataURL();
       break;
 
     case "draw":
-      input.canvas_draw.add(action.path);
+      action.draw_path = await asyncClone(action.path);
+
+      editor.layers.draw.addWithUpdate(action.draw_path);
       break;
   }
 }
 
-function redo() {
-  const input = useInputStore();
+async function redo() {
+  const editor = useEditorStore();
 
-  const action = input.canvas_history.redo.pop();
+  const action = editor.history.redo.pop();
 
   if (action) {
-    redo_action(action);
-    input.canvas.renderAll();
+    await doAction(action);
+    editor.canvas.renderAll();
 
-    input.canvas_history.undo.push(action);
+    editor.history.undo.push(action);
   }
 }
 
-function redo_whole_history(undo) {
+async function redoWholeHistory(undo) {
   const nb_undo = undo.length;
   for (let i = 0; i < nb_undo; i++) {
     const action = undo[i];
-    redo_action(action);
+    await doAction(action);
   }
 }
 
 function resetEditorActions() {
-  const input = useInputStore();
+  const editor = useEditorStore();
 
-  input.image_clip._objects.length = 0;
-  input.image_clip.dirty = true;
-
-  input.canvas_mask = new fabric.Canvas();
-  input.canvas_mask.selection = false;
-  input.canvas_mask.setBackgroundColor("black");
-  input.canvas_mask.setHeight(input.canvas_height);
-  input.canvas_mask.setWidth(input.canvas_width);
-
-  input.mask_image_b64 = null;
-
-  input.emphasize._objects.length = 0;
-  input.emphasize.dirty = true;
-
-  if (input.canvas_draw) {
-    input.canvas_draw._objects.length = 0;
-    input.canvas_draw.dirty = true;
+  // Remove existing layers
+  if (editor.layers.image) {
+    editor.canvas.remove(editor.layers.image);
+    editor.layers.image = null;
   }
 
-  input.canvas_history = {
+  if (editor.image_clip) {
+    editor.image_clip = null;
+  }
+
+  if (editor.layers.draw) {
+    editor.canvas.remove(editor.layers.draw);
+    editor.layers.draw = null;
+  }
+
+  if (editor.layers.emphasize) {
+    editor.canvas.remove(editor.layers.emphasize);
+    editor.layers.emphasize = null;
+  }
+
+  editor.canvas_mask = null;
+  editor.uploaded_image_b64 = null;
+  editor.mask_image_b64 = null;
+
+  editor.history = {
     undo: [],
     redo: [],
   };
-
-  input.canvas.renderAll();
 }
 
-function keyUpHandler(event) {
+async function onKeyUp(event) {
   if (event.ctrlKey) {
     switch (event.key) {
       case "z":
         undo();
         break;
       case "y":
-        redo();
+        await redo();
         break;
     }
   } else {
@@ -126,57 +143,137 @@ function keyUpHandler(event) {
 /*
 DEBUG
 function print_objects() {
-  const input = useInputStore();
+  const editor = useEditorStore();
 
-  const objects = input.canvas.getObjects();
+  const objects = editor.canvas.getObjects();
 
   console.log("PRINT");
   objects.forEach(object => console.log(object.nam));
 }
 */
 
-function add_to_canvas(name, item) {
-  const input = useInputStore();
+function addToCanvas(name, item) {
+  const editor = useEditorStore();
 
   item.nam = name;
 
-  input.canvas.add(item);
+  editor.canvas.add(item);
 
   console.log(`Adding ${name} to canvas.`);
 }
 
-function initCanvas(canvas_id) {
+function updateDrawLayerOpacity() {
   const backend = useBackendStore();
-  const input = useInputStore();
-  const ui = useUIStore();
+  const editor = useEditorStore();
 
-  console.log("Init canvas!");
+  if (editor.layers.draw) {
+    const opacity = 1 - backend.getInput("strength", 0);
 
-  input.canvas = new fabric.Canvas(canvas_id);
-  input.canvas.selection = false;
+    editor.layers.draw.set("opacity", opacity);
+  }
+}
 
-  input.canvas_mask = new fabric.Canvas();
-  input.canvas_mask.selection = false;
-  input.canvas_mask.setBackgroundColor("black");
-  input.canvas_mask.setHeight(input.canvas_height);
-  input.canvas_mask.setWidth(input.canvas_width);
+function makeNewCanvasMask() {
+  const editor = useEditorStore();
 
-  input.image_clip = new fabric.Group([], { absolutePositioned: true });
-  input.image_clip.inverted = true;
+  editor.canvas_mask = new fabric.Canvas();
+  editor.canvas_mask.selection = false;
+  editor.canvas_mask.setBackgroundColor("black");
+  editor.canvas_mask.setHeight(editor.height);
+  editor.canvas_mask.setWidth(editor.width);
+}
 
-  input.emphasize = new fabric.Group([], {
+function makeNewImageClip() {
+  const editor = useEditorStore();
+
+  editor.image_clip = new fabric.Group([], { absolutePositioned: true });
+  editor.image_clip.inverted = true;
+}
+
+function makeNewLayerEmphasize() {
+  const editor = useEditorStore();
+
+  editor.layers.emphasize = new fabric.Group([], {
     absolutePositioned: true,
     opacity: 0.2,
     selectable: false,
   });
+}
 
-  add_to_canvas("emphasize", input.emphasize);
+async function makeNewLayerImage(image) {
+  const editor = useEditorStore();
 
-  input.brush = new fabric.PencilBrush();
-  input.brush.color = "white";
-  input.brush.width = input.brush_size.eraser;
-  input.canvas.freeDrawingBrush = input.brush;
-  input.brush.initialize(input.canvas);
+  image.selectable = false;
+
+  let width = image.width;
+  let height = image.height;
+
+  console.log(`Uploaded image with resolution: ${width}x${height}`);
+
+  if (width !== 512 || height !== 512) {
+    if (width > height) {
+      image.scaleToWidth(512);
+
+      height = 512 * (height / width);
+      width = 512;
+    } else {
+      image.scaleToHeight(512);
+
+      width = 512 * (width / height);
+      height = 512;
+    }
+    console.log(`Scaled resolution: ${width}x${height}`);
+  }
+
+  // new editor.image_clip
+  makeNewImageClip();
+
+  image.clipPath = editor.image_clip;
+  editor.layers.image = image;
+
+  return { width, height };
+}
+
+async function makeNewLayerDraw(image) {
+  const backend = useBackendStore();
+  const editor = useEditorStore();
+
+  let draw_background;
+
+  if (image) {
+    draw_background = await asyncClone(image);
+  } else {
+    backend.setInput("strength", 0, false);
+
+    draw_background = new fabric.Rect({
+      width: editor.width,
+      height: editor.height,
+      left: 0,
+      top: 0,
+      fill: "white",
+      absolutePositioned: true,
+      selectable: false,
+    });
+  }
+
+  editor.layers.draw = new fabric.Group([draw_background], {
+    selectable: false,
+    absolutePositioned: true,
+  });
+}
+
+function makeNewEditorBrush() {
+  const editor = useEditorStore();
+
+  editor.brush = new fabric.PencilBrush();
+  editor.brush.color = "white";
+  editor.brush.width = editor.brush_size.eraser;
+  editor.canvas.freeDrawingBrush = editor.brush;
+  editor.brush.initialize(editor.canvas);
+}
+
+function makeNewTransparentBackground() {
+  const editor = useEditorStore();
 
   const transparentBackground = function () {
     const chess_canvas = new fabric.StaticCanvas(null, {
@@ -212,14 +309,18 @@ function initCanvas(canvas_id) {
     return transparent_pattern;
   };
 
-  input.canvas.setBackgroundColor(transparentBackground());
+  editor.canvas.setBackgroundColor(transparentBackground());
+}
 
-  input.brush_outline = new fabric.Circle({
+function makeNewLayerBrushOutline() {
+  const editor = useEditorStore();
+
+  editor.layers.brush_outline = new fabric.Circle({
     left: 0,
     right: 0,
     originX: "center",
     originY: "center",
-    radius: input.brush_size.eraser,
+    radius: editor.brush_size.eraser,
     angle: 0,
     fill: "",
     stroke: "#b25d5d",
@@ -227,190 +328,167 @@ function initCanvas(canvas_id) {
     strokeWidth: 3,
     opacity: 0,
   });
+}
 
-  add_to_canvas("brush_outline", input.brush_outline);
-  input.canvas.freeDrawingCursor = "none";
+function onMouseMove(o) {
+  const editor = useEditorStore();
+  const ui = useUIStore();
 
-  input.canvas.on("mouse:move", function (o) {
-    if (ui.cursor_mode !== "idle") {
-      var pointer = input.canvas.getPointer(o.e);
-      input.brush_outline.left = pointer.x;
-      input.brush_outline.top = pointer.y;
-      input.brush_outline.opacity = 0.9;
-
-      switch (ui.cursor_mode) {
-        case "eraser":
-          input.brush_outline.set("strokeWidth", 3);
-          input.brush_outline.set("fill", "");
-          input.brush_outline.set("radius", input.brush_size.eraser / 2);
-          break;
-
-        case "draw":
-          input.brush_outline.set("strokeWidth", 0);
-          input.brush_outline.set("fill", input.color);
-          input.brush_outline.set("radius", input.brush_size.draw / 2);
-          input.brush.color = input.color;
-          break;
-      }
-
-      input.canvas.renderAll();
-    }
-  });
-
-  input.canvas.on("mouse:out", function () {
-    input.brush_outline.opacity = 0;
-
-    input.canvas.renderAll();
-  });
-
-  input.canvas.on("path:created", function (e) {
-    const path = e.path;
-    path.selectable = false;
-
-    path.opacity = 1;
-
-    input.canvas_history.redo.length = 0;
-    input.canvas.remove(path);
+  if (ui.cursor_mode !== "idle") {
+    var pointer = editor.canvas.getPointer(o.e);
+    editor.layers.brush_outline.left = pointer.x;
+    editor.layers.brush_outline.top = pointer.y;
+    editor.layers.brush_outline.opacity = 0.9;
 
     switch (ui.cursor_mode) {
       case "eraser":
-        path.color = "white";
-        path.clone(function (mask_path) {
-          path.clone(function (emphasize_path) {
-            // Add the path to the mask canvas and regenerate the mask image
-            input.canvas_mask.add(mask_path);
-            input.mask_image_b64 = input.canvas_mask.toDataURL();
-
-            // Add the path to the image clip group
-            input.image_clip.addWithUpdate(path);
-
-            // Add the path to the emphasize front layer
-            emphasize_path.stroke = "lightgrey";
-            emphasize_path.opacity = 1;
-            input.emphasize.addWithUpdate(emphasize_path);
-
-            input.canvas_history.undo.push({
-              type: "erase",
-              path: path,
-              mask_path: mask_path,
-              emphasize_path: emphasize_path,
-            });
-
-            // Update the opacity depending on the strength
-            if (backend.strength_input) {
-              input.canvas_draw.set(
-                "opacity",
-                1 - backend.strength_input.value.value
-              );
-            }
-
-            // Change the mode to inpainting if needed
-            input.editor_mode = "inpainting";
-          });
-        });
+        editor.layers.brush_outline.set("strokeWidth", 3);
+        editor.layers.brush_outline.set("fill", "");
+        editor.layers.brush_outline.set("radius", editor.brush_size.eraser / 2);
         break;
 
       case "draw":
-        path.stroke = input.color;
-        input.canvas_draw.addWithUpdate(path);
-
-        input.canvas_history.undo.push({
-          type: "draw",
-          path: path,
-        });
-
+        editor.layers.brush_outline.set("strokeWidth", 0);
+        editor.layers.brush_outline.set("fill", editor.color);
+        editor.layers.brush_outline.set("radius", editor.brush_size.draw / 2);
+        editor.brush.color = editor.color;
         break;
     }
 
-    input.canvas.renderAll();
-  });
+    editor.canvas.renderAll();
+  }
+}
 
-  document.addEventListener("keyup", keyUpHandler);
+function onMouseOut() {
+  const editor = useEditorStore();
+
+  editor.layers.brush_outline.opacity = 0;
+
+  editor.canvas.renderAll();
+}
+
+async function onPathCreated(e) {
+  const editor = useEditorStore();
+  const ui = useUIStore();
+
+  const path = e.path;
+  path.selectable = false;
+
+  path.opacity = 1;
+
+  editor.history.redo.length = 0;
+  editor.canvas.remove(path);
+
+  switch (ui.cursor_mode) {
+    case "eraser":
+      {
+        path.color = "white";
+
+        const eraser_action = {
+          type: "erase",
+          path: path,
+        };
+
+        await doAction(eraser_action);
+
+        editor.history.undo.push(eraser_action);
+
+        // Update the opacity depending on the strength
+        updateDrawLayerOpacity();
+
+        // Change the mode to inpainting if needed
+        editor.mode = "inpainting";
+      }
+      break;
+
+    case "draw":
+      {
+        path.stroke = editor.color;
+
+        const draw_action = {
+          type: "draw",
+          path: path,
+        };
+
+        await doAction(draw_action);
+
+        editor.history.undo.push(draw_action);
+      }
+      break;
+  }
+
+  editor.canvas.renderAll();
+}
+
+function setupEventListeners() {
+  const editor = useEditorStore();
+
+  editor.canvas.on("mouse:move", onMouseMove);
+  editor.canvas.on("mouse:out", onMouseOut);
+  editor.canvas.on("path:created", onPathCreated);
+
+  document.addEventListener("keyup", onKeyUp);
+}
+
+function initCanvas(canvas_id) {
+  const editor = useEditorStore();
+
+  console.log("Init canvas!");
+
+  // new fabric canvas
+  editor.canvas = new fabric.Canvas(canvas_id);
+  editor.canvas.selection = false;
+  editor.canvas.freeDrawingCursor = "none";
+
+  // put a transparent pattern as the editor.canvas background
+  makeNewTransparentBackground();
+
+  // new editor.brush (PencilBrush) associated to editor.canvas
+  makeNewEditorBrush();
+
+  // new editor.canvas_mask
+  makeNewCanvasMask();
+
+  // new editor.layers.brush_outline
+  makeNewLayerBrushOutline();
+
+  // Add to layers to canvas
+  addToCanvas("brush_outline", editor.layers.brush_outline);
+
+  // listen to canvas events
+  setupEventListeners();
 }
 
 function updateBrushSize() {
-  const input = useInputStore();
+  const editor = useEditorStore();
   const ui = useUIStore();
 
-  input.brush.width = input.brush_size.slider;
+  editor.brush.width = editor.brush_size.slider;
 
   if (ui.cursor_mode === "eraser") {
-    input.brush_size.eraser = input.brush_size.slider;
+    editor.brush_size.eraser = editor.brush_size.slider;
   } else if (ui.cursor_mode === "draw") {
-    input.brush_size.draw = input.brush_size.slider;
+    editor.brush_size.draw = editor.brush_size.slider;
   }
 }
 
 function renderImage() {
-  const input = useInputStore();
+  const editor = useEditorStore();
 
   // Save opacity of ignored layers
-  const emphasize_opacity = input.emphasize.opacity;
-  const draw_opacity = input.canvas_draw.opacity;
+  const emphasize_opacity = editor.layers.emphasize.opacity;
+  const draw_opacity = editor.layers.draw.opacity;
 
   // Set the opacity to capture final image
-  input.emphasize.set("opacity", 0);
-  input.canvas_draw.set("opacity", 1);
+  editor.layers.emphasize.set("opacity", 0);
+  editor.layers.draw.set("opacity", 1);
 
   // render the image in the store
-  input.init_image_b64 = input.canvas.toDataURL();
+  editor.init_image_b64 = editor.canvas.toDataURL();
 
   // Restore the initial opacity
-  input.emphasize.set("opacity", emphasize_opacity);
-  input.canvas_draw.set("opacity", draw_opacity);
-}
-
-function _editNewImage(image, transparent_image) {
-  const backend = useBackendStore();
-  const input = useInputStore();
-
-  const is_drawing = image === undefined;
-  input.is_drawing = is_drawing;
-
-  var canvas_draw_background;
-
-  if (is_drawing) {
-    if (backend.strength_input) {
-      backend.strength_input.value = 0;
-    }
-    canvas_draw_background = new fabric.Rect({
-      width: input.canvas_width,
-      height: input.canvas_height,
-      left: 0,
-      top: 0,
-      fill: "white",
-      absolutePositioned: true,
-      selectable: false,
-    });
-  } else {
-    canvas_draw_background = transparent_image;
-  }
-
-  input.canvas_draw = new fabric.Group([canvas_draw_background], {
-    selectable: false,
-    absolutePositioned: true,
-  });
-
-  if (backend.strength_input) {
-    input.canvas_draw.set("opacity", 1 - backend.strength_input.value);
-  }
-
-  add_to_canvas("draw", input.canvas_draw);
-
-  if (image) {
-    add_to_canvas("image", image);
-    image.clipPath = input.image_clip;
-    input.canvas_image = image;
-  }
-
-  if (is_drawing) {
-    input.emphasize.set("opacity", 0);
-  } else {
-    input.emphasize.set("opacity", 0.2);
-  }
-
-  input.canvas.bringToFront(input.emphasize);
-  input.canvas.bringToFront(input.brush_outline);
+  editor.layers.emphasize.set("opacity", emphasize_opacity);
+  editor.layers.draw.set("opacity", draw_opacity);
 }
 
 async function fabricImageFromURL(image_url) {
@@ -425,11 +503,11 @@ async function fabricImageFromURL(image_url) {
   });
 }
 
-async function fabricImageClone(image) {
+async function asyncClone(object) {
   return new Promise(function (resolve, reject) {
     try {
-      image.clone(function (cloned_image) {
-        resolve(cloned_image);
+      object.clone(function (cloned_object) {
+        resolve(cloned_object);
       });
     } catch (error) {
       reject(error);
@@ -438,87 +516,79 @@ async function fabricImageClone(image) {
 }
 
 async function editNewImage(image_b64) {
-  const input = useInputStore();
+  const editor = useEditorStore();
 
+  // Remove existing layers
   resetEditorActions();
 
-  // Forget history
-  input.canvas_history.redo.length = 0;
+  editor.has_image = true;
+  editor.mode = "img2img";
 
-  input.has_image = true;
-
-  if (input.canvas_image) {
-    input.canvas.remove(input.canvas_image);
-    input.canvas_image = null;
-  }
-
-  if (input.canvas_draw) {
-    input.canvas.remove(input.canvas_draw);
-    input.canvas_draw = null;
-  }
+  // will allow the inputs to be changed to img2img (useful for strength input change)
+  await nextTick();
 
   // Waiting that the canvas has been created asynchronously by Vue
-  while (input.canvas === null) {
+  while (editor.canvas === null) {
     console.log(".");
     await nextTick();
   }
 
+  let image = null;
+  let width = 512;
+  let height = 512;
+
   if (image_b64) {
-    input.uploaded_image_b64 = image_b64;
+    editor.uploaded_image_b64 = image_b64;
 
-    const image = await fabricImageFromURL(image_b64);
-    image.selectable = false;
+    image = await fabricImageFromURL(image_b64);
 
-    const width = image.width;
-    const height = image.height;
-    console.log(`Uploaded image with resolution: ${width}x${height}`);
-
-    if (width === 512 && height === 512) {
-      input.canvas_width = width;
-      input.canvas_height = height;
-    } else {
-      if (width > height) {
-        image.scaleToWidth(512);
-
-        input.canvas_width = 512;
-        input.canvas_height = 512 * (height / width);
-      } else {
-        image.scaleToHeight(512);
-
-        input.canvas_height = 512;
-        input.canvas_width = 512 * (width / height);
-      }
-      console.log(
-        `Scaled resolution: ${input.canvas_width}x${input.canvas_height}`
-      );
-    }
-
-    input.canvas.setWidth(input.canvas_width);
-    input.canvas.setHeight(input.canvas_height);
-
-    input.canvas_mask.setWidth(input.canvas_width);
-    input.canvas_mask.setHeight(input.canvas_height);
-
-    const transparent_image = await fabricImageClone(image);
-
-    _editNewImage(image, transparent_image);
-  } else {
-    _editNewImage();
+    // make editor.layers.image with new editor.image_clip
+    ({ width, height } = await makeNewLayerImage(image));
   }
 
-  input.editor_mode = "img2img";
+  // Save new image aspect ratio and modify canvas size if needed
+  if (editor.width !== width) {
+    editor.width = width;
+    editor.canvas.setWidth(editor.width);
+  }
+  if (editor.height !== height) {
+    editor.height = height;
+    editor.canvas.setHeight(editor.height);
+  }
+
+  // new editor.layers.draw with either white rect or image
+  await makeNewLayerDraw(image);
+
+  // Update the opacity of the draw layer depending on the strength
+  updateDrawLayerOpacity();
+
+  addToCanvas("draw", editor.layers.draw);
+
+  if (image) {
+    // new editor.layers.emphasize
+    makeNewLayerEmphasize();
+
+    addToCanvas("image", editor.layers.image);
+    addToCanvas("emphasize", editor.layers.emphasize);
+  }
+
+  // Keep the brush at the front
+  editor.canvas.bringToFront(editor.layers.brush_outline);
+
+  // new editor.canvas_mask
+  makeNewCanvasMask();
 }
 
 function resetEditorButtons() {
   const ui = useUIStore();
-  const input = useInputStore();
+  const editor = useEditorStore();
 
   ui.cursor_mode = "idle";
   ui.editor_view = "composite";
-  if (input.canvas) {
-    input.canvas.isDrawingMode = false;
-    input.brush_outline.opacity = 0;
-    input.canvas.renderAll();
+  if (editor.canvas) {
+    editor.canvas.isDrawingMode = false;
+    editor.layers.brush_outline.opacity = 0;
+    editor.canvas.renderAll();
   }
 }
 
@@ -528,32 +598,18 @@ function editResultImage(image_index) {
 }
 
 async function generateAgainResultImage(image_index) {
-  const input = useInputStore();
+  const editor = useEditorStore();
   const output = useOutputStore();
 
   resetInputsFromResultImage(image_index);
 
-  if (output.images.canvas_history) {
+  if (output.images.history) {
     // If the output was made using an uploaded image or a drawing
     await editNewImage(output.images.original_image);
-    redo_whole_history(output.images.canvas_history.undo);
-    input.canvas_history.undo = [...output.images.canvas_history.undo];
+    await redoWholeHistory(output.images.history.undo);
+    editor.history.undo = [...output.images.history.undo];
   } else {
     closeImage();
-  }
-}
-
-function resetSeeds() {
-  const backend = useBackendStore();
-
-  const without_toast = false;
-
-  if (backend.hasInput("seeds")) {
-    backend.setInput("seeds", "", without_toast);
-  }
-
-  if (backend.hasInput("seed")) {
-    backend.setInput("seed", -1, without_toast);
   }
 }
 
@@ -563,36 +619,35 @@ function newDrawing() {
 }
 
 function closeImage() {
-  const input = useInputStore();
+  const editor = useEditorStore();
 
   resetEditorActions();
   resetEditorButtons();
-  input.uploaded_image_b64 = null;
-  input.has_image = false;
-  input.editor_mode = "txt2img";
+  editor.has_image = false;
+  editor.mode = "txt2img";
 }
 
 function setCursorMode(cursor_mode) {
   const ui = useUIStore();
-  const input = useInputStore();
+  const editor = useEditorStore();
 
   ui.cursor_mode = cursor_mode;
 
   if (ui.cursor_mode === "idle") {
-    input.canvas.isDrawingMode = false;
+    editor.canvas.isDrawingMode = false;
   } else {
-    input.canvas.isDrawingMode = true;
+    editor.canvas.isDrawingMode = true;
 
     if (ui.cursor_mode === "eraser") {
-      input.brush_size.slider = input.brush_size.eraser;
-      input.brush.color = "white";
+      editor.brush_size.slider = editor.brush_size.eraser;
+      editor.brush.color = "white";
     } else if (ui.cursor_mode === "draw") {
-      input.brush_size.slider = input.brush_size.draw;
-      input.brush.color = input.color;
+      editor.brush_size.slider = editor.brush_size.draw;
+      editor.brush.color = editor.color;
     }
 
-    input.brush.width = input.brush_size.slider;
-    input.canvas.renderAll();
+    editor.brush.width = editor.brush_size.slider;
+    editor.canvas.renderAll();
   }
 
   console.log(`UI cursor mode set to ${ui.cursor_mode}`);
@@ -629,6 +684,14 @@ function toggleMaskView() {
   console.log(`UI editor mode set to ${ui.editor_view}`);
 }
 
+function renderCanvas() {
+  const editor = useEditorStore();
+
+  if (editor.canvas) {
+    editor.canvas.renderAll();
+  }
+}
+
 export {
   closeImage,
   editNewImage,
@@ -637,12 +700,13 @@ export {
   initCanvas,
   newDrawing,
   redo,
+  renderCanvas,
   renderImage,
   resetEditorButtons,
-  resetSeeds,
   toggleDraw,
   toggleEraser,
   toggleMaskView,
   undo,
   updateBrushSize,
+  updateDrawLayerOpacity,
 };

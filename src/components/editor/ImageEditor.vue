@@ -2,10 +2,10 @@
 import InputCanvas from "@/components/editor/InputCanvas.vue";
 import ImageEditorToolbar from "@/components/editor/ImageEditorToolbar.vue";
 import Image from "primevue/image";
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useUIStore } from "@/stores/ui";
 
-const input = useInputStore();
+const editor = useEditorStore();
 const ui = useUIStore();
 </script>
 
@@ -18,8 +18,8 @@ const ui = useUIStore();
     div(v-show="ui.editor_view=='composite'")
       InputCanvas(v-show="ui.editor_view=='composite'")
     div(v-show="ui.editor_view=='mask'")
-      template(v-if="input.mask_image_b64")
-        Image(:src="input.mask_image_b64")
+      template(v-if="editor.mask_image_b64")
+        Image(:src="editor.mask_image_b64")
 </template>
 
 <style scoped>

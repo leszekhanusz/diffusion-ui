@@ -1,61 +1,59 @@
 <script setup>
-import { ref, toRef, watch } from "vue";
+import { toRef, watch } from "vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
 import Button from "primevue/button";
 import Slider from "primevue/slider";
-import { newDrawing } from "@/actions/editor";
+import {
+  newDrawing,
+  renderCanvas,
+  updateDrawLayerOpacity,
+} from "@/actions/editor";
 
 import { useBackendStore } from "@/stores/backend";
+import { useEditorStore } from "@/stores/editor";
 import { useInputStore } from "@/stores/input";
 import { useUIStore } from "@/stores/ui";
 const backend = useBackendStore();
+const editor = useEditorStore();
 const input = useInputStore();
 const ui = useUIStore();
 
-const strength_input = ref(backend.strength_input);
+watch(toRef(backend, "strength"), function () {
+  // Modify the opacity of the draw layer depending on strength
+  updateDrawLayerOpacity();
 
-watch(
-  backend.strength_input,
-  function (strength_input) {
-    console.log("Strength input changed");
-    if (strength_input) {
-      if (input.canvas_draw && input.canvas) {
-        input.canvas_draw.set("opacity", 1 - strength_input.value);
-        input.canvas.renderAll();
-      }
-    }
-  },
-  { deep: true }
-);
+  // Rerender Canvas
+  renderCanvas();
+});
 
-watch(toRef(input, "editor_mode"), function (editor_mode) {
-  console.log(`editor_mode changed to ${editor_mode}`);
+watch(toRef(editor, "mode"), function (mode) {
+  console.log(`editor mode changed to ${mode}`);
 
-  const possible_modes = backend.getAllowedModes(editor_mode);
+  const possible_modes = backend.getAllowedModes(mode);
   backend.changeFunctionForModes(possible_modes);
 });
 </script>
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!input.has_image && !input.seed_is_set")
+  template(v-if="!editor.has_image && !input.seed_is_set")
     .flex.flex-column.align-items-center
       .enter-a-prompt
         | Enter a prompt:
   PromptInput
   div(v-show="backend.has_image_input")
-    div(v-show="input.has_image")
+    div(v-show="editor.has_image")
       ImageEditor
-      .main-slider(v-if="strength_input", :class="{visible: ui.show_strength_slider}")
+      .main-slider(v-if="backend.hasInput('strength')", :class="{visible: ui.show_strength_slider}")
         .flex.flex-row.justify-content-center
           .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
             | Low variations
-          Slider.align-items-center(v-model="strength_input.value" :min="0" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + strength_input.value}")
+          Slider.align-items-center(v-model="backend.strength_input.value" :min="0" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + backend.strength}")
           .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
             | Ignore previous
-    template(v-if="!input.has_image")
+    template(v-if="!editor.has_image")
       .flex.flex-column.align-items-center
         .or OR
         FileUploadButton.main-slider

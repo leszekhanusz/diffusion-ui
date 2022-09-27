@@ -7,15 +7,15 @@ import LicenseDialog from "@/components/LicenseDialog.vue";
 import EditURLDialog from "@/components/EditURLDialog.vue";
 import Toast from "primevue/toast";
 
-import { useInputStore } from "@/stores/input";
+import { useEditorStore } from "@/stores/editor";
 import { useUIStore } from "@/stores/ui";
 
-const input = useInputStore();
+const editor = useEditorStore();
 const ui = useUIStore();
 </script>
 
 <template lang="pug">
-main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.show_results && !input.has_image}")
+main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.show_results && !editor.has_image}")
   PanelHeader
   div(v-show="!ui.show_results")
     InputView
