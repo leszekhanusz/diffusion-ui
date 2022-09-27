@@ -76,31 +76,37 @@ function redo_whole_history(undo) {
 function resetEditorActions() {
   const editor = useEditorStore();
 
-  editor.image_clip._objects.length = 0;
-  editor.image_clip.dirty = true;
+  // Remove existing layers
+  if (editor.layers.image) {
+    editor.canvas.remove(editor.layers.image);
+    editor.layers.image = null;
+  }
 
-  // new editor.canvas_mask
-  makeNewCanvasMask();
-
-  editor.mask_image_b64 = null;
-
-  editor.layers.emphasize._objects.length = 0;
-  editor.layers.emphasize.dirty = true;
+  if (editor.image_clip) {
+    editor.image_clip = null;
+  }
 
   if (editor.layers.draw) {
-    editor.layers.draw._objects.length = 0;
-    editor.layers.draw.dirty = true;
+    editor.canvas.remove(editor.layers.draw);
+    editor.layers.draw = null;
   }
+
+  if (editor.layers.emphasize) {
+    editor.canvas.remove(editor.layers.emphasize);
+    editor.layers.emphasize = null;
+  }
+
+  editor.canvas_mask = null;
+  editor.uploaded_image_b64 = null;
+  editor.mask_image_b64 = null;
 
   editor.history = {
     undo: [],
     redo: [],
   };
-
-  editor.canvas.renderAll();
 }
 
-function keyUpHandler(event) {
+function onKeyUp(event) {
   if (event.ctrlKey) {
     switch (event.key) {
       case "z":
@@ -177,6 +183,66 @@ function makeNewLayerEmphasize() {
     absolutePositioned: true,
     opacity: 0.2,
     selectable: false,
+  });
+}
+
+async function makeNewLayerImage(image) {
+  const editor = useEditorStore();
+
+  image.selectable = false;
+
+  let width = image.width;
+  let height = image.height;
+
+  console.log(`Uploaded image with resolution: ${width}x${height}`);
+
+  if (width !== 512 || height !== 512) {
+    if (width > height) {
+      image.scaleToWidth(512);
+
+      height = 512 * (height / width);
+    } else {
+      image.scaleToHeight(512);
+
+      width = 512 * (width / height);
+    }
+    console.log(`Scaled resolution: ${width}x${height}`);
+  }
+
+  // new editor.image_clip
+  makeNewImageClip();
+
+  image.clipPath = editor.image_clip;
+  editor.layers.image = image;
+
+  return { width, height };
+}
+
+async function makeNewLayerDraw(image) {
+  const backend = useBackendStore();
+  const editor = useEditorStore();
+
+  let draw_background;
+
+  if (image) {
+    draw_background = await asyncClone(image);
+  } else {
+    backend.setInput("strength", 0, false);
+
+    draw_background = new fabric.Rect({
+      width: editor.width,
+      height: editor.height,
+      left: 0,
+      top: 0,
+      fill: "white",
+      absolutePositioned: true,
+      selectable: false,
+    });
+  }
+
+  editor.layers.draw = new fabric.Group([draw_background], {
+    selectable: false,
+    absolutePositioned: true,
   });
 }
 
@@ -355,7 +421,7 @@ function setupEventListeners() {
   editor.canvas.on("mouse:out", onMouseOut);
   editor.canvas.on("path:created", onPathCreated);
 
-  document.addEventListener("keyup", keyUpHandler);
+  document.addEventListener("keyup", onKeyUp);
 }
 
 function initCanvas(canvas_id) {
@@ -368,26 +434,19 @@ function initCanvas(canvas_id) {
   editor.canvas.selection = false;
   editor.canvas.freeDrawingCursor = "none";
 
-  // new editor.canvas_mask
-  makeNewCanvasMask();
-
-  // new editor.image_clip
-  makeNewImageClip();
-
-  // new editor.layers.emphasize
-  makeNewLayerEmphasize();
-
-  add_to_canvas("emphasize", editor.layers.emphasize);
+  // put a transparent pattern as the editor.canvas background
+  makeNewTransparentBackground();
 
   // new editor.brush (PencilBrush) associated to editor.canvas
   makeNewEditorBrush();
 
-  // put a transparent pattern as the editor.canvas background
-  makeNewTransparentBackground();
+  // new editor.canvas_mask
+  makeNewCanvasMask();
 
   // new editor.layers.brush_outline
   makeNewLayerBrushOutline();
 
+  // Add to layers to canvas
   add_to_canvas("brush_outline", editor.layers.brush_outline);
 
   // listen to canvas events
@@ -426,52 +485,6 @@ function renderImage() {
   editor.layers.draw.set("opacity", draw_opacity);
 }
 
-async function _editNewImage(image) {
-  const backend = useBackendStore();
-  const editor = useEditorStore();
-
-  var draw_background;
-
-  if (image) {
-    draw_background = await asyncClone(image);
-  } else {
-    backend.setInput("strength", 0, false);
-
-    draw_background = new fabric.Rect({
-      width: editor.width,
-      height: editor.height,
-      left: 0,
-      top: 0,
-      fill: "white",
-      absolutePositioned: true,
-      selectable: false,
-    });
-  }
-
-  editor.layers.draw = new fabric.Group([draw_background], {
-    selectable: false,
-    absolutePositioned: true,
-  });
-
-  // Update the opacity depending on the strength
-  updateDrawLayerOpacity();
-
-  add_to_canvas("draw", editor.layers.draw);
-
-  if (image) {
-    add_to_canvas("image", image);
-    image.clipPath = editor.image_clip;
-    editor.layers.image = image;
-
-    editor.layers.emphasize.set("opacity", 0.2);
-  } else {
-    editor.layers.emphasize.set("opacity", 0);
-  }
-
-  editor.canvas.bringToFront(editor.layers.emphasize);
-  editor.canvas.bringToFront(editor.layers.brush_outline);
-}
-
 async function fabricImageFromURL(image_url) {
   return new Promise(function (resolve, reject) {
     try {
@@ -499,22 +512,14 @@ async function asyncClone(object) {
 async function editNewImage(image_b64) {
   const editor = useEditorStore();
 
+  // Remove existing layers
   resetEditorActions();
 
-  // Forget history
-  editor.history.redo.length = 0;
-
   editor.has_image = true;
+  editor.mode = "img2img";
 
-  if (editor.layers.image) {
-    editor.canvas.remove(editor.layers.image);
-    editor.layers.image = null;
-  }
-
-  if (editor.layers.draw) {
-    editor.canvas.remove(editor.layers.draw);
-    editor.layers.draw = null;
-  }
+  // will allow the inputs to be changed to img2img (useful for strength input change)
+  await nextTick();
 
   // Waiting that the canvas has been created asynchronously by Vue
   while (editor.canvas === null) {
@@ -522,46 +527,50 @@ async function editNewImage(image_b64) {
     await nextTick();
   }
 
+  let image = null;
+  let width = 512;
+  let height = 512;
+
   if (image_b64) {
     editor.uploaded_image_b64 = image_b64;
 
-    const image = await fabricImageFromURL(image_b64);
-    image.selectable = false;
+    image = await fabricImageFromURL(image_b64);
 
-    const width = image.width;
-    const height = image.height;
-    console.log(`Uploaded image with resolution: ${width}x${height}`);
-
-    if (width === 512 && height === 512) {
-      editor.width = width;
-      editor.height = height;
-    } else {
-      if (width > height) {
-        image.scaleToWidth(512);
-
-        editor.width = 512;
-        editor.height = 512 * (height / width);
-      } else {
-        image.scaleToHeight(512);
-
-        editor.height = 512;
-        editor.width = 512 * (width / height);
-      }
-      console.log(`Scaled resolution: ${editor.width}x${editor.height}`);
-    }
-
-    editor.canvas.setWidth(editor.width);
-    editor.canvas.setHeight(editor.height);
-
-    editor.canvas_mask.setWidth(editor.width);
-    editor.canvas_mask.setHeight(editor.height);
-
-    await _editNewImage(image);
-  } else {
-    await _editNewImage();
+    // make editor.layers.image with new editor.image_clip
+    ({ width, height } = await makeNewLayerImage(image));
   }
 
-  editor.mode = "img2img";
+  // Save new image aspect ratio and modify canvas size if needed
+  if (editor.width !== width) {
+    editor.width = width;
+    editor.canvas.setWidth(editor.width);
+  }
+  if (editor.height !== height) {
+    editor.height = height;
+    editor.canvas.setHeight(editor.height);
+  }
+
+  // new editor.layers.draw with either white rect or image
+  await makeNewLayerDraw(image);
+
+  // Update the opacity of the draw layer depending on the strength
+  updateDrawLayerOpacity();
+
+  add_to_canvas("draw", editor.layers.draw);
+
+  if (image) {
+    // new editor.layers.emphasize
+    makeNewLayerEmphasize();
+
+    add_to_canvas("image", editor.layers.image);
+    add_to_canvas("emphasize", editor.layers.emphasize);
+  }
+
+  // Keep the brush at the front
+  editor.canvas.bringToFront(editor.layers.brush_outline);
+
+  // new editor.canvas_mask
+  makeNewCanvasMask();
 }
 
 function resetEditorButtons() {
@@ -608,7 +617,6 @@ function closeImage() {
 
   resetEditorActions();
   resetEditorButtons();
-  editor.uploaded_image_b64 = null;
   editor.has_image = false;
   editor.mode = "txt2img";
 }
