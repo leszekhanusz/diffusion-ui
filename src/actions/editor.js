@@ -18,15 +18,21 @@ function undo({ save_redo = true } = {}) {
 
     switch (undo_action.type) {
       case "erase":
-        editor.image_clip.remove(undo_action.path);
+        editor.image_clip.remove(undo_action.clip_path);
         editor.canvas_mask.remove(undo_action.mask_path);
         editor.layers.emphasize.remove(undo_action.emphasize_path);
+
+        delete undo_action.clip_path;
+        delete undo_action.mask_path;
+        delete undo_action.emphasize_path;
 
         editor.mask_image_b64 = editor.canvas_mask.toDataURL();
         break;
 
       case "draw":
-        editor.layers.draw.remove(undo_action.path);
+        editor.layers.draw.remove(undo_action.draw_path);
+
+        delete undo_action.draw_path;
         break;
     }
 
@@ -34,42 +40,50 @@ function undo({ save_redo = true } = {}) {
   }
 }
 
-function redo_action(action) {
+async function do_action(action) {
   const editor = useEditorStore();
 
   switch (action.type) {
     case "erase":
-      editor.image_clip.add(action.path);
+      action.clip_path = await asyncClone(action.path);
+      action.mask_path = await asyncClone(action.path);
+      action.emphasize_path = await asyncClone(action.path);
+
+      action.emphasize_path.stroke = "lightgrey";
+
+      editor.image_clip.addWithUpdate(action.clip_path);
       editor.canvas_mask.add(action.mask_path);
-      editor.layers.emphasize.add(action.emphasize_path);
+      editor.layers.emphasize.addWithUpdate(action.emphasize_path);
 
       editor.mask_image_b64 = editor.canvas_mask.toDataURL();
       break;
 
     case "draw":
-      editor.layers.draw.add(action.path);
+      action.draw_path = await asyncClone(action.path);
+
+      editor.layers.draw.addWithUpdate(action.draw_path);
       break;
   }
 }
 
-function redo() {
+async function redo() {
   const editor = useEditorStore();
 
   const action = editor.history.redo.pop();
 
   if (action) {
-    redo_action(action);
+    await do_action(action);
     editor.canvas.renderAll();
 
     editor.history.undo.push(action);
   }
 }
 
-function redo_whole_history(undo) {
+async function redo_whole_history(undo) {
   const nb_undo = undo.length;
   for (let i = 0; i < nb_undo; i++) {
     const action = undo[i];
-    redo_action(action);
+    await do_action(action);
   }
 }
 
@@ -106,14 +120,14 @@ function resetEditorActions() {
   };
 }
 
-function onKeyUp(event) {
+async function onKeyUp(event) {
   if (event.ctrlKey) {
     switch (event.key) {
       case "z":
         undo();
         break;
       case "y":
-        redo();
+        await redo();
         break;
     }
   } else {
@@ -370,28 +384,14 @@ async function onPathCreated(e) {
       {
         path.color = "white";
 
-        // Clone the path twice: for the mask and for the emphasize layer
-        const mask_path = await asyncClone(path);
-        const emphasize_path = await asyncClone(path);
-
-        // Add the path to the mask canvas and regenerate the mask image
-        editor.canvas_mask.add(mask_path);
-        editor.mask_image_b64 = editor.canvas_mask.toDataURL();
-
-        // Add the path to the image clip group
-        editor.image_clip.addWithUpdate(path);
-
-        // Add the path to the emphasize front layer
-        emphasize_path.stroke = "lightgrey";
-        emphasize_path.opacity = 1;
-        editor.layers.emphasize.addWithUpdate(emphasize_path);
-
-        editor.history.undo.push({
+        const eraser_action = {
           type: "erase",
           path: path,
-          mask_path: mask_path,
-          emphasize_path: emphasize_path,
-        });
+        };
+
+        await do_action(eraser_action);
+
+        editor.history.undo.push(eraser_action);
 
         // Update the opacity depending on the strength
         updateDrawLayerOpacity();
@@ -402,14 +402,18 @@ async function onPathCreated(e) {
       break;
 
     case "draw":
-      path.stroke = editor.color;
-      editor.layers.draw.addWithUpdate(path);
+      {
+        path.stroke = editor.color;
 
-      editor.history.undo.push({
-        type: "draw",
-        path: path,
-      });
+        const draw_action = {
+          type: "draw",
+          path: path,
+        };
 
+        await do_action(draw_action);
+
+        editor.history.undo.push(draw_action);
+      }
       break;
   }
 
