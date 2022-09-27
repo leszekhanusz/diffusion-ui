@@ -40,7 +40,7 @@ function undo({ save_redo = true } = {}) {
   }
 }
 
-async function do_action(action) {
+async function doAction(action) {
   const editor = useEditorStore();
 
   switch (action.type) {
@@ -72,18 +72,18 @@ async function redo() {
   const action = editor.history.redo.pop();
 
   if (action) {
-    await do_action(action);
+    await doAction(action);
     editor.canvas.renderAll();
 
     editor.history.undo.push(action);
   }
 }
 
-async function redo_whole_history(undo) {
+async function redoWholeHistory(undo) {
   const nb_undo = undo.length;
   for (let i = 0; i < nb_undo; i++) {
     const action = undo[i];
-    await do_action(action);
+    await doAction(action);
   }
 }
 
@@ -152,7 +152,7 @@ function print_objects() {
 }
 */
 
-function add_to_canvas(name, item) {
+function addToCanvas(name, item) {
   const editor = useEditorStore();
 
   item.nam = name;
@@ -389,7 +389,7 @@ async function onPathCreated(e) {
           path: path,
         };
 
-        await do_action(eraser_action);
+        await doAction(eraser_action);
 
         editor.history.undo.push(eraser_action);
 
@@ -410,7 +410,7 @@ async function onPathCreated(e) {
           path: path,
         };
 
-        await do_action(draw_action);
+        await doAction(draw_action);
 
         editor.history.undo.push(draw_action);
       }
@@ -453,7 +453,7 @@ function initCanvas(canvas_id) {
   makeNewLayerBrushOutline();
 
   // Add to layers to canvas
-  add_to_canvas("brush_outline", editor.layers.brush_outline);
+  addToCanvas("brush_outline", editor.layers.brush_outline);
 
   // listen to canvas events
   setupEventListeners();
@@ -562,14 +562,14 @@ async function editNewImage(image_b64) {
   // Update the opacity of the draw layer depending on the strength
   updateDrawLayerOpacity();
 
-  add_to_canvas("draw", editor.layers.draw);
+  addToCanvas("draw", editor.layers.draw);
 
   if (image) {
     // new editor.layers.emphasize
     makeNewLayerEmphasize();
 
-    add_to_canvas("image", editor.layers.image);
-    add_to_canvas("emphasize", editor.layers.emphasize);
+    addToCanvas("image", editor.layers.image);
+    addToCanvas("emphasize", editor.layers.emphasize);
   }
 
   // Keep the brush at the front
@@ -606,7 +606,7 @@ async function generateAgainResultImage(image_index) {
   if (output.images.history) {
     // If the output was made using an uploaded image or a drawing
     await editNewImage(output.images.original_image);
-    redo_whole_history(output.images.history.undo);
+    await redoWholeHistory(output.images.history.undo);
     editor.history.undo = [...output.images.history.undo];
   } else {
     closeImage();
