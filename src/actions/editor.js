@@ -201,10 +201,12 @@ async function makeNewLayerImage(image) {
       image.scaleToWidth(512);
 
       height = 512 * (height / width);
+      width = 512;
     } else {
       image.scaleToHeight(512);
 
       width = 512 * (width / height);
+      height = 512;
     }
     console.log(`Scaled resolution: ${width}x${height}`);
   }
