@@ -11,15 +11,28 @@ const props = defineProps({
   index: Number,
 });
 
+function hideResults() {
+  ui.show_results = false;
+
+  if (ui.right_panel_visible) {
+    var width = window.innerWidth;
+
+    if (width && width < 2500) {
+      ui.hideRightPanel();
+    }
+  }
+}
+
 function editImage() {
   editResultImage(props.index);
-  ui.show_results = false;
+  hideResults();
 }
 
 function generateAgain() {
   generateAgainResultImage(props.index);
-  ui.show_results = false;
+  hideResults();
 }
+
 const buttons = [
   {
     label: "Edit",

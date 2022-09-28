@@ -11,7 +11,12 @@ const output = useOutputStore();
 function thumbnailClick(index) {
   output.images = output.gallery[index];
   ui.show_results = true;
-  ui.hideRightPanel();
+
+  var width = window.innerWidth;
+
+  if (width && width < 1800) {
+    ui.hideRightPanel();
+  }
 }
 </script>
 
