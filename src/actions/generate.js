@@ -15,7 +15,7 @@ async function generateImageGradio() {
   const function_id = backend.current_function.id;
 
   const original_image = editor.uploaded_image_b64;
-  const history = editor.history;
+  const history = editor.has_image ? editor.history : null;
 
   if (backend.has_image_input) {
     let image_input = inputs_config.find(
