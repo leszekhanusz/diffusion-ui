@@ -130,6 +130,7 @@ export const useBackendStore = defineStore({
         return input;
       });
     },
+    outputs: (state) => state.current_function.outputs,
     function_options: function (state) {
       if (!state.current.functions) {
         return [];
@@ -153,6 +154,17 @@ export const useBackendStore = defineStore({
     },
     has_image_input: (state) =>
       state.inputs.some((input) => input.type === "image"),
+    has_img2img_mode: function (state) {
+      if (state.has_image_input) {
+        return true;
+      }
+
+      if (state.current.functions) {
+        return state.current.functions.some((func) => func.mode === "img2img");
+      }
+
+      return false;
+    },
     strength_input: (state) => state.findInput("strength"),
     strength: (state) => state.getInput("strength", 0),
     access_code_input: (state) => state.findInput("access_code", false),

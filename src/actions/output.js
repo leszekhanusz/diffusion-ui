@@ -3,26 +3,30 @@ import { useEditorStore } from "@/stores/editor";
 import { useOutputStore } from "@/stores/output";
 
 function handleOutputAutomatic1111(json_result) {
+  const backend = useBackendStore();
   const output = useOutputStore();
 
   const data_field = json_result["data"];
   const data_images = data_field[0];
-  const metadata_json = data_field[1];
 
-  if (!metadata_json) {
-    // On errors, the backend will send an empty string here
-    throw new Error(data_field[2]);
-  }
+  if (backend.outputs[1].type === "json") {
+    const metadata_json = data_field[1];
 
-  const output_metadata = JSON.parse(metadata_json);
-  console.log("output metadata", output_metadata);
+    if (!metadata_json) {
+      // On errors, the backend will send an empty string here
+      throw new Error(data_field[2]);
+    }
 
-  output.images.metadata.output = output_metadata;
+    const output_metadata = JSON.parse(metadata_json);
+    console.log("output metadata", output_metadata);
 
-  if (data_images.length > 1) {
-    // If there is more than one image, a grid is inserted as a first image
-    const first_seed = output.images.metadata.output.all_seeds[0];
-    output.images.metadata.output.all_seeds.unshift(first_seed);
+    output.images.metadata.output = output_metadata;
+
+    if (data_images.length > 1) {
+      // If there is more than one image, a grid is inserted as a first image
+      const first_seed = output.images.metadata.output.all_seeds[0];
+      output.images.metadata.output.all_seeds.unshift(first_seed);
+    }
   }
 }
 
