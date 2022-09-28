@@ -73,9 +73,9 @@ function handleOutput(
       input: input_data,
       backend_id: backend_id,
       function_id: function_id,
-      original_image: original_image,
-      history: history,
     },
+    original_image: original_image,
+    history: history,
   };
 
   if (ui.show_latest_result) {
