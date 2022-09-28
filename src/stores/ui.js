@@ -12,6 +12,7 @@ export const useUIStore = defineStore({
     cursor_mode: "idle", // idle, eraser or draw
     editor_view: "composite", // "composite" for the normal view or "mask" to show the mask
     show_results: false,
+    show_latest_result: true,
   }),
   getters: {
     show_brush: (state) => state.cursor_mode !== "idle",

@@ -1,15 +1,16 @@
 import { useBackendStore } from "@/stores/backend";
-import { useEditorStore } from "@/stores/editor";
 import { useOutputStore } from "@/stores/output";
+import { useUIStore } from "@/stores/ui";
 
-function handleOutputAutomatic1111(json_result) {
-  const backend = useBackendStore();
-  const output = useOutputStore();
-
+function handleOutputAutomatic1111(
+  json_result,
+  images_with_metadata,
+  backend_function
+) {
   const data_field = json_result["data"];
   const data_images = data_field[0];
 
-  if (backend.outputs[1].type === "json") {
+  if (backend_function.outputs[1].type === "json") {
     const metadata_json = data_field[1];
 
     if (!metadata_json) {
@@ -20,24 +21,22 @@ function handleOutputAutomatic1111(json_result) {
     const output_metadata = JSON.parse(metadata_json);
     console.log("output metadata", output_metadata);
 
-    output.images.metadata.output = output_metadata;
+    images_with_metadata.metadata.output = output_metadata;
 
     if (data_images.length > 1) {
       // If there is more than one image, a grid is inserted as a first image
-      const first_seed = output.images.metadata.output.all_seeds[0];
-      output.images.metadata.output.all_seeds.unshift(first_seed);
+      const first_seed = images_with_metadata.metadata.output.all_seeds[0];
+      images_with_metadata.metadata.output.all_seeds.unshift(first_seed);
     }
   }
 }
 
-function handleOutputDefault(json_result) {
-  const output = useOutputStore();
-
+function handleOutputDefault(json_result, images_with_metadata) {
   const data_field = json_result["data"];
   const data_seeds = data_field[1];
 
   // Save the generated seeds in the image metadata
-  const seed_metadata = output.images.metadata.input["seeds"];
+  const seed_metadata = images_with_metadata.metadata.input["seeds"];
 
   if (seed_metadata) {
     seed_metadata.value = data_seeds;
@@ -45,10 +44,17 @@ function handleOutputDefault(json_result) {
   }
 }
 
-function handleOutput(input_data, backend_id, function_id, json_result) {
+function handleOutput(
+  input_data,
+  backend_id,
+  function_id,
+  original_image,
+  history,
+  json_result
+) {
   const backend = useBackendStore();
-  const editor = useEditorStore();
   const output = useOutputStore();
+  const ui = useUIStore();
 
   const data_field = json_result["data"];
   const data_images = data_field[0];
@@ -67,29 +73,30 @@ function handleOutput(input_data, backend_id, function_id, json_result) {
       input: input_data,
       backend_id: backend_id,
       function_id: function_id,
+      original_image: original_image,
+      history: history,
     },
   };
 
-  if (editor.has_image) {
-    images_with_metadata.original_image = editor.uploaded_image_b64;
-    images_with_metadata.history = editor.history;
-  } else {
-    images_with_metadata.original_image = null;
-    images_with_metadata.history = null;
+  if (ui.show_latest_result) {
+    output.images = images_with_metadata;
   }
-
-  output.images = images_with_metadata;
 
   if (backend.current_function.handle_output) {
     if (backend.current_function.handle_output === "automatic1111") {
-      handleOutputAutomatic1111(json_result);
+      const backend_function = backend.getFunction(backend_id, function_id);
+      handleOutputAutomatic1111(
+        json_result,
+        images_with_metadata,
+        backend_function
+      );
     }
   } else {
-    handleOutputDefault(json_result);
+    handleOutputDefault(json_result, images_with_metadata);
   }
 
   // Saving the latest images in the gallery
-  output.gallery.push(output.images);
+  output.gallery.push(images_with_metadata);
 }
 
 function resetInputsFromResultImage(image_index) {

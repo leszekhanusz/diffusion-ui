@@ -314,6 +314,23 @@ export const useBackendStore = defineStore({
         this.backend_id = backend_id;
       }
     },
+    getBackend(backend_id) {
+      return this.backends.find(
+        (backend) => backend.original.id === backend_id
+      );
+    },
+    getFunction(backend_id, function_id) {
+      const backend = this.getBackend(backend_id);
+
+      if (backend) {
+        if (backend.current.functions) {
+          return backend.current.functions.find(
+            (func) => func.id === function_id
+          );
+        }
+      }
+      return null;
+    },
     changeFunction(function_id) {
       if (this.fn_id !== function_id) {
         const message = `Switching to ${function_id}`;

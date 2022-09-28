@@ -14,6 +14,9 @@ async function generateImageGradio() {
   const backend_id = backend.backend_id;
   const function_id = backend.current_function.id;
 
+  const original_image = editor.uploaded_image_b64;
+  const history = editor.history;
+
   if (backend.has_image_input) {
     let image_input = inputs_config.find(
       (input_config) => input_config.type === "image"
@@ -95,7 +98,14 @@ async function generateImageGradio() {
 
   const json_result = await response.json();
 
-  handleOutput(input_data, backend_id, function_id, json_result);
+  handleOutput(
+    input_data,
+    backend_id,
+    function_id,
+    original_image,
+    history,
+    json_result
+  );
 }
 
 async function generateImages() {
@@ -167,6 +177,8 @@ async function generate() {
   }
 
   ui.show_results = true;
+  ui.show_latest_result = true;
+
   resetEditorButtons();
 
   if (!output.loading && !backend.show_license) {
@@ -176,6 +188,7 @@ async function generate() {
       await generateImages();
       output.error_message = null;
     } catch (error) {
+      ui.show_latest_result = true;
       output.error_message = error;
       console.error(error);
     } finally {

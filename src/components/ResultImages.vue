@@ -4,8 +4,10 @@ import ProgressIndicator from "@/components/ProgressIndicator.vue";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import ResultImage from "@/components/ResultImage.vue";
 import { useOutputStore } from "@/stores/output";
+import { useUIStore } from "@/stores/ui";
 
 const output = useOutputStore();
+const ui = useUIStore();
 const responsiveOptions = [
   {
     breakpoint: "960px",
@@ -24,7 +26,7 @@ const responsiveOptions = [
 
 <template lang="pug">
 .result-images
-  template(v-if="output.loading")
+  template(v-if="output.loading && ui.show_latest_result")
     ProgressIndicator(v-if="output.loading")
   template(v-else)
     template(v-if="output.error_message")

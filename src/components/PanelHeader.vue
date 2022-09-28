@@ -1,16 +1,14 @@
 <script setup>
 import Button from "primevue/button";
 import { useUIStore } from "@/stores/ui";
-import { useOutputStore } from "@/stores/output";
 
 const ui = useUIStore();
-const output = useOutputStore();
 </script>
 
 <template lang="pug">
-Button.panel-toggler.left-panel-toggler(@click="ui.showLeftPanel", v-show="!ui.show_results")
+Button.panel-toggler.left-panel-toggler(@click="ui.showLeftPanel")
   font-awesome-icon(icon="fa-solid fa-gears")
-Button.panel-toggler.right-panel-toggler(@click="ui.showRightPanel", v-show="!output.loading")
+Button.panel-toggler.right-panel-toggler(@click="ui.showRightPanel")
   font-awesome-icon(icon="fa-solid fa-images")
 </template>
 
