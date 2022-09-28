@@ -38,12 +38,12 @@ watch(toRef(editor, "mode"), function (mode) {
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!editor.has_image && !input.seed_is_set")
+  template(v-if="!editor.has_image && !input.seed_is_set && backend.hasInput('prompt')")
     .flex.flex-column.align-items-center
       .enter-a-prompt
         | Enter a prompt:
   PromptInput
-  div(v-show="backend.has_image_input")
+  div(v-show="backend.has_img2img_mode")
     div(v-show="editor.has_image")
       ImageEditor
       .main-slider(v-if="backend.hasInput('strength')", :class="{visible: ui.show_strength_slider}")
@@ -55,7 +55,7 @@ watch(toRef(editor, "mode"), function (mode) {
             | Ignore previous
     template(v-if="!editor.has_image")
       .flex.flex-column.align-items-center
-        .or OR
+        .or(v-if="backend.hasInput('prompt')") OR
         FileUploadButton.main-slider
       .flex.flex-column.align-items-center
         .or OR

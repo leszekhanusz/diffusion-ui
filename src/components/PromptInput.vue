@@ -14,12 +14,19 @@ const output = useOutputStore();
 <template lang="pug">
 div
   SeedChip
-  .p-inputgroup.shadow-3
-    InputText(type="text", v-model="backend.findInput('prompt').value", @keyup.enter="generate")
-    Button(@click="generate", :disabled="(output.loading || backend.show_license) ? 'disabled' : null")
-      span.hide-sm Generate image
-      span.show-sm
-        font-awesome-icon(icon="fa-solid fa-angles-right")
+  template(v-if="backend.hasInput('prompt')")
+    .p-inputgroup.shadow-3
+      InputText(type="text", v-model="backend.findInput('prompt').value", @keyup.enter="generate")
+      Button(@click="generate", :disabled="(output.loading || backend.show_license) ? 'disabled' : null")
+        span.hide-sm Generate image
+        span.show-sm
+          font-awesome-icon(icon="fa-solid fa-angles-right")
+  template(v-else)
+    .flex.justify-content-center
+      Button(@click="generate", :disabled="(output.loading || backend.show_license) ? 'disabled' : null")
+        span.hide-sm Generate image
+        span.show-sm
+          font-awesome-icon(icon="fa-solid fa-angles-right")
 </template>
 
 <style scoped>
