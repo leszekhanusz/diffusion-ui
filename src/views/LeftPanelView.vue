@@ -13,7 +13,7 @@ const ui = useUIStore();
 </script>
 
 <template lang="pug">
-Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false")
+Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false" :modal="false")
   template(#header)
     Button.p-button-secondary.toggler(label="Close", @click="ui.hideLeftPanel")
       font-awesome-icon(icon="fa-solid fa-angle-left")

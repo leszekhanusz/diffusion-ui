@@ -16,7 +16,7 @@ function thumbnailClick(index) {
 </script>
 
 <template lang="pug">
-Sidebar.p-sidebar-md(:visible="ui.right_panel_visible", :showCloseIcon="false" position="right")
+Sidebar.p-sidebar-md(:visible="ui.right_panel_visible", :showCloseIcon="false" position="right" :modal="false")
 
   template(#header)
     Button.p-button-secondary.toggler.r(label="Close", @click="ui.hideRightPanel")
