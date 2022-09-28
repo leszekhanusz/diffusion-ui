@@ -24,7 +24,7 @@ main.main.flex.flex-column.justify-content-center(:class="{verticalcenter: !ui.s
 LicenseDialog
 EditURLDialog
 ConfirmDialog
-Toast
+Toast(:autoZIndex="true")
 </template>
 
 <style scoped>
