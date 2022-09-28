@@ -475,19 +475,25 @@ function updateBrushSize() {
 function renderImage() {
   const editor = useEditorStore();
 
-  // Save opacity of ignored layers
-  const emphasize_opacity = editor.layers.emphasize.opacity;
-  const draw_opacity = editor.layers.draw.opacity;
+  let emphasize_opacity = 0;
 
+  // Save opacity of ignored layers
+  if (editor.layers.emphasize) {
+    emphasize_opacity = editor.layers.emphasize.opacity;
+    editor.layers.emphasize.set("opacity", 0);
+  }
+
+  const draw_opacity = editor.layers.draw.opacity;
   // Set the opacity to capture final image
-  editor.layers.emphasize.set("opacity", 0);
   editor.layers.draw.set("opacity", 1);
 
   // render the image in the store
   editor.init_image_b64 = editor.canvas.toDataURL();
 
   // Restore the initial opacity
-  editor.layers.emphasize.set("opacity", emphasize_opacity);
+  if (editor.layers.emphasize) {
+    editor.layers.emphasize.set("opacity", emphasize_opacity);
+  }
   editor.layers.draw.set("opacity", draw_opacity);
 }
 
