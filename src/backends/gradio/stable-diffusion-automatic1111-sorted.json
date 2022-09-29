@@ -1,5 +1,5 @@
 {
-  "id": "stable_diffusion_automatic1111",
+  "id": "stable_diffusion_automatic1111_sorted",
   "name": "Stable Diffusion Automatic1111",
   "description": "Automatic1111 fork of Stable Diffusion",
   "api_url": "http://127.0.0.1:7860/api/predict/",
@@ -27,7 +27,7 @@
       "id": "txt2img",
       "mode": "txt2img",
       "label": "Text to Image",
-      "fn_index": 11,
+      "fn_index": 12,
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -328,39 +328,39 @@
           "visible": false
         }, {
           "id": "custom_2",
-          "default": "Seed",
+          "default": false,
           "visible": false
         }, {
           "id": "custom_3",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_4",
-          "default": "Steps",
-          "visible": false
-        }, {
-          "id": "custom_5",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_6",
-          "default": true,
-          "visible": false
-        }, {
-          "id": "custom_7",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_8",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_9",
           "default": null,
           "visible": false
         }, {
-          "id": "custom_10",
+          "id": "custom_4",
           "default": "",
+          "visible": false
+        }, {
+          "id": "custom_5",
+          "default": "Seed",
+          "visible": false
+        }, {
+          "id": "custom_6",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_7",
+          "default": "Steps",
+          "visible": false
+        }, {
+          "id": "custom_8",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_9",
+          "default": true,
+          "visible": false
+        }, {
+          "id": "custom_10",
+          "default": false,
           "visible": false
         }, {
           "id": "custom_11",
@@ -393,7 +393,7 @@
       "id": "img2img",
       "mode": "img2img",
       "label": "Image to Image",
-      "fn_index": 28,
+      "fn_index": 30,
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -795,11 +795,11 @@
           "visible": false
         }, {
           "id": "custom_3",
-          "default": false,
+          "default": "",
           "visible": false
         }, {
           "id": "custom_4",
-          "default": 4,
+          "default": "",
           "visible": false
         }, {
           "id": "custom_5",
@@ -807,27 +807,27 @@
           "visible": false
         }, {
           "id": "custom_6",
-          "default": "Seed",
+          "default": 50,
           "visible": false
         }, {
           "id": "custom_7",
-          "default": "",
+          "default": 0,
           "visible": false
         }, {
           "id": "custom_8",
-          "default": "Steps",
+          "default": false,
           "visible": false
         }, {
           "id": "custom_9",
-          "default": "",
+          "default": 4,
           "visible": false
         }, {
           "id": "custom_10",
-          "default": true,
+          "default": 1,
           "visible": false
         }, {
           "id": "custom_10a",
-          "default": false,
+          "default": "",
           "visible": false
         }, {
           "id": "custom_11",
@@ -835,87 +835,87 @@
           "visible": false
         }, {
           "id": "custom_12",
-          "default": 4,
+          "default": 8,
           "visible": false
         }, {
           "id": "custom_13",
-          "default": "fill",
+          "default": ["left", "right", "up", "down"],
           "visible": false
         }, {
           "id": "custom_14",
-          "default": ["left", "right", "up", "down"],
+          "default": 1,
           "visible": false
         }, {
           "id": "custom_14a",
-          "default": "",
+          "default": 0.05,
           "visible": false
         }, {
           "id": "custom_14b",
-          "default": 64,
-          "visible": false
-        }, {
-          "id": "custom_14c",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_15",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_16",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_17",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_18",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_19",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_20",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_21",
-          "default": 50,
-          "visible": false
-        }, {
-          "id": "custom_22",
-          "default": 0,
-          "visible": false
-        }, {
-          "id": "custom_22a",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_23",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_24",
           "default": 128,
           "visible": false
         }, {
-          "id": "custom_25",
+          "id": "custom_14c",
           "default": 4,
           "visible": false
         }, {
-          "id": "custom_26",
+          "id": "custom_15",
+          "default": "fill",
+          "visible": false
+        }, {
+          "id": "custom_16",
           "default": ["left", "right", "up", "down"],
           "visible": false
         }, {
+          "id": "custom_17",
+          "default": false,
+          "visible": false
+        }, {
+          "id": "custom_18",
+          "default": false,
+          "visible": false
+        }, {
+          "id": "custom_19",
+          "default": null,
+          "visible": false
+        }, {
+          "id": "custom_20",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_21",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_22",
+          "default": 64,
+          "visible": false
+        }, {
+          "id": "custom_22a",
+          "default": "None",
+          "visible": false
+        }, {
+          "id": "custom_23",
+          "default": "Seed",
+          "visible": false
+        }, {
+          "id": "custom_24",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_25",
+          "default": "Steps",
+          "visible": false
+        }, {
+          "id": "custom_26",
+          "default": "",
+          "visible": false
+        }, {
           "id": "custom_27",
-          "default": 1,
+          "default": true,
           "visible": false
         }, {
           "id": "custom_28",
-          "default": 0.05,
+          "default": false,
           "visible": false
         }, {
           "id": "custom_29",
@@ -948,7 +948,7 @@
       "id": "inpainting",
       "mode": "inpainting",
       "label": "Inpainting",
-      "fn_index": 28,
+      "fn_index": 30,
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -1369,11 +1369,11 @@
           "visible": false
         }, {
           "id": "custom_3",
-          "default": false,
+          "default": "",
           "visible": false
         }, {
           "id": "custom_4",
-          "default": 4,
+          "default": "",
           "visible": false
         }, {
           "id": "custom_5",
@@ -1381,27 +1381,27 @@
           "visible": false
         }, {
           "id": "custom_6",
-          "default": "Seed",
+          "default": 50,
           "visible": false
         }, {
           "id": "custom_7",
-          "default": "",
+          "default": 0,
           "visible": false
         }, {
           "id": "custom_8",
-          "default": "Steps",
+          "default": false,
           "visible": false
         }, {
           "id": "custom_9",
-          "default": "",
+          "default": 4,
           "visible": false
         }, {
           "id": "custom_10",
-          "default": true,
+          "default": 1,
           "visible": false
         }, {
           "id": "custom_10a",
-          "default": false,
+          "default": "",
           "visible": false
         }, {
           "id": "custom_11",
@@ -1409,87 +1409,87 @@
           "visible": false
         }, {
           "id": "custom_12",
-          "default": 4,
+          "default": 8,
           "visible": false
         }, {
           "id": "custom_13",
-          "default": "fill",
+          "default": ["left", "right", "up", "down"],
           "visible": false
         }, {
           "id": "custom_14",
-          "default": ["left", "right", "up", "down"],
+          "default": 1,
           "visible": false
         }, {
           "id": "custom_14a",
-          "default": "",
+          "default": 0.05,
           "visible": false
         }, {
           "id": "custom_14b",
-          "default": 64,
-          "visible": false
-        }, {
-          "id": "custom_14c",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_15",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_16",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_17",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_18",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_19",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_20",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_21",
-          "default": 50,
-          "visible": false
-        }, {
-          "id": "custom_22",
-          "default": 0,
-          "visible": false
-        }, {
-          "id": "custom_22a",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_23",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_24",
           "default": 128,
           "visible": false
         }, {
-          "id": "custom_25",
+          "id": "custom_14c",
           "default": 4,
           "visible": false
         }, {
-          "id": "custom_26",
+          "id": "custom_15",
+          "default": "fill",
+          "visible": false
+        }, {
+          "id": "custom_16",
           "default": ["left", "right", "up", "down"],
           "visible": false
         }, {
+          "id": "custom_17",
+          "default": false,
+          "visible": false
+        }, {
+          "id": "custom_18",
+          "default": false,
+          "visible": false
+        }, {
+          "id": "custom_19",
+          "default": null,
+          "visible": false
+        }, {
+          "id": "custom_20",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_21",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_22",
+          "default": 64,
+          "visible": false
+        }, {
+          "id": "custom_22a",
+          "default": "None",
+          "visible": false
+        }, {
+          "id": "custom_23",
+          "default": "Seed",
+          "visible": false
+        }, {
+          "id": "custom_24",
+          "default": "",
+          "visible": false
+        }, {
+          "id": "custom_25",
+          "default": "Steps",
+          "visible": false
+        }, {
+          "id": "custom_26",
+          "default": "",
+          "visible": false
+        }, {
           "id": "custom_27",
-          "default": 1,
+          "default": true,
           "visible": false
         }, {
           "id": "custom_28",
-          "default": 0.05,
+          "default": false,
           "visible": false
         }, {
           "id": "custom_29",
@@ -1522,7 +1522,7 @@
       "id": "upscaling",
       "mode": "img2img",
       "label": "Upscaling",
-      "fn_index": 37,
+      "fn_index": 39,
       "handle_output": "automatic1111",
       "inputs": [
         {
