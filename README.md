@@ -44,9 +44,15 @@ The frontend is available at [diffusionui.com](http://diffusionui.com)
 
 Or alternatively you can [run it locally](https://diffusionui.readthedocs.io/en/latest/frontend.html).
 
-## Stable Diffusion local backend
+## Backends
+
+### Stable Diffusion local backend
 
 To install the Stable Diffusion backend, follow the instructions [in the docs](https://diffusionui.readthedocs.io/en/latest/backends/stable-diffusion.html)
+
+### Automatic1111 Stable Diffusion local backend
+
+To use Automatic1111 fork of Stable Diffusion, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html)
 
 ## License
 [MIT License](https://github.com/leszekhanusz/diffusion-ui/blob/main/LICENSE) for the code here.
