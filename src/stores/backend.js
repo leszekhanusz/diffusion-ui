@@ -3,12 +3,14 @@ import { useStorage } from "@vueuse/core";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
-import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
+import backend_stable_diffusion_automatic1111_sorted from "@/backends/gradio/stable-diffusion-automatic1111-sorted.json";
+import backend_stable_diffusion_automatic1111_linux from "@/backends/gradio/stable-diffusion-automatic1111-linux.json";
 
 const backends_json = [
   backend_latent_diffusion,
   backend_stable_diffusion,
-  backend_stable_diffusion_automatic1111,
+  backend_stable_diffusion_automatic1111_sorted,
+  backend_stable_diffusion_automatic1111_linux,
 ];
 
 backends_json.forEach(function (backend) {
@@ -66,8 +68,15 @@ const backend_options = [
     label: "Local",
     id: "local",
     backends: [
+      {
+        label: "Automatic1111 Sorted",
+        id: "stable_diffusion_automatic1111_sorted",
+      },
+      {
+        label: "Automatic1111 Linux",
+        id: "stable_diffusion_automatic1111_linux",
+      },
       { label: "Stable Diffusion", id: "stable_diffusion" },
-      { label: "Automatic1111 fork", id: "stable_diffusion_automatic1111" },
     ],
   },
 ];
