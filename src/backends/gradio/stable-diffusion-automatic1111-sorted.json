@@ -2,6 +2,7 @@
   "id": "stable_diffusion_automatic1111_sorted",
   "name": "Stable Diffusion Automatic1111",
   "description": "Automatic1111 fork of Stable Diffusion",
+  "config_url": "http://127.0.0.1:7860/config",
   "api_url": "http://127.0.0.1:7860/api/predict/",
   "doc_url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui",
   "license": "CreativeML Open RAIL-M",
@@ -27,7 +28,12 @@
       "id": "txt2img",
       "mode": "txt2img",
       "label": "Text to Image",
-      "fn_index": 12,
+      "fn_index": {
+        "conditions": {
+          "js": "submit",
+          "trigger": "click"
+        }
+      },
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -111,271 +117,29 @@
           ]
         }
       ],
-      "inputs": [
-        {
-          "id": "prompt",
-          "type": "common_input"
-        }, {
-          "id": "reverse_prompt",
-          "type": "common_input"
-        }, {
-          "label": "Style",
-          "id": "style",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "None"
-        }, {
-          "label": "Style2",
-          "id": "style2",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "None"
-        }, {
-          "label": "Steps",
-          "id": "nb_steps",
-          "description": "More steps can increase quality but will take longer to generate",
-          "type": "int",
-          "default": 20,
-          "validation": {
-            "min": 1,
-            "max": 150
-          }
-        }, {
-          "label": "Sampling method",
-          "id": "sampling_method",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Euler a",
-              "Euler",
-              "LMS",
-              "Heun",
-              "DPM2",
-              "DPM2 a",
-              "DDIM",
-              "PLMS"
-            ]
-          },
-          "default": "Euler a"
-        }, {
-          "label": "Restore faces",
-          "id": "restore_faces",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Tiling",
-          "id": "tiling",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Batch count",
-          "id": "batch_count",
-          "description": "",
-          "type": "int",
-          "default": 1,
-          "validation": {
-            "min": 1,
-            "max": 16
-          }
-        }, {
-          "label": "Batch size",
-          "id": "batch_size",
-          "description": "",
-          "type": "int",
-          "default": 1,
-          "validation": {
-            "min": 1,
-            "max": 8
-          }
-        }, {
-          "label": "CFG Scale",
-          "id": "guidance_scale",
-          "description": "How closely we should follow the prompt",
-          "type": "float",
-          "default": 7,
-          "step": 0.1,
-          "validation": {
-            "min": 0.1,
-            "max": 30
-          }
-        }, {
-          "label": "Seed",
-          "id": "seed",
-          "description": "Number to generate initial latent images. Random if -1",
-          "type": "bigint",
-          "default": -1,
-          "validation": {
-            "min": -1,
-            "max": 4294967296
-          }
-        }, {
-          "label": "Variation seed",
-          "id": "subseed",
-          "description": "",
-          "type": "int",
-          "default": -1,
-          "visible": false,
-          "validation": {
-            "min": -1,
-            "max": 4294967296
-          }
-        }, {
-          "label": "Variation strength",
-          "id": "subseed_strength",
-          "description": "",
-          "type": "float",
-          "default": 0,
-          "step": 0.05,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 1.0
-          }
-        }, {
-          "label": "Resize seed from height",
-          "id": "seed_resize_from_h",
-          "description": "",
-          "type": "int",
-          "default": 0,
-          "step": 64,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Resize seed from width",
-          "id": "seed_resize_from_w",
-          "description": "",
-          "type": "int",
-          "default": 0,
-          "step": 64,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Seed checkbox",
-          "id": "seed_checkbox",
-          "description": "",
-          "type": "boolean",
-          "default": false,
-          "visible": false
-        }, {
-          "label": "Height",
-          "id": "height",
-          "description": "",
-          "type": "int",
-          "default": 512,
-          "step": 64,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Width",
-          "id": "width",
-          "description": "",
-          "type": "int",
-          "default": 512,
-          "step": 64,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Highres fix",
-          "id": "enable_hr",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Scale latent",
-          "id": "scale_latent",
-          "description": "",
-          "type": "boolean",
-          "default": true,
-          "visible": false
-        }, {
-          "label": "Denoising Strength",
+      "auto_inputs": {
+        "denoising_strength": {
           "id": "strength",
-          "description": "",
-          "type": "float",
-          "default": 0.7,
-          "step": 0.01,
           "visible": {
             "input_id": "enable_hr",
             "condition": "===",
             "value": true
-          },
-          "validation": {
-            "min": 0.01,
-            "max": 1.0
           }
-        }, {
-          "id": "custom_0",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_1",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_2",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_3",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_4",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_5",
-          "default": "Seed",
-          "visible": false
-        }, {
-          "id": "custom_6",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_7",
-          "default": "Steps",
-          "visible": false
-        }, {
-          "id": "custom_8",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_9",
-          "default": true,
-          "visible": false
-        }, {
-          "id": "custom_10",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_11",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_12",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_13",
-          "default": "",
-          "visible": false
+        },
+        "sampling_steps": {
+          "id": "nb_steps"
+        },
+        "negative_prompt": {
+          "id": "reverse_prompt"
+        },
+        "cfg_scale": {
+          "id": "guidance_scale"
+        },
+        "highres._fix": {
+          "id": "enable_hr"
         }
-      ],
+      },
+      "inputs": "auto",
       "outputs": [
         {
           "label": "Result",
@@ -393,7 +157,12 @@
       "id": "img2img",
       "mode": "img2img",
       "label": "Image to Image",
-      "fn_index": 30,
+      "fn_index": {
+        "conditions": {
+          "js": "submit_img2img",
+          "trigger": "click"
+        }
+      },
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -484,453 +253,27 @@
           ]
         }
       ],
-      "inputs": [
-        {
-          "label": "Dummy component",
-          "id": "dummy_component",
-          "description": "",
-          "type": "int",
-          "visible": false,
-          "default": 0
-        }, {
-          "id": "prompt",
-          "type": "common_input"
-        }, {
-          "id": "reverse_prompt",
-          "type": "common_input"
-        }, {
-          "label": "Style",
-          "id": "style",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "None"
-        }, {
-          "label": "Style2",
-          "id": "style2",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "None"
-        }, {
-          "label": "Image",
-          "id": "image",
-          "description": "Initial image for inpainting or img to img",
-          "type": "image",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Image",
-          "id": "image_with_mask",
-          "description": "Image and mask combined",
-          "type": "image",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Image",
-          "id": "image_init_inpaint",
-          "description": "Image mask",
-          "type": "image",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Image",
-          "id": "image_mask",
-          "description": "Image mask",
-          "type": "image_mask",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Mask upload type",
-          "id": "mask_upload_type",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "Upload mask"
-        }, {
-          "label": "Steps",
-          "id": "nb_steps",
-          "description": "More steps can increase quality but will take longer to generate",
-          "type": "int",
-          "default": 20,
-          "validation": {
-            "min": 1,
-            "max": 150
-          }
-        }, {
-          "label": "Sampling method",
-          "id": "sampling_method",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Euler a",
-              "Euler",
-              "LMS",
-              "Heun",
-              "DPM2",
-              "DPM2 a",
-              "DDIM"
-            ]
-          },
-          "default": "Euler a"
-        }, {
-          "label": "Mask blur",
-          "id": "mask_blur",
-          "description": "",
-          "type": "int",
-          "default": 4,
-          "validation": {
-            "min": 0,
-            "max": 64
-          }
-        }, {
-          "label": "Masked content",
-          "id": "masked_content",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "fill",
-              "original",
-              "latent noise",
-              "latent nothing"
-            ]
-          },
-          "default": "original"
-        }, {
-          "label": "Restore faces",
-          "id": "restore_faces",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Tiling",
-          "id": "tiling",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Batch count",
-          "id": "batch_count",
-          "description": "",
-          "type": "int",
-          "default": 1,
-          "validation": {
-            "min": 1,
-            "max": 16
-          }
-        }, {
-          "label": "Batch size",
-          "id": "batch_size",
-          "description": "",
-          "type": "int",
-          "default": 1,
-          "validation": {
-            "min": 1,
-            "max": 8
-          }
-        }, {
-          "label": "CFG Scale",
-          "id": "guidance_scale",
-          "description": "How closely we should follow the prompt",
-          "type": "float",
-          "default": 7,
-          "step": 0.1,
-          "validation": {
-            "min": 0.1,
-            "max": 30
-          }
-        }, {
-          "label": "Denoising Strength",
-          "id": "strength",
-          "description": "",
-          "type": "float",
-          "default": 0.7,
-          "step": 0.01,
-          "validation": {
-            "min": 0.01,
-            "max": 1.0
-          }
-        }, {
-          "label": "Seed",
-          "id": "seed",
-          "description": "Number to generate initial latent images. Random if -1",
-          "type": "bigint",
-          "default": -1,
-          "validation": {
-            "min": -1,
-            "max": 4294967296
-          }
-        }, {
-          "label": "Variation seed",
-          "id": "subseed",
-          "description": "",
-          "type": "int",
-          "default": -1,
-          "visible": false,
-          "validation": {
-            "min": -1,
-            "max": 4294967296
-          }
-        }, {
-          "label": "Variation strength",
-          "id": "subseed_strength",
-          "description": "",
-          "type": "float",
-          "default": 0,
-          "step": 0.05,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 1.0
-          }
-        }, {
-          "label": "Resize seed from height",
-          "id": "seed_resize_from_h",
-          "description": "",
-          "type": "int",
-          "default": 0,
-          "step": 64,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Resize seed from width",
-          "id": "seed_resize_from_w",
-          "description": "",
-          "type": "int",
-          "default": 0,
-          "step": 64,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Seed checkbox",
-          "id": "seed_checkbox",
-          "description": "",
-          "type": "boolean",
-          "default": false,
-          "visible": false
-        }, {
-          "label": "Height",
-          "id": "height",
-          "description": "",
-          "type": "int",
-          "default": 512,
-          "step": 64,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Width",
-          "id": "width",
-          "description": "",
-          "type": "int",
-          "default": 512,
-          "step": 64,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Resize image options",
-          "id": "resize_options",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Just resize",
-              "Crop and resize",
-              "Resize and fill"
-            ]
-          },
-          "default": "Just resize"
-        }, {
-          "label": "Inpaint full res",
-          "id": "inpaint_full_res",
-          "description": "",
-          "type": "boolean",
-          "visible": "false",
-          "default": false
-        }, {
-          "label": "Inpaint full res padding",
-          "id": "inpaint_full_res_padding",
-          "description": "Inpaint at full resolution padding, pixels",
-          "type": "int",
-          "default": 32,
-          "step": 4,
-          "validation": {
-            "min": 0,
-            "max": 256
-          }
-        }, {
-          "label": "Inpainting mask invert",
-          "id": "inpainting_mask_invert",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Inpaint masked",
-              "Inpaint not masked"
-            ]
-          },
-          "default": "Inpaint masked"
-        }, {
-          "id": "custom_0",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_1",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_2",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_3",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_4",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_5",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_6",
-          "default": 50,
-          "visible": false
-        }, {
-          "id": "custom_7",
-          "default": 0,
-          "visible": false
-        }, {
-          "id": "custom_8",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_9",
-          "default": 4,
-          "visible": false
-        }, {
-          "id": "custom_10",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_10a",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_11",
-          "default": 128,
-          "visible": false
-        }, {
-          "id": "custom_12",
-          "default": 8,
-          "visible": false
-        }, {
-          "id": "custom_13",
-          "default": ["left", "right", "up", "down"],
-          "visible": false
-        }, {
-          "id": "custom_14",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_14a",
-          "default": 0.05,
-          "visible": false
-        }, {
-          "id": "custom_14b",
-          "default": 128,
-          "visible": false
-        }, {
-          "id": "custom_14c",
-          "default": 4,
-          "visible": false
-        }, {
-          "id": "custom_15",
-          "default": "fill",
-          "visible": false
-        }, {
-          "id": "custom_16",
-          "default": ["left", "right", "up", "down"],
-          "visible": false
-        }, {
-          "id": "custom_17",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_18",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_19",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_20",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_21",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_22",
-          "default": 64,
-          "visible": false
-        }, {
-          "id": "custom_22a",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_23",
-          "default": "Seed",
-          "visible": false
-        }, {
-          "id": "custom_24",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_25",
-          "default": "Steps",
-          "visible": false
-        }, {
-          "id": "custom_26",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_27",
-          "default": true,
-          "visible": false
-        }, {
-          "id": "custom_28",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_29",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_30",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_31",
-          "default": "",
-          "visible": false
+      "auto_inputs": {
+        "denoising_strength": {
+          "id": "strength"
+        },
+        "sampling_steps": {
+          "id": "nb_steps"
+        },
+        "negative_prompt": {
+          "id": "reverse_prompt"
+        },
+        "cfg_scale": {
+          "id": "guidance_scale"
+        },
+        "highres._fix": {
+          "id": "enable_hr"
+        },
+        "resize_mode": {
+          "id": "resize_options"
         }
-      ],
+      },
+      "inputs": "auto",
       "outputs": [
         {
           "label": "Result",
@@ -948,7 +291,12 @@
       "id": "inpainting",
       "mode": "inpainting",
       "label": "Inpainting",
-      "fn_index": 30,
+      "fn_index": {
+        "conditions": {
+          "js": "submit_img2img",
+          "trigger": "click"
+        }
+      },
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -971,14 +319,6 @@
             {
               "type": "input",
               "id": "mask_blur"
-            },
-            {
-              "type": "input",
-              "id": "inpaint_full_res"
-            },
-            {
-              "type": "input",
-              "id": "inpaint_full_res_padding"
             },
             {
               "type": "input",
@@ -1055,456 +395,49 @@
           ]
         }
       ],
-      "inputs": [
-        {
-          "label": "Dummy component",
-          "id": "dummy_component",
-          "description": "",
-          "type": "int",
-          "visible": false,
-          "default": 1
-        }, {
-          "id": "prompt",
-          "type": "common_input"
-        }, {
-          "id": "reverse_prompt",
-          "type": "common_input"
-        }, {
-          "label": "Style",
-          "id": "style",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "None"
-        }, {
-          "label": "Style2",
-          "id": "style2",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "None"
-        }, {
-          "label": "Image",
-          "id": "image_img_img",
-          "description": "Initial image for img to img",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Image",
-          "id": "image_with_mask",
-          "description": "Image and mask combined",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Image",
-          "id": "image_init_inpaint",
-          "description": "Image mask",
-          "type": "image",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Image",
-          "id": "image_mask",
-          "description": "Image mask",
-          "type": "image_mask",
-          "required": false,
-          "default": null
-        }, {
-          "label": "Mask upload type",
-          "id": "mask_upload_type",
-          "description": "",
-          "type": "text",
-          "visible": false,
-          "default": "Upload mask"
-        }, {
-          "label": "Steps",
-          "id": "nb_steps",
-          "description": "More steps can increase quality but will take longer to generate",
-          "type": "int",
-          "default": 20,
-          "validation": {
-            "min": 1,
-            "max": 150
-          }
-        }, {
-          "label": "Sampling method",
-          "id": "sampling_method",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Euler a",
-              "Euler",
-              "LMS",
-              "Heun",
-              "DPM2",
-              "DPM2 a",
-              "DDIM"
-            ]
-          },
-          "default": "Euler a"
-        }, {
-          "label": "Mask blur",
-          "id": "mask_blur",
-          "description": "",
-          "type": "int",
-          "default": 4,
-          "validation": {
-            "min": 0,
-            "max": 64
-          }
-        }, {
-          "label": "Masked content",
-          "id": "masked_content",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "fill",
-              "original",
-              "latent noise",
-              "latent nothing"
-            ]
-          },
-          "default": "original"
-        }, {
-          "label": "Restore faces",
-          "id": "restore_faces",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Tiling",
-          "id": "tiling",
-          "description": "",
-          "type": "boolean",
-          "default": false
-        }, {
-          "label": "Batch count",
-          "id": "batch_count",
-          "description": "",
-          "type": "int",
-          "default": 1,
-          "validation": {
-            "min": 1,
-            "max": 16
-          }
-        }, {
-          "label": "Batch size",
-          "id": "batch_size",
-          "description": "",
-          "type": "int",
-          "default": 1,
-          "validation": {
-            "min": 1,
-            "max": 8
-          }
-        }, {
-          "label": "CFG Scale",
-          "id": "guidance_scale",
-          "description": "How closely we should follow the prompt",
-          "type": "float",
-          "default": 7,
-          "step": 0.1,
-          "validation": {
-            "min": 0.1,
-            "max": 30
-          }
-        }, {
-          "label": "Denoising Strength",
-          "id": "strength",
-          "description": "",
-          "type": "float",
-          "default": 0.7,
-          "step": 0.01,
-          "validation": {
-            "min": 0.01,
-            "max": 1.0
-          }
-        }, {
-          "label": "Seed",
-          "id": "seed",
-          "description": "Number to generate initial latent images. Random if -1",
-          "type": "bigint",
-          "default": -1,
-          "validation": {
-            "min": -1,
-            "max": 4294967296
-          }
-        }, {
-          "label": "Variation seed",
-          "id": "subseed",
-          "description": "",
-          "type": "int",
-          "default": -1,
-          "visible": false,
-          "validation": {
-            "min": -1,
-            "max": 4294967296
-          }
-        }, {
-          "label": "Variation strength",
-          "id": "subseed_strength",
-          "description": "",
-          "type": "float",
-          "default": 0,
-          "step": 0.05,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 1.0
-          }
-        }, {
-          "label": "Resize seed from height",
-          "id": "seed_resize_from_h",
-          "description": "",
-          "type": "int",
-          "default": 0,
-          "step": 64,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Resize seed from width",
-          "id": "seed_resize_from_w",
-          "description": "",
-          "type": "int",
-          "default": 0,
-          "step": 64,
-          "visible": false,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Seed checkbox",
-          "id": "seed_checkbox",
-          "description": "",
-          "type": "boolean",
-          "default": false,
-          "visible": false
-        }, {
-          "label": "Height",
-          "id": "height",
-          "description": "",
-          "type": "int",
-          "default": 512,
-          "step": 64,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Width",
-          "id": "width",
-          "description": "",
-          "type": "int",
-          "default": 512,
-          "step": 64,
-          "validation": {
-            "min": 0,
-            "max": 2048
-          }
-        }, {
-          "label": "Resize image options",
-          "id": "resize_options",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Just resize",
-              "Crop and resize",
-              "Resize and fill"
-            ]
-          },
-          "default": "Just resize"
-        }, {
-          "label": "Inpaint full res",
-          "id": "inpaint_full_res",
-          "description": "",
-          "type": "boolean",
-          "visible": "false",
-          "default": false
-        }, {
-          "label": "Full res padding",
-          "id": "inpaint_full_res_padding",
-          "description": "Inpaint at full resolution padding, pixels",
-          "type": "int",
-          "default": 32,
-          "step": 4,
-          "validation": {
-            "min": 0,
-            "max": 256
-          },
-          "visible": {
-            "input_id": "inpaint_full_res",
-            "condition": "===",
-            "value": true
-          }
-        }, {
-          "label": "Inpainting mask invert",
-          "id": "inpainting_mask_invert",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "Inpaint masked",
-              "Inpaint not masked"
-            ]
-          },
-          "default": "Inpaint masked"
-        }, {
-          "id": "custom_0",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_1",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_2",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_3",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_4",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_5",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_6",
-          "default": 50,
-          "visible": false
-        }, {
-          "id": "custom_7",
-          "default": 0,
-          "visible": false
-        }, {
-          "id": "custom_8",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_9",
-          "default": 4,
-          "visible": false
-        }, {
-          "id": "custom_10",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_10a",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_11",
-          "default": 128,
-          "visible": false
-        }, {
-          "id": "custom_12",
-          "default": 8,
-          "visible": false
-        }, {
-          "id": "custom_13",
-          "default": ["left", "right", "up", "down"],
-          "visible": false
-        }, {
-          "id": "custom_14",
-          "default": 1,
-          "visible": false
-        }, {
-          "id": "custom_14a",
-          "default": 0.05,
-          "visible": false
-        }, {
-          "id": "custom_14b",
-          "default": 128,
-          "visible": false
-        }, {
-          "id": "custom_14c",
-          "default": 4,
-          "visible": false
-        }, {
-          "id": "custom_15",
-          "default": "fill",
-          "visible": false
-        }, {
-          "id": "custom_16",
-          "default": ["left", "right", "up", "down"],
-          "visible": false
-        }, {
-          "id": "custom_17",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_18",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_19",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_20",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_21",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_22",
-          "default": 64,
-          "visible": false
-        }, {
-          "id": "custom_22a",
-          "default": "None",
-          "visible": false
-        }, {
-          "id": "custom_23",
-          "default": "Seed",
-          "visible": false
-        }, {
-          "id": "custom_24",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_25",
-          "default": "Steps",
-          "visible": false
-        }, {
-          "id": "custom_26",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_27",
-          "default": true,
-          "visible": false
-        }, {
-          "id": "custom_28",
-          "default": false,
-          "visible": false
-        }, {
-          "id": "custom_29",
-          "default": null,
-          "visible": false
-        }, {
-          "id": "custom_30",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_31",
-          "default": "",
-          "visible": false
+      "image": {
+        "conditions": {
+          "label": "Image for img2img",
+          "elem_id": "img_inpaint_base"
         }
-      ],
+      },
+      "image_mask": {
+        "conditions": {
+          "label": "Mask"
+        }
+      },
+      "auto_inputs": {
+        "denoising_strength": {
+          "id": "strength"
+        },
+        "sampling_steps": {
+          "id": "nb_steps"
+        },
+        "negative_prompt": {
+          "id": "reverse_prompt"
+        },
+        "cfg_scale": {
+          "id": "guidance_scale"
+        },
+        "highres._fix": {
+          "id": "enable_hr"
+        },
+        "resize_mode": {
+          "id": "resize_options"
+        },
+        "mask_mode": {
+          "value": "Upload mask",
+          "visible": false
+        },
+        "masking_mode": {
+          "id": "inpainting_mask_invert",
+          "visible": true
+        },
+        "label": {
+          "value": 1
+        }
+      },
+      "inputs": "auto",
       "outputs": [
         {
           "label": "Result",
@@ -1522,126 +455,14 @@
       "id": "upscaling",
       "mode": "img2img",
       "label": "Upscaling",
-      "fn_index": 39,
-      "handle_output": "automatic1111",
-      "inputs": [
-        {
-          "label": "Dummy component",
-          "id": "dummy_component",
-          "description": "",
-          "type": "int",
-          "visible": false,
-          "default": 0
-        }, {
-          "label": "Image",
-          "id": "image",
-          "description": "Initial image for upscaling",
-          "type": "image",
-          "required": false,
-          "default": null
-        }, {
-          "id": "image_batch",
-          "required": false,
-          "default": null
-        }, {
-          "label": "GFPGAN visibility",
-          "id": "gfpgan_visibility",
-          "description": "",
-          "type": "float",
-          "default": 0.0,
-          "step": 0.01,
-          "validation": {
-            "min": 0.0,
-            "max": 1.0
-          }
-        }, {
-          "label": "Codeformer visibility",
-          "id": "codeformer_visibility",
-          "description": "",
-          "type": "float",
-          "default": 0.0,
-          "step": 0.01,
-          "validation": {
-            "min": 0.0,
-            "max": 1.0
-          }
-        }, {
-          "label": "Codeformer weight",
-          "id": "codeformer_weight",
-          "description": "",
-          "type": "float",
-          "default": 0.0,
-          "step": 0.01,
-          "validation": {
-            "min": 0.0,
-            "max": 1.0
-          }
-        }, {
-          "label": "Upscaling resize",
-          "id": "upscaling_resize",
-          "description": "",
-          "type": "float",
-          "default": 2.0,
-          "step": 0.05,
-          "validation": {
-            "min": 1.0,
-            "max": 4.0
-          }
-        }, {
-          "label": "Upscaler 1",
-          "id": "upscaler_1",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "None",
-              "Lanczos",
-              "Real-ESRGAN 4x plus",
-              "Real-ESRGAN 4x plus anime 6B",
-              "LDSR"
-            ]
-          },
-          "default": "Real-ESRGAN 4x plus"
-        }, {
-          "label": "Upscaler 2",
-          "id": "upscaler_2",
-          "description": "",
-          "type": "choice",
-          "validation": {
-            "options": [
-              "None",
-              "Lanczos",
-              "Real-ESRGAN 4x plus",
-              "Real-ESRGAN 4x plus anime 6B",
-              "LDSR"
-            ]
-          },
-          "default": "None"
-        }, {
-          "label": "Upscaler 2 visibility",
-          "id": "upscaler_2_visibility",
-          "description": "",
-          "type": "float",
-          "default": 1.0,
-          "step": 0.01,
-          "validation": {
-            "min": 0.0,
-            "max": 1.0
-          }
-        }, {
-          "id": "custom_0",
-          "default": [],
-          "visible": false
-        }, {
-          "id": "custom_1",
-          "default": "",
-          "visible": false
-        }, {
-          "id": "custom_2",
-          "default": "",
-          "visible": false
+      "fn_index": {
+        "conditions": {
+          "js": "get_extras_tab_index",
+          "trigger": "click"
         }
-      ],
+      },
+      "handle_output": "automatic1111",
+      "inputs": "auto",
       "outputs": [
         {
           "label": "Result",
