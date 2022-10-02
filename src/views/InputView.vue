@@ -3,6 +3,7 @@ import { toRef, watch } from "vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
+import LoadConfigButton from "@/components/LoadConfigButton.vue";
 import Button from "primevue/button";
 import Slider from "primevue/slider";
 import {
@@ -38,30 +39,33 @@ watch(toRef(editor, "mode"), function (mode) {
 
 <template lang="pug">
 .flex.flex-column.gap-3
-  template(v-if="!editor.has_image && !input.seed_is_set && backend.hasInput('prompt')")
-    .flex.flex-column.align-items-center
-      .enter-a-prompt
-        | Enter a prompt:
-  PromptInput
-  div(v-show="backend.has_img2img_mode")
-    div(v-show="editor.has_image")
-      ImageEditor
-      .main-slider(v-if="backend.hasInput('strength')", :class="{visible: ui.show_strength_slider}")
-        .flex.flex-row.justify-content-center
-          .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
-            | Low variations
-          Slider.align-items-center(v-model="backend.strength_input.value" :min="0" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + backend.strength}")
-          .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
-            | Ignore previous
-    template(v-if="!editor.has_image")
+  template(v-if="backend.needs_gradio_config")
+    LoadConfigButton
+  template(v-else)
+    template(v-if="!editor.has_image && !input.seed_is_set && backend.hasInput('prompt')")
       .flex.flex-column.align-items-center
-        .or(v-if="backend.hasInput('prompt')") OR
-        FileUploadButton.main-slider
-      .flex.flex-column.align-items-center
-        .or OR
-        Button.p-button-secondary.p-button-outlined.p-button-sm.p-button-text(@click="newDrawing")
-          font-awesome-icon(icon="fa-solid fa-paintbrush")
-          | draw something
+        .enter-a-prompt
+          | Enter a prompt:
+    PromptInput
+    div(v-show="backend.has_img2img_mode")
+      div(v-show="editor.has_image")
+        ImageEditor
+        .main-slider(v-if="backend.hasInput('strength')", :class="{visible: ui.show_strength_slider}")
+          .flex.flex-row.justify-content-center
+            .slider-label.align-items-left(title="At low strengths, the initial image is not modified much")
+              | Low variations
+            Slider.align-items-center(v-model="backend.strength_input.value" :min="0" :max="1" :step="0.02" v-tooltip.bottom="{ value: 'Strength:' + backend.strength}")
+            .slider-label.align-items-left(title="At a strength of 1, what was previously in the zone is ignored")
+              | Ignore previous
+      template(v-if="!editor.has_image")
+        .flex.flex-column.align-items-center
+          .or(v-if="backend.hasInput('prompt')") OR
+          FileUploadButton.main-slider
+        .flex.flex-column.align-items-center
+          .or OR
+          Button.p-button-secondary.p-button-outlined.p-button-sm.p-button-text(@click="newDrawing")
+            font-awesome-icon(icon="fa-solid fa-paintbrush")
+            | draw something
 </template>
 
 <style scoped>

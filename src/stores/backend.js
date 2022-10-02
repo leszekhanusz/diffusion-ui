@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { reactive, toRaw } from "vue";
+import { useUIStore } from "@/stores/ui";
+import { useOutputStore } from "@/stores/output";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
@@ -116,8 +118,10 @@ export const useBackendStore = defineStore({
     current: (state) => state.selected_backend.current,
     original: (state) => state.selected_backend.original,
     use_gradio_config: (state) => !!state.selected_backend.original.config_url,
+    needs_gradio_config: (state) =>
+      state.use_gradio_config && !state.selected_backend.gradio_config,
     gradio_config: function (state) {
-      if (state.use_gradio_config && !state.selected_backend.gradio_config) {
+      if (state.needs_gradio_config) {
         this.loadGradioConfig();
       }
       return state.selected_backend.gradio_config;
@@ -510,6 +514,8 @@ export const useBackendStore = defineStore({
       const config_url = this.original.config_url;
 
       if (config_url) {
+        let error_message = null;
+
         try {
           this.loading_config = true;
           console.log(`Downloading gradio config from ${config_url}`);
@@ -535,15 +541,23 @@ export const useBackendStore = defineStore({
           if (is_gradio_config) {
             this.selected_backend.gradio_config = gradio_config;
           } else {
-            console.error(
-              "The config json file downloaded does not seem to be a gradio config file",
-              gradio_config
-            );
+            error_message =
+              "The config json file downloaded does not seem to be a gradio config file";
+            console.error(error_message, gradio_config);
           }
         } catch (e) {
-          console.error("Error trying to download the gradio config: ", e);
+          error_message = "Error trying to download the gradio config";
+          console.error(error_message, e);
         } finally {
           this.loading_config = false;
+        }
+
+        if (error_message) {
+          const ui = useUIStore();
+          const output = useOutputStore();
+          ui.show_latest_result = true;
+          ui.show_results = true;
+          output.error_message = error_message;
         }
       }
     },

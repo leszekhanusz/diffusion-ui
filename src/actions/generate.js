@@ -182,7 +182,7 @@ async function generate() {
       output.error_message = null;
     } catch (error) {
       ui.show_latest_result = true;
-      output.error_message = error;
+      output.error_message = error.message;
       console.error(error);
     } finally {
       output.loading = false;
