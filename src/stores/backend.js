@@ -187,6 +187,22 @@ export const useBackendStore = defineStore({
             const input_def_reactive = auto_inputs[auto_id];
             const input_def = toRaw(input_def_reactive);
 
+            if (input_def.type === "common_input") {
+              const common_input_found_reactive = state.common_inputs.find(
+                (common_input) => common_input.id === input_def.id
+              );
+
+              if (common_input_found_reactive) {
+                const common_input_found = toRaw(common_input_found_reactive);
+                if (!("value" in common_input_found)) {
+                  common_input_found.value = common_input_found.default;
+                }
+                return reactive(common_input_found);
+              } else {
+                console.warn(`common_input ${auto_id} not found`);
+              }
+            }
+
             if (!("value" in input_def)) {
               input_def.value = auto_input.default;
             }
@@ -677,6 +693,11 @@ export const useBackendStore = defineStore({
         default:
           console.log("Unsupported gradio component type: ", gradio_input.type);
           console.log("Unsupported gradio component type: ", gradio_input);
+          input = {
+            label: props.label,
+            default: null,
+            visible: false,
+          };
           break;
       }
 

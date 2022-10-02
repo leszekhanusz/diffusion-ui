@@ -21,6 +21,28 @@
         "description": "What not to generate",
         "type": "text",
         "default": ""
+      }, {
+        "label": "Width",
+        "id": "width",
+        "description": "",
+        "type": "int",
+        "default": 512,
+        "step": 64,
+        "validation": {
+          "min": 0,
+          "max": 2048
+        }
+      }, {
+        "label": "Height",
+        "id": "height",
+        "description": "",
+        "type": "int",
+        "default": 512,
+        "step": 64,
+        "validation": {
+          "min": 0,
+          "max": 2048
+        }
       }
   ],
   "functions": [
@@ -130,7 +152,20 @@
           "id": "nb_steps"
         },
         "negative_prompt": {
-          "id": "reverse_prompt"
+          "id": "reverse_prompt",
+          "type": "common_input"
+        },
+        "prompt": {
+          "id": "prompt",
+          "type": "common_input"
+        },
+        "width": {
+          "id": "width",
+          "type": "common_input"
+        },
+        "height": {
+          "id": "height",
+          "type": "common_input"
         },
         "cfg_scale": {
           "id": "guidance_scale"
@@ -261,7 +296,20 @@
           "id": "nb_steps"
         },
         "negative_prompt": {
-          "id": "reverse_prompt"
+          "id": "reverse_prompt",
+          "type": "common_input"
+        },
+        "prompt": {
+          "id": "prompt",
+          "type": "common_input"
+        },
+        "width": {
+          "id": "width",
+          "type": "common_input"
+        },
+        "height": {
+          "id": "height",
+          "type": "common_input"
         },
         "cfg_scale": {
           "id": "guidance_scale"
@@ -414,7 +462,20 @@
           "id": "nb_steps"
         },
         "negative_prompt": {
-          "id": "reverse_prompt"
+          "id": "reverse_prompt",
+          "type": "common_input"
+        },
+        "prompt": {
+          "id": "prompt",
+          "type": "common_input"
+        },
+        "width": {
+          "id": "width",
+          "type": "common_input"
+        },
+        "height": {
+          "id": "height",
+          "type": "common_input"
         },
         "cfg_scale": {
           "id": "guidance_scale"
