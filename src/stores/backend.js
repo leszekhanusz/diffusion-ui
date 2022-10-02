@@ -57,7 +57,7 @@ const backends = backends_json.map(function (backend) {
 
   return {
     original: backend_original,
-    current: useStorage("backend_" + backend.name, backend, localStorage, {
+    current: useStorage("backend_" + backend.id, backend, localStorage, {
       mergeDefaults: mergeBackend,
     }),
     gradio_config: "config_url" in backend_original ? null : undefined,
