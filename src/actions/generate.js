@@ -64,7 +64,7 @@ async function generateImageGradio() {
 
   //console.log("sent", body);
 
-  const response = await fetch(backend.current.api_url, {
+  const response = await fetch(backend.api_url, {
     method: "POST",
     body: body,
     headers: { "Content-Type": "application/json" },

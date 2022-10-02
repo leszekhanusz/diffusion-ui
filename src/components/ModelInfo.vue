@@ -30,7 +30,7 @@ div
             font-awesome-icon(icon="fa-solid fa-link")
             span  API url
           .col
-            #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.api_url }}
+            #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.base_url }}
       template(v-if="backend.has_access_code")
         .field.grid(:title="backend.access_code_input.description")
           label.col-fixed(style="min-width: 150px; margin:auto")

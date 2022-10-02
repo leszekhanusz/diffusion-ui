@@ -6,14 +6,12 @@ import { useOutputStore } from "@/stores/output";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
-import backend_stable_diffusion_automatic1111_sorted from "@/backends/gradio/stable-diffusion-automatic1111-sorted.json";
-import backend_stable_diffusion_automatic1111_linux from "@/backends/gradio/stable-diffusion-automatic1111-linux.json";
+import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
 
 const backends_json = [
   backend_latent_diffusion,
   backend_stable_diffusion,
-  backend_stable_diffusion_automatic1111_sorted,
-  backend_stable_diffusion_automatic1111_linux,
+  backend_stable_diffusion_automatic1111,
 ];
 
 backends_json.forEach(function (backend) {
@@ -60,7 +58,7 @@ const backends = backends_json.map(function (backend) {
     current: useStorage("backend_" + backend.id, backend, localStorage, {
       mergeDefaults: mergeBackend,
     }),
-    gradio_config: "config_url" in backend_original ? null : undefined,
+    gradio_config: "config_path" in backend_original ? null : undefined,
   };
 });
 
@@ -75,12 +73,8 @@ const backend_options = [
     id: "local",
     backends: [
       {
-        label: "Automatic1111 Sorted",
-        id: "stable_diffusion_automatic1111_sorted",
-      },
-      {
-        label: "Automatic1111 Linux",
-        id: "stable_diffusion_automatic1111_linux",
+        label: "Automatic1111",
+        id: "stable_diffusion_automatic1111",
       },
       { label: "Stable Diffusion", id: "stable_diffusion" },
     ],
@@ -117,7 +111,16 @@ export const useBackendStore = defineStore({
     },
     current: (state) => state.selected_backend.current,
     original: (state) => state.selected_backend.original,
-    use_gradio_config: (state) => !!state.selected_backend.original.config_url,
+    base_url: (state) => state.current.base_url,
+    api_url: (state) => state.base_url + "/" + state.current.api_path,
+    config_url: function (state) {
+      if (state.current.config_path) {
+        return state.base_url + "/" + state.current.config_path;
+      } else {
+        return null;
+      }
+    },
+    use_gradio_config: (state) => !!state.selected_backend.original.config_path,
     needs_gradio_config: (state) =>
       state.use_gradio_config && !state.selected_backend.gradio_config,
     gradio_config: function (state) {
@@ -284,7 +287,6 @@ export const useBackendStore = defineStore({
     license_html: (state) => state.getBackendField("license_html"),
     description: (state) => state.getBackendField("description"),
     doc_url: (state) => state.getBackendField("doc_url"),
-    api_url: (state) => state.getBackendField("api_url"),
   },
   actions: {
     acceptLicense() {
@@ -511,7 +513,7 @@ export const useBackendStore = defineStore({
       );
     },
     async loadGradioConfig() {
-      const config_url = this.original.config_url;
+      const config_url = this.config_url;
 
       if (config_url) {
         let error_message = null;
