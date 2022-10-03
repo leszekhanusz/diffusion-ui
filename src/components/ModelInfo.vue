@@ -1,5 +1,7 @@
 <script setup>
+import ModelParameter from "@/components/ModelParameter.vue";
 import Button from "primevue/button";
+import Card from "primevue/card";
 import Divider from "primevue/divider";
 import Password from "primevue/password";
 import { useBackendStore } from "@/stores/backend";
@@ -23,20 +25,27 @@ div
       strong License: 
       a.cursor-pointer(@click="backend.showLicense") {{ backend.license }}
     Divider(type="dashed")
+    Card(v-if="backend.model_info_inputs" style="margin-bottom: 2em")
+      template(#title)
+        | Global parameters
+      template(#content)
+        .flex.flex-column.align-items-center
+          .api-url(v-if="backend.api_url" title="the URL used to generate the images")
+            .field.grid
+              label.col-fixed(for="api-url" style="margin:auto")
+                font-awesome-icon(icon="fa-solid fa-link")
+                span  API url
+              .col
+                #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.base_url }}
+          template(v-if="backend.has_access_code")
+            .field.grid(:title="backend.access_code_input.description")
+              label.col-fixed(style="min-width: 150px; margin:auto")
+                span Access code
+              .col
+                Password.min-w-full(v-model="backend.access_code_input.value" :feedback="false" inputStyle="margin: auto;")
+        template(v-for="input in backend.model_info_inputs" :key="input.id")
+          ModelParameter(:input="input")
     .flex.flex-column.align-items-center
-      .api-url(v-if="backend.api_url" title="the URL used to generate the images")
-        .field.grid
-          label.col-fixed(for="api-url" style="margin:auto")
-            font-awesome-icon(icon="fa-solid fa-link")
-            span  API url
-          .col
-            #api-url.api-url-value.cursor-pointer(@click="ui.showEditURL") {{ backend.base_url }}
-      template(v-if="backend.has_access_code")
-        .field.grid(:title="backend.access_code_input.description")
-          label.col-fixed(style="min-width: 150px; margin:auto")
-            span Access code
-          .col
-            Password.min-w-full(v-model="backend.access_code_input.value" :feedback="false" inputStyle="margin: auto;")
       Button.p-button-outlined.p-button-danger(@click="backend.resetCurrentBackendToDefaults")
         span Reset to default values
 

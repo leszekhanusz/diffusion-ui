@@ -1,10 +1,13 @@
 <script setup>
+import { computed } from "vue";
 import Image from "primevue/image";
 import SpeedDial from "primevue/speeddial";
+import { useBackendStore } from "@/stores/backend";
 import { useUIStore } from "@/stores/ui";
 import { editResultImage, generateAgainResultImage } from "@/actions/editor";
 
 const ui = useUIStore();
+const backend = useBackendStore();
 
 const props = defineProps({
   src: String,
@@ -33,19 +36,25 @@ function generateAgain() {
   hideResults();
 }
 
-const buttons = [
-  {
-    label: "Edit",
-    icon: "pi pi-pencil",
-    command: editImage,
-  },
-  {
+const buttons = computed(function () {
+  const btns = [];
+
+  if (backend.has_img2img_mode) {
+    btns.push({
+      label: "Edit",
+      icon: "pi pi-pencil",
+      command: editImage,
+    });
+  }
+
+  btns.push({
     label: "Generate again",
     icon: "pi pi-undo",
     command: generateAgain,
-    tootipOptions: "{value: 'Enter your username}'}",
-  },
-];
+  });
+
+  return btns;
+});
 </script>
 
 <template lang="pug">

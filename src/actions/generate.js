@@ -12,7 +12,9 @@ async function generateImageGradio() {
   const inputs_config = backend.inputs;
 
   const backend_id = backend.backend_id;
-  const function_id = backend.current_function.id;
+  const function_id = backend.has_multiple_functions
+    ? backend.current_function.id
+    : null;
 
   const original_image = editor.uploaded_image_b64;
   const history = editor.has_image ? editor.history : null;
@@ -114,23 +116,25 @@ async function generateImageStableHorde() {
     ...inputs_config.map((x) => ({ [x["id"]]: x["value"] }))
   );
 
-  console.log("input_data", input_data);
-
   const api_key = input_data.api_key;
 
-  const frame = Object.keys(input_data).reduce(
-    function (result, id) {
-      if (id == "api_key") {
+  const root_keys = ["prompt", "nsfw", "censor_nsfw", "workers"];
+
+  const frame = inputs_config.reduce(
+    function (result, input) {
+      const input_id = input.id;
+
+      if (input_id === "api_key") {
         return result;
       }
 
-      const value = input_data[id];
+      const api_id = input.api_id ? input.api_id : input_id;
+      const value = input.value;
 
-      if (id.startsWith("payload.")) {
-        const payload_id = id.substring(8);
-        result.params[payload_id] = value;
+      if (root_keys.includes(api_id)) {
+        result[api_id] = value;
       } else {
-        result[id] = value;
+        result.params[api_id] = value;
       }
 
       return result;

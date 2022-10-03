@@ -174,6 +174,7 @@ export const useBackendStore = defineStore({
     common_inputs: (state) => state.current.common_inputs,
     inputs: function (state) {
       const inputs_json = state.current_function.inputs;
+      console.log("Computing inputs");
 
       if (inputs_json === "auto") {
         if (!state.current_function.auto_inputs) {
@@ -249,6 +250,8 @@ export const useBackendStore = defineStore({
       state.inputs.filter(
         (input) => input.type === "image" || input.type === "image_mask"
       ),
+    model_info_inputs: (state) =>
+      state.inputs.filter((input) => input.on_model_info_tab),
     outputs: (state) => state.current_function.outputs,
     function_options: function (state) {
       if (!state.current.functions) {
@@ -292,6 +295,7 @@ export const useBackendStore = defineStore({
     license_html: (state) => state.getBackendField("license_html"),
     description: (state) => state.getBackendField("description"),
     doc_url: (state) => state.getBackendField("doc_url"),
+    has_seed: (state) => state.hasInput("seeds") || state.hasInput("seed"),
   },
   actions: {
     acceptLicense() {

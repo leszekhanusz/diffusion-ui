@@ -1,21 +1,8 @@
 <script setup>
-import { useBackendStore } from "@/stores/backend";
 import { useInputStore } from "@/stores/input";
+import { resetSeeds } from "@/actions/output";
 
-const backend = useBackendStore();
 const input = useInputStore();
-
-function resetSeeds() {
-  const without_toast = false;
-
-  if (backend.hasInput("seeds")) {
-    backend.setInput("seeds", "", without_toast);
-  }
-
-  if (backend.hasInput("seed")) {
-    backend.setInput("seed", -1, without_toast);
-  }
-}
 </script>
 
 <template lang="pug">
