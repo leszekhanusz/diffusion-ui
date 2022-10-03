@@ -1,0 +1,542 @@
+{
+  "id": "stable_diffusion_automatic1111",
+  "name": "Stable Diffusion Automatic1111",
+  "description": "Automatic1111 fork of Stable Diffusion",
+  "base_url": "http://127.0.0.1:7860",
+  "config_path": "config",
+  "api_path": "api/predict",
+  "doc_url": "https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html",
+  "license": "CreativeML Open RAIL-M",
+  "license_html": "The model is licensed with a <a href=\"https://huggingface.co/spaces/CompVis/stable-diffusion-license\" style=\"text-decoration: underline;\" target=\"_blank\">CreativeML Open RAIL-M</a> license. The authors claim no rights on the outputs you generate, you are free to use them and are accountable for their use which must not go against the provisions set in this license. The license forbids you from sharing any content that violates any laws, produce any harm to a person, disseminate any personal information that would be meant for harm, spread misinformation and target vulnerable groups. For the full list of restrictions please <a href=\"https://huggingface.co/spaces/CompVis/stable-diffusion-license\" target=\"_blank\" style=\"text-decoration: underline;\">read the license</a><h4>Biases and content acknowledgment</h4>Despite how impressive being able to turn text into image is, beware to the fact that this model may output content that reinforces or exacerbates societal biases, as well as realistic faces, pornography and violence. The model was trained on the <a href=\"https://laion.ai/blog/laion-5b/\" style=\"text-decoration: underline;\" target=\"_blank\">LAION-5B dataset</a>, which scraped non-curated image-text-pairs from the internet (the exception being the removal of illegal content) and is meant for research purposes. You can read more in the <a href=\"https://huggingface.co/CompVis/stable-diffusion-v1-4\" style=\"text-decoration: underline;\" target=\"_blank\">model card</a>",
+  "type": "gradio",
+  "common_inputs": [
+      {
+        "label": "Prompt",
+        "id": "prompt",
+        "description": "Description of the image to generate",
+        "type": "text",
+        "default": "Bouquet of roses"
+      }, {
+        "label": "Reverse prompt",
+        "id": "reverse_prompt",
+        "description": "What not to generate",
+        "type": "text",
+        "default": ""
+      }, {
+        "label": "Width",
+        "id": "width",
+        "description": "",
+        "type": "int",
+        "default": 512,
+        "step": 64,
+        "validation": {
+          "min": 0,
+          "max": 2048
+        }
+      }, {
+        "label": "Height",
+        "id": "height",
+        "description": "",
+        "type": "int",
+        "default": 512,
+        "step": 64,
+        "validation": {
+          "min": 0,
+          "max": 2048
+        }
+      }
+  ],
+  "functions": [
+    {
+      "id": "txt2img",
+      "mode": "txt2img",
+      "label": "Text to Image",
+      "fn_index": {
+        "conditions": {
+          "js": "submit",
+          "trigger": "click"
+        }
+      },
+      "handle_output": "automatic1111",
+      "layout": [
+        {
+          "type": "container",
+          "id": "sampling_options",
+          "label": "Sampling",
+          "components": [
+            {
+              "type": "input",
+              "id": "batch_count"
+            },
+            {
+              "type": "input",
+              "id": "batch_size"
+            },
+            {
+              "type": "input",
+              "id": "sampling_method"
+            },
+            {
+              "type": "input",
+              "id": "nb_steps"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "prompt_options",
+          "label": "Prompt options",
+          "components": [
+            {
+              "type": "input",
+              "id": "reverse_prompt"
+            },
+            {
+              "type": "input",
+              "id": "guidance_scale"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "image_options",
+          "label": "Image size",
+          "components": [
+            {
+              "type": "input",
+              "id": "width"
+            },
+            {
+              "type": "input",
+              "id": "height"
+            }
+          ]
+        },
+        {
+          "type": "input",
+          "id": "seed"
+        },
+        {
+          "type": "container",
+          "id": "extra_options",
+          "label": "Extra",
+          "components": [
+            {
+              "type": "input",
+              "id": "restore_faces"
+            },
+            {
+              "type": "input",
+              "id": "tiling"
+            },
+            {
+              "type": "input",
+              "id": "enable_hr"
+            },
+            {
+              "type": "input",
+              "id": "strength"
+            }
+          ]
+        }
+      ],
+      "auto_inputs": {
+        "denoising_strength": {
+          "id": "strength",
+          "visible": {
+            "input_id": "enable_hr",
+            "condition": "===",
+            "value": true
+          }
+        },
+        "sampling_steps": {
+          "id": "nb_steps"
+        },
+        "negative_prompt": {
+          "id": "reverse_prompt",
+          "type": "common_input"
+        },
+        "prompt": {
+          "id": "prompt",
+          "type": "common_input"
+        },
+        "width": {
+          "id": "width",
+          "type": "common_input"
+        },
+        "height": {
+          "id": "height",
+          "type": "common_input"
+        },
+        "cfg_scale": {
+          "id": "guidance_scale"
+        },
+        "highres._fix": {
+          "id": "enable_hr"
+        }
+      },
+      "inputs": "auto",
+      "outputs": [
+        {
+          "label": "Result",
+          "type": "image"
+        }, {
+          "label": "JSON metadata",
+          "type": "json"
+        }, {
+          "label": "HTML metadata",
+          "type": "html"
+        }
+      ]
+    },
+    {
+      "id": "img2img",
+      "mode": "img2img",
+      "label": "Image to Image",
+      "fn_index": {
+        "conditions": {
+          "js": "submit_img2img",
+          "trigger": "click"
+        }
+      },
+      "handle_output": "automatic1111",
+      "layout": [
+        {
+          "type": "container",
+          "id": "img2img",
+          "label": "Image to Image",
+          "components": [
+            {
+              "type": "input",
+              "id": "strength"
+            },
+            {
+              "type": "input",
+              "id": "resize_options"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "sampling_options",
+          "label": "Sampling",
+          "components": [
+            {
+              "type": "input",
+              "id": "batch_count"
+            },
+            {
+              "type": "input",
+              "id": "batch_size"
+            },
+            {
+              "type": "input",
+              "id": "sampling_method"
+            },
+            {
+              "type": "input",
+              "id": "nb_steps"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "prompt_options",
+          "label": "Prompt options",
+          "components": [
+            {
+              "type": "input",
+              "id": "reverse_prompt"
+            },
+            {
+              "type": "input",
+              "id": "guidance_scale"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "image_options",
+          "label": "Image size",
+          "components": [
+            {
+              "type": "input",
+              "id": "width"
+            },
+            {
+              "type": "input",
+              "id": "height"
+            }
+          ]
+        },
+        {
+          "type": "input",
+          "id": "seed"
+        },
+        {
+          "type": "container",
+          "id": "extra_options",
+          "label": "Extra",
+          "components": [
+            {
+              "type": "input",
+              "id": "restore_faces"
+            },
+            {
+              "type": "input",
+              "id": "tiling"
+            }
+          ]
+        }
+      ],
+      "auto_inputs": {
+        "denoising_strength": {
+          "id": "strength"
+        },
+        "sampling_steps": {
+          "id": "nb_steps"
+        },
+        "negative_prompt": {
+          "id": "reverse_prompt",
+          "type": "common_input"
+        },
+        "prompt": {
+          "id": "prompt",
+          "type": "common_input"
+        },
+        "width": {
+          "id": "width",
+          "type": "common_input"
+        },
+        "height": {
+          "id": "height",
+          "type": "common_input"
+        },
+        "cfg_scale": {
+          "id": "guidance_scale"
+        },
+        "highres._fix": {
+          "id": "enable_hr"
+        },
+        "resize_mode": {
+          "id": "resize_options"
+        }
+      },
+      "inputs": "auto",
+      "outputs": [
+        {
+          "label": "Result",
+          "type": "image"
+        }, {
+          "label": "JSON metadata",
+          "type": "json"
+        }, {
+          "label": "HTML metadata",
+          "type": "html"
+        }
+      ]
+    },
+    {
+      "id": "inpainting",
+      "mode": "inpainting",
+      "label": "Inpainting",
+      "fn_index": {
+        "conditions": {
+          "js": "submit_img2img",
+          "trigger": "click"
+        }
+      },
+      "handle_output": "automatic1111",
+      "layout": [
+        {
+          "type": "container",
+          "id": "inpainting",
+          "label": "Inpainting",
+          "components": [
+            {
+              "type": "input",
+              "id": "strength"
+            },
+            {
+              "type": "input",
+              "id": "resize_options"
+            },
+            {
+              "type": "input",
+              "id": "masked_content"
+            },
+            {
+              "type": "input",
+              "id": "mask_blur"
+            },
+            {
+              "type": "input",
+              "id": "inpainting_mask_invert"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "sampling_options",
+          "label": "Sampling",
+          "components": [
+            {
+              "type": "input",
+              "id": "batch_count"
+            },
+            {
+              "type": "input",
+              "id": "batch_size"
+            },
+            {
+              "type": "input",
+              "id": "sampling_method"
+            },
+            {
+              "type": "input",
+              "id": "nb_steps"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "prompt_options",
+          "label": "Prompt options",
+          "components": [
+            {
+              "type": "input",
+              "id": "reverse_prompt"
+            },
+            {
+              "type": "input",
+              "id": "guidance_scale"
+            }
+          ]
+        },
+        {
+          "type": "container",
+          "id": "image_options",
+          "label": "Image size",
+          "components": [
+            {
+              "type": "input",
+              "id": "width"
+            },
+            {
+              "type": "input",
+              "id": "height"
+            }
+          ]
+        },
+        {
+          "type": "input",
+          "id": "seed"
+        },
+        {
+          "type": "container",
+          "id": "extra_options",
+          "label": "Extra",
+          "components": [
+            {
+              "type": "input",
+              "id": "restore_faces"
+            }
+          ]
+        }
+      ],
+      "image": {
+        "conditions": {
+          "label": "Image for img2img",
+          "elem_id": "img_inpaint_base"
+        }
+      },
+      "image_mask": {
+        "conditions": {
+          "label": "Mask"
+        }
+      },
+      "auto_inputs": {
+        "denoising_strength": {
+          "id": "strength"
+        },
+        "sampling_steps": {
+          "id": "nb_steps"
+        },
+        "negative_prompt": {
+          "id": "reverse_prompt",
+          "type": "common_input"
+        },
+        "prompt": {
+          "id": "prompt",
+          "type": "common_input"
+        },
+        "width": {
+          "id": "width",
+          "type": "common_input"
+        },
+        "height": {
+          "id": "height",
+          "type": "common_input"
+        },
+        "cfg_scale": {
+          "id": "guidance_scale"
+        },
+        "highres._fix": {
+          "id": "enable_hr"
+        },
+        "resize_mode": {
+          "id": "resize_options"
+        },
+        "mask_mode": {
+          "value": "Upload mask",
+          "visible": false
+        },
+        "masking_mode": {
+          "id": "inpainting_mask_invert",
+          "visible": true
+        },
+        "label": {
+          "value": 1
+        }
+      },
+      "inputs": "auto",
+      "outputs": [
+        {
+          "label": "Result",
+          "type": "image"
+        }, {
+          "label": "JSON metadata",
+          "type": "json"
+        }, {
+          "label": "HTML metadata",
+          "type": "html"
+        }
+      ]
+    },
+    {
+      "id": "upscaling",
+      "mode": "img2img",
+      "label": "Upscaling",
+      "fn_index": {
+        "conditions": {
+          "js": "get_extras_tab_index",
+          "trigger": "click"
+        }
+      },
+      "handle_output": "automatic1111",
+      "inputs": "auto",
+      "outputs": [
+        {
+          "label": "Result",
+          "type": "image"
+        }, {
+          "label": "HTML info x",
+          "type": "html"
+        }, {
+          "label": "HTML info",
+          "type": "html"
+        }
+      ]
+    }
+  ]
+}

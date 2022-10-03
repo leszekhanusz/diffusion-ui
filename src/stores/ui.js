@@ -54,7 +54,7 @@ export const useUIStore = defineStore({
   actions: {
     showEditURL() {
       const backend = useBackendStore();
-      this.edit_url_new_url = backend.current.api_url;
+      this.edit_url_new_url = backend.current.base_url;
       this.edit_url_visible = true;
     },
     hideEditURL() {

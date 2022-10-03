@@ -18,13 +18,10 @@ async function generateImageGradio() {
   const history = editor.has_image ? editor.history : null;
 
   if (backend.has_image_input) {
-    let image_input = inputs_config.find(
-      (input_config) => input_config.type === "image"
-    );
+    let image_input = backend.getImageInput();
+    let mask_image_input = backend.getImageMaskInput();
 
-    let mask_image_input = inputs_config.find(
-      (input_config) => input_config.type === "image_mask"
-    );
+    backend.image_inputs.forEach((input) => (input.value = null));
 
     if (image_input) {
       if (editor.has_image) {
@@ -32,17 +29,11 @@ async function generateImageGradio() {
         renderImage();
 
         image_input.value = editor.init_image_b64;
-      } else {
-        image_input.value = null;
       }
     }
 
     if (mask_image_input) {
-      if (editor.mask_image_b64) {
-        mask_image_input.value = editor.mask_image_b64;
-      } else {
-        mask_image_input.value = null;
-      }
+      mask_image_input.value = editor.mask_image_b64;
     }
   }
 
@@ -50,6 +41,8 @@ async function generateImageGradio() {
     {},
     ...inputs_config.map((x) => ({ [x["id"]]: x["value"] }))
   );
+
+  console.log("input_data", input_data);
 
   const input_data_values = Object.values(input_data);
 
@@ -62,16 +55,16 @@ async function generateImageGradio() {
     data: input_data_values,
   };
 
-  if (backend.current_function.fn_index) {
+  if (backend.fn_index) {
     // Some gradio interfaces need a function index
-    payload["fn_index"] = backend.current_function.fn_index;
+    payload["fn_index"] = backend.fn_index;
   }
 
   const body = JSON.stringify(payload);
 
-  console.log("sent", body);
+  //console.log("sent", body);
 
-  const response = await fetch(backend.current.api_url, {
+  const response = await fetch(backend.api_url, {
     method: "POST",
     body: body,
     headers: { "Content-Type": "application/json" },
@@ -189,7 +182,7 @@ async function generate() {
       output.error_message = null;
     } catch (error) {
       ui.show_latest_result = true;
-      output.error_message = error;
+      output.error_message = error.message;
       console.error(error);
     } finally {
       output.loading = false;

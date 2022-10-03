@@ -36,10 +36,10 @@ function handleOutputDefault(json_result, images_with_metadata) {
   const data_seeds = data_field[1];
 
   // Save the generated seeds in the image metadata
-  const seed_metadata = images_with_metadata.metadata.input["seeds"];
+  const metadata = images_with_metadata.metadata;
 
-  if (seed_metadata) {
-    seed_metadata.value = data_seeds;
+  if ("seeds" in metadata.input) {
+    metadata.input["seeds"] = data_seeds;
     console.log(`Images received with seeds: ${data_seeds}`);
   }
 }

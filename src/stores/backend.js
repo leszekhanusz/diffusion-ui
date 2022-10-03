@@ -1,16 +1,17 @@
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
+import { reactive, toRaw } from "vue";
+import { useUIStore } from "@/stores/ui";
+import { useOutputStore } from "@/stores/output";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
-import backend_stable_diffusion_automatic1111_sorted from "@/backends/gradio/stable-diffusion-automatic1111-sorted.json";
-import backend_stable_diffusion_automatic1111_linux from "@/backends/gradio/stable-diffusion-automatic1111-linux.json";
+import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
 
 const backends_json = [
   backend_latent_diffusion,
   backend_stable_diffusion,
-  backend_stable_diffusion_automatic1111_sorted,
-  backend_stable_diffusion_automatic1111_linux,
+  backend_stable_diffusion_automatic1111,
 ];
 
 backends_json.forEach(function (backend) {
@@ -20,9 +21,11 @@ backends_json.forEach(function (backend) {
     });
   } else {
     backend.functions.forEach(function (fn) {
-      fn.inputs.forEach(function (input) {
-        input.value = input.default;
-      });
+      if (fn.inputs !== "auto") {
+        fn.inputs.forEach(function (input) {
+          input.value = input.default;
+        });
+      }
     });
   }
 });
@@ -52,9 +55,10 @@ const backends = backends_json.map(function (backend) {
 
   return {
     original: backend_original,
-    current: useStorage("backend_" + backend.name, backend, localStorage, {
+    current: useStorage("backend_" + backend.id, backend, localStorage, {
       mergeDefaults: mergeBackend,
     }),
+    gradio_config: "config_path" in backend_original ? null : undefined,
   };
 });
 
@@ -69,12 +73,8 @@ const backend_options = [
     id: "local",
     backends: [
       {
-        label: "Automatic1111 Sorted",
-        id: "stable_diffusion_automatic1111_sorted",
-      },
-      {
-        label: "Automatic1111 Linux",
-        id: "stable_diffusion_automatic1111_linux",
+        label: "Automatic1111",
+        id: "stable_diffusion_automatic1111",
       },
       { label: "Stable Diffusion", id: "stable_diffusion" },
     ],
@@ -92,7 +92,8 @@ export const useBackendStore = defineStore({
     backends: backends,
     backend_options: backend_options,
     backend_id: useStorage("backend_id", default_backend_id),
-    fn_id: null,
+    loading_config: false,
+    fn_id: null, // txt2img, img2img, inpainting
   }),
   getters: {
     selected_backend: function (state) {
@@ -110,6 +111,24 @@ export const useBackendStore = defineStore({
     },
     current: (state) => state.selected_backend.current,
     original: (state) => state.selected_backend.original,
+    base_url: (state) => state.current.base_url,
+    api_url: (state) => state.base_url + "/" + state.current.api_path,
+    config_url: function (state) {
+      if (state.current.config_path) {
+        return state.base_url + "/" + state.current.config_path;
+      } else {
+        return null;
+      }
+    },
+    use_gradio_config: (state) => !!state.selected_backend.original.config_path,
+    needs_gradio_config: (state) =>
+      state.use_gradio_config && !state.selected_backend.gradio_config,
+    gradio_config: function (state) {
+      if (state.needs_gradio_config) {
+        this.loadGradioConfig();
+      }
+      return state.selected_backend.gradio_config;
+    },
     has_multiple_functions: (state) => !!state.current.functions,
     current_function: function (state) {
       if (state.has_multiple_functions) {
@@ -127,18 +146,104 @@ export const useBackendStore = defineStore({
         return state.current;
       }
     },
+    fn_index: function (state) {
+      const fn_index_config = state.current_function.fn_index;
+      if (!fn_index_config || typeof fn_index_config === "number") {
+        return fn_index_config;
+      } else {
+        return this.getGradioConfigFunctionIndex(fn_index_config.conditions);
+      }
+    },
+    gradio_function: function (state) {
+      return state.gradio_config?.dependencies[state.fn_index];
+    },
+    gradio_input_ids: function (state) {
+      return state.gradio_function?.inputs;
+    },
+    gradio_inputs: function (state) {
+      return state.gradio_input_ids?.map((id) =>
+        state.gradio_config.components.find((component) => component.id === id)
+      );
+    },
     mode: (state) => state.current_function.mode,
     common_inputs: (state) => state.current.common_inputs,
     inputs: function (state) {
-      return state.current_function.inputs.map(function (input) {
-        if (input.type === "common_input") {
-          return state.common_inputs.find(
-            (common_input) => common_input.id === input.id
-          );
+      const inputs_json = state.current_function.inputs;
+
+      if (inputs_json === "auto") {
+        if (!state.current_function.auto_inputs) {
+          state.current_function.auto_inputs = {};
         }
-        return input;
-      });
+        const auto_inputs = state.current_function.auto_inputs;
+        if (state.gradio_inputs) {
+          const convert_context = {
+            used_ids: [],
+            images_found: 0,
+          };
+          return state.gradio_inputs.map(function (gradio_input) {
+            var auto_input = state.convertGradioInput(
+              gradio_input,
+              convert_context
+            );
+
+            const auto_id = auto_input.auto_id;
+            if (!(auto_id in auto_inputs)) {
+              auto_inputs[auto_id] = {};
+            }
+
+            const input_def_reactive = auto_inputs[auto_id];
+            const input_def = toRaw(input_def_reactive);
+
+            if (input_def.type === "common_input") {
+              const common_input_found_reactive = state.common_inputs.find(
+                (common_input) => common_input.id === input_def.id
+              );
+
+              if (common_input_found_reactive) {
+                const common_input_found = toRaw(common_input_found_reactive);
+                if (!("value" in common_input_found)) {
+                  common_input_found.value = common_input_found.default;
+                }
+                return reactive(common_input_found);
+              } else {
+                console.warn(`common_input ${auto_id} not found`);
+              }
+            }
+
+            if (!("value" in input_def)) {
+              input_def.value = auto_input.default;
+            }
+
+            Object.assign(auto_input, input_def);
+
+            Object.defineProperty(auto_input, "value", {
+              get() {
+                return input_def.value;
+              },
+              set(value) {
+                input_def_reactive.value = value;
+              },
+            });
+
+            return reactive(auto_input);
+          });
+        }
+      } else {
+        return inputs_json.map(function (input) {
+          if (input.type === "common_input") {
+            return state.common_inputs.find(
+              (common_input) => common_input.id === input.id
+            );
+          }
+          return input;
+        });
+      }
+      return [];
     },
+    image_inputs: (state) =>
+      state.inputs.filter(
+        (input) => input.type === "image" || input.type === "image_mask"
+      ),
     outputs: (state) => state.current_function.outputs,
     function_options: function (state) {
       if (!state.current.functions) {
@@ -182,7 +287,6 @@ export const useBackendStore = defineStore({
     license_html: (state) => state.getBackendField("license_html"),
     description: (state) => state.getBackendField("description"),
     doc_url: (state) => state.getBackendField("doc_url"),
-    api_url: (state) => state.getBackendField("api_url"),
   },
   actions: {
     acceptLicense() {
@@ -407,6 +511,235 @@ export const useBackendStore = defineStore({
           return true;
         }.bind(this)
       );
+    },
+    async loadGradioConfig() {
+      const config_url = this.config_url;
+
+      if (config_url) {
+        let error_message = null;
+
+        try {
+          this.loading_config = true;
+          console.log(`Downloading gradio config from ${config_url}`);
+          const config_response = await fetch(config_url, {
+            method: "GET",
+          });
+
+          const gradio_config = await config_response.json();
+
+          console.log("gradio_config", gradio_config);
+
+          const gradio_config_keys = [
+            "version",
+            "mode",
+            "components",
+            "dependencies",
+          ];
+
+          const is_gradio_config = gradio_config_keys.every(
+            (key) => key in gradio_config
+          );
+
+          if (is_gradio_config) {
+            this.selected_backend.gradio_config = gradio_config;
+          } else {
+            error_message =
+              "The config json file downloaded does not seem to be a gradio config file";
+            console.error(error_message, gradio_config);
+          }
+        } catch (e) {
+          error_message = "Error trying to download the gradio config";
+          console.error(error_message, e);
+        } finally {
+          this.loading_config = false;
+        }
+
+        if (error_message) {
+          const ui = useUIStore();
+          const output = useOutputStore();
+          ui.show_latest_result = true;
+          ui.show_results = true;
+          output.error_message = error_message;
+        }
+      }
+    },
+    getImageInput() {
+      const conditions = this.current_function?.image?.conditions;
+
+      return this.inputs.find(function (input) {
+        if (input.type === "image") {
+          if (conditions) {
+            return Object.keys(conditions).every(
+              (cond_key) => input.props[cond_key] === conditions[cond_key]
+            );
+          } else {
+            return true;
+          }
+        }
+      });
+    },
+    getImageMaskInput() {
+      const conditions = this.current_function?.image_mask?.conditions;
+
+      return this.inputs.find(function (input) {
+        if (input.type === "image_mask") {
+          if (conditions) {
+            return Object.keys(conditions).every(
+              (cond_key) => input.props[cond_key] === conditions[cond_key]
+            );
+          } else {
+            return true;
+          }
+        }
+      });
+    },
+    getGradioConfigFunctionIndex(conditions) {
+      if (this.gradio_config) {
+        const dependencies = this.gradio_config.dependencies;
+
+        const fn_index = Object.keys(dependencies).find(function (key) {
+          const dependency = dependencies[key];
+          return Object.keys(conditions).every(
+            (cond_key) => dependency[cond_key] === conditions[cond_key]
+          );
+        });
+
+        return fn_index;
+      }
+    },
+    convertGradioInput(gradio_input, convert_context) {
+      let input;
+
+      const props = gradio_input.props;
+      switch (gradio_input.type) {
+        case "label":
+          input = {
+            label: props.name,
+            visible: false,
+            default: 0,
+          };
+          break;
+        case "textbox":
+          input = {
+            label: props.label,
+            type: "text",
+          };
+          break;
+        case "dropdown":
+        case "radio":
+          input = {
+            label: props.label,
+            type: "choice",
+            validation: {
+              options: props.choices,
+            },
+          };
+          break;
+        case "slider":
+          input = {
+            label: props.label,
+            type: "float",
+            step: props.step,
+            validation: {
+              min: props.minimum,
+              max: props.maximum,
+            },
+          };
+          break;
+        case "checkbox":
+          input = {
+            label: props.label,
+            type: "boolean",
+          };
+          break;
+        case "number":
+          input = {
+            label: props.label,
+            type: "bigint",
+            validation: {
+              min: -1,
+              max: 4294967296,
+            },
+          };
+          break;
+        case "file":
+          input = {
+            label: props.label,
+            default: null,
+            visible: false,
+          };
+          break;
+        case "checkboxgroup":
+          input = {
+            label: props.label,
+            id: "checkboxgroup_" + gradio_input.id,
+            default: props.value,
+            visible: false,
+          };
+          break;
+        case "html":
+          input = {
+            label: props.name,
+            id: "html_" + gradio_input.id,
+            default: "",
+            visible: false,
+          };
+          break;
+        case "image":
+          if (gradio_input.props.tool === "editor") {
+            input = {
+              label: props.label,
+              id: "image_" + convert_context.images_found++,
+              type: props.label.toLowerCase().includes("mask")
+                ? "image_mask"
+                : "image",
+              props: props,
+              default: null,
+              visible: false,
+            };
+          } else {
+            input = {
+              label: props.label,
+              id: "image_" + convert_context.images_found++,
+              default: null,
+              visible: false,
+            };
+          }
+          break;
+        default:
+          console.log("Unsupported gradio component type: ", gradio_input.type);
+          console.log("Unsupported gradio component type: ", gradio_input);
+          input = {
+            label: props.label,
+            default: null,
+            visible: false,
+          };
+          break;
+      }
+
+      if (!("visible" in input)) {
+        input.visible = gradio_input.visible;
+      }
+      if (!("default" in input)) {
+        input.default = gradio_input.props.value;
+      }
+
+      if (!("id" in input)) {
+        input.id = input.label.replace(/\s+/g, "_").toLowerCase();
+      }
+
+      const input_id = input.id;
+      let next_id = 0;
+      while (convert_context.used_ids.includes(input.id)) {
+        input.id = input_id + "_" + next_id;
+        next_id++;
+      }
+
+      convert_context.used_ids.push(input.id);
+      input.auto_id = input.id;
+      input.description = "";
+
+      return input;
     },
   },
 });
