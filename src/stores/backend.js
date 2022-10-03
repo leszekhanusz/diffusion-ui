@@ -7,11 +7,13 @@ import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
 import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
+import backend_stable_horde from "@/backends/stable_horde/stable_horde.json";
 
 const backends_json = [
   backend_latent_diffusion,
   backend_stable_diffusion,
   backend_stable_diffusion_automatic1111,
+  backend_stable_horde,
 ];
 
 backends_json.forEach(function (backend) {
@@ -66,7 +68,10 @@ const backend_options = [
   {
     label: "Online",
     id: "online",
-    backends: [{ label: "Latent Diffusion", id: "latent_diffusion" }],
+    backends: [
+      { label: "Latent Diffusion", id: "latent_diffusion" },
+      { label: "Stable Horde", id: "stable_horde" },
+    ],
   },
   {
     label: "Local",

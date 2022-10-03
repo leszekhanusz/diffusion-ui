@@ -14,7 +14,7 @@ div
   .sidebar-section
     h3.sidebar-section-title Model
     p.model-description(v-if="backend.description")
-      | {{backend.description}}
+      span(v-html="backend.description")
     p(v-if="backend.doc_url")
       a(:href="backend.doc_url" target="_blank")
         font-awesome-icon(icon="fa-solid fa-book")

@@ -92,11 +92,97 @@ async function generateImageGradio() {
   const json_result = await response.json();
 
   handleOutput(
-    input_data,
+    "gradio",
     backend_id,
     function_id,
+    input_data,
     original_image,
     history,
+    json_result
+  );
+}
+
+async function generateImageStableHorde() {
+  const backend = useBackendStore();
+
+  const inputs_config = backend.inputs;
+
+  const backend_id = backend.backend_id;
+
+  const input_data = Object.assign(
+    {},
+    ...inputs_config.map((x) => ({ [x["id"]]: x["value"] }))
+  );
+
+  console.log("input_data", input_data);
+
+  const api_key = input_data.api_key;
+
+  const frame = Object.keys(input_data).reduce(
+    function (result, id) {
+      if (id == "api_key") {
+        return result;
+      }
+
+      const value = input_data[id];
+
+      if (id.startsWith("payload.")) {
+        const payload_id = id.substring(8);
+        result.params[payload_id] = value;
+      } else {
+        result[id] = value;
+      }
+
+      return result;
+    },
+    {
+      params: {},
+    }
+  );
+
+  console.log("frame", frame);
+
+  const body = JSON.stringify(frame);
+
+  const response = await fetch(backend.api_url, {
+    method: "POST",
+    body: body,
+    headers: {
+      "Content-Type": "application/json",
+      apikey: api_key,
+    },
+  });
+
+  if (!response.ok) {
+    var json_error = null;
+    try {
+      json_error = await response.json();
+    } catch (e) {
+      // Ignore here, error thrown below
+    }
+
+    if (json_error) {
+      if (json_error.error) {
+        throw new Error(json_error.error);
+      }
+    }
+
+    throw new Error(
+      `Error! The backend returned the http code: ${response.status}`
+    );
+  }
+
+  const json_result = await response.json();
+
+  console.log("json_result", json_result);
+
+  handleOutput(
+    "stable_horde",
+    backend_id,
+    null,
+    input_data,
+    null,
+    null,
     json_result
   );
 }
@@ -109,6 +195,9 @@ async function generateImages() {
   switch (backend_type) {
     case "gradio":
       await generateImageGradio();
+      break;
+    case "stable_horde":
+      await generateImageStableHorde();
       break;
     default:
       console.error(`backend type '${backend_type}' not valid`);
