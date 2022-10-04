@@ -79,7 +79,7 @@ const backend_options = [
     backends: [
       {
         label: "Automatic1111",
-        id: "stable_diffusion_automatic1111",
+        id: "automatic1111",
       },
       { label: "Stable Diffusion", id: "stable_diffusion" },
     ],
