@@ -10,7 +10,7 @@ const output = useOutputStore();
 <template lang="pug">
 Message(severity="error" :closable="false")
   div(v-if="output.error_message.startsWith('<')")
-    div(v-html="output.error_message.message")
+    div(v-html="output.error_message")
   div(v-else)
     span {{ output.error_message }}
     p(v-if="backend.doc_url")
