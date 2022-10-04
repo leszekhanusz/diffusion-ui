@@ -31,7 +31,10 @@ Diffusion UI was made using:
     * from a drawing made on the interface
 * Inpainting
     * Including the possibility to draw inside an inpainting region
-* Modular support for different backends (backend is described by a json file)
+* Modular support for different backends:
+    * a basic Stable Diffusion backend
+    * the full-featured automatic1111 fork
+    * the online free Stable Horde
 * Modification of model parameters in left tab
 * Image gallery of previous image in the right tab
 * Allow to do variations and inpainting edits to previously generated images
@@ -53,6 +56,10 @@ To install the Stable Diffusion backend, follow the instructions [in the docs](h
 ### Automatic1111 Stable Diffusion local backend
 
 To use Automatic1111 fork of Stable Diffusion, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html)
+
+### Stable Horde online backend
+
+To generate images for free using the Stable Horde, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/stable-horde.html)
 
 ## License
 [MIT License](https://github.com/leszekhanusz/diffusion-ui/blob/main/LICENSE) for the code here.
