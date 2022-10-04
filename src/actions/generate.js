@@ -21,12 +21,46 @@ async function get_json(response) {
       }
     }
 
-    throw new Error(
+    const error = new Error(
       `Error! The backend returned the http code: ${response.status}`
     );
+    error.code = response.status;
+    throw error;
   }
 
   return await response.json();
+}
+
+async function get_json_stable_horde(response) {
+  try {
+    return await get_json(response);
+  } catch (e) {
+    let new_error = null;
+
+    if (e.code) {
+      switch (e.code) {
+        case 400:
+          new_error = "<p>Validation Error</p>";
+          break;
+        case 401:
+          new_error = "<p>Invalid API Key</p>";
+          break;
+        case 429:
+          new_error = "<p>Too Many Prompts</p>";
+          break;
+        case 503:
+          new_error =
+            "<p>Stable Horde is in maintenance mode. <br/>Please try again later.</p>";
+          break;
+      }
+    }
+
+    if (new_error) {
+      throw new Error(new_error);
+    } else {
+      throw e;
+    }
+  }
 }
 
 async function generateImageGradio() {
@@ -165,8 +199,7 @@ async function generateImageStableHorde() {
     },
   });
 
-  const request_json = await get_json(request_response);
-  console.log("request_json", request_json);
+  const request_json = await get_json_stable_horde(request_response);
 
   const request_uuid = request_json.id;
 
@@ -183,7 +216,7 @@ async function generateImageStableHorde() {
       method: "GET",
     });
 
-    const check_json = await get_json(check_response);
+    const check_json = await get_json_stable_horde(check_response);
 
     const done = check_json.done;
     const wait_time = check_json.wait_time;
@@ -216,7 +249,7 @@ async function generateImageStableHorde() {
     method: "GET",
   });
 
-  const json_result = await get_json(result_response);
+  const json_result = await get_json_stable_horde(result_response);
   console.log("json_result", json_result);
 
   handleOutput(
@@ -339,7 +372,7 @@ async function cancelGeneration() {
     method: "DELETE",
   });
 
-  const cancel_json = await get_json(cancel_response);
+  const cancel_json = await get_json_stable_horde(cancel_response);
   console.log("cancel_json", cancel_json);
 
   output.loading = false;
