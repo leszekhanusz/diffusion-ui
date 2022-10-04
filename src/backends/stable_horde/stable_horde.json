@@ -91,7 +91,7 @@
           "PLMS"
         ]
       },
-      "default": "k_lms"
+      "default": "k_dpm_2"
     }, {
       "label": "Batch size",
       "id": "batch_size",
@@ -146,7 +146,7 @@
       "id": "steps",
       "description": "More steps can increase quality but will take longer to generate",
       "type": "int",
-      "default": 50,
+      "default": 30,
       "validation": {
         "min": 1,
         "max": 200
