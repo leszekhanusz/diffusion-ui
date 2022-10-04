@@ -1,0 +1,193 @@
+{
+  "id": "stable_horde",
+  "name": "Stable Horde",
+  "description": "Stable Horde is a <a href=\"https://github.com/db0/AI-Horde\">crowdsourced distributed cluster</a> of <a href=\"https://github.com/db0/stable-diffusion-webui\">Stable Diffusion workers</a>. If you like this service, consider joining the horde yourself!",
+  "base_url": "https://stablehorde.net",
+  "api_path": "api/v2/generate/sync",
+  "doc_url": "https://stablehorde.net/",
+  "license": "CreativeML Open RAIL-M",
+  "license_html": "The model is licensed with a <a href=\"https://huggingface.co/spaces/CompVis/stable-diffusion-license\" style=\"text-decoration: underline;\" target=\"_blank\">CreativeML Open RAIL-M</a> license. The authors claim no rights on the outputs you generate, you are free to use them and are accountable for their use which must not go against the provisions set in this license. The license forbids you from sharing any content that violates any laws, produce any harm to a person, disseminate any personal information that would be meant for harm, spread misinformation and target vulnerable groups. For the full list of restrictions please <a href=\"https://huggingface.co/spaces/CompVis/stable-diffusion-license\" target=\"_blank\" style=\"text-decoration: underline;\">read the license</a><h4>Biases and content acknowledgment</h4>Despite how impressive being able to turn text into image is, beware to the fact that this model may output content that reinforces or exacerbates societal biases, as well as realistic faces, pornography and violence. The model was trained on the <a href=\"https://laion.ai/blog/laion-5b/\" style=\"text-decoration: underline;\" target=\"_blank\">LAION-5B dataset</a>, which scraped non-curated image-text-pairs from the internet (the exception being the removal of illegal content) and is meant for research purposes. You can read more in the <a href=\"https://huggingface.co/CompVis/stable-diffusion-v1-4\" style=\"text-decoration: underline;\" target=\"_blank\">model card</a>",
+  "type": "stable_horde",
+  "layout": [
+    {
+      "type": "container",
+      "id": "sampling_options",
+      "label": "Sampling",
+      "components": [
+        {
+          "type": "input",
+          "id": "batch_count"
+        },
+        {
+          "type": "input",
+          "id": "batch_size"
+        },
+        {
+          "type": "input",
+          "id": "sampler_name"
+        },
+        {
+          "type": "input",
+          "id": "steps"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "id": "prompt_options",
+      "label": "Prompt options",
+      "components": [
+        {
+          "type": "input",
+          "id": "nsfw"
+        },
+        {
+          "type": "input",
+          "id": "cfg_scale"
+        }
+      ]
+    },
+    {
+      "type": "container",
+      "id": "image_options",
+      "label": "Image size",
+      "components": [
+        {
+          "type": "input",
+          "id": "width"
+        },
+        {
+          "type": "input",
+          "id": "height"
+        }
+      ]
+    },
+    {
+      "type": "input",
+      "id": "seed"
+    }
+  ],
+  "inputs": [
+    {
+      "label": "Prompt",
+      "id": "prompt",
+      "description": "The prompt with which to generate images",
+      "type": "text",
+      "default": "a horde of cute stable robots in a sprawling server room repairing a massive mainframe"
+    }, {
+      "label": "Sampling method",
+      "id": "sampler_name",
+      "description": "",
+      "type": "choice",
+      "validation": {
+        "options": [
+          "k_lms",
+          "k_heun",
+          "k_euler",
+          "k_euler_a",
+          "k_dpm_2",
+          "k_dpm_2_a",
+          "DDIM",
+          "PLMS"
+        ]
+      },
+      "default": "k_lms"
+    }, {
+      "label": "Batch size",
+      "id": "batch_size",
+      "description": "",
+      "type": "int",
+      "default": 1,
+      "validation": {
+        "min": 1,
+        "max": 8
+      }
+    }, {
+      "label": "CFG Scale",
+      "id": "cfg_scale",
+      "description": "How closely we should follow the prompt",
+      "type": "float",
+      "default": 7,
+      "step": 0.1,
+      "validation": {
+        "min": 0.1,
+        "max": 20
+      }
+    }, {
+      "label": "Seed",
+      "id": "seed",
+      "description": "Number to generate initial latent images. Random if empty",
+      "type": "text",
+      "default": ""
+    }, {
+      "label": "Height",
+      "id": "height",
+      "description": "",
+      "type": "int",
+      "default": 512,
+      "step": 64,
+      "validation": {
+        "min": 0,
+        "max": 2048
+      }
+    }, {
+      "label": "Width",
+      "id": "width",
+      "description": "",
+      "type": "int",
+      "default": 512,
+      "step": 64,
+      "validation": {
+        "min": 0,
+        "max": 2048
+      }
+    }, {
+      "label": "Steps",
+      "id": "steps",
+      "description": "More steps can increase quality but will take longer to generate",
+      "type": "int",
+      "default": 50,
+      "validation": {
+        "min": 1,
+        "max": 200
+      }
+    }, {
+      "label": "Number of Images",
+      "id": "batch_count",
+      "api_id": "n",
+      "description": "The amount of images to generate with this prompt",
+      "type": "int",
+      "default": 1,
+      "validation": {
+        "min": 1,
+        "max": 8
+      }
+    }, {
+      "label": "API Key",
+      "id": "api_key",
+      "description": "API Key to have higher priority",
+      "type": "text",
+      "on_model_info_tab": true,
+      "default": "0000000000"
+    }, {
+      "label": "NSFW",
+      "id": "nsfw",
+      "description": "Set to true if this request is NSFW. This will skip workers which censor images.",
+      "type": "boolean",
+      "default": false
+    }, {
+      "label": "Censor NSFW",
+      "id": "censor_nsfw",
+      "description": "If the request is SFW, and the worker accidentaly generates NSFW, it will send back a censored image.",
+      "type": "boolean",
+      "on_model_info_tab": true,
+      "default": false
+    }
+  ],
+  "outputs": [
+    {
+      "label": "Result",
+      "type": "image"
+    }
+  ]
+}

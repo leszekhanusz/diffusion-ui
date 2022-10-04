@@ -44,10 +44,10 @@ function handleOutputDefault(json_result, images_with_metadata) {
   }
 }
 
-function handleOutput(
-  input_data,
+function handleOutputGradio(
   backend_id,
   function_id,
+  input_data,
   original_image,
   history,
   json_result
@@ -99,6 +99,65 @@ function handleOutput(
   output.gallery.push(images_with_metadata);
 }
 
+function handleOutputStableHorde(
+  backend_id,
+  function_id,
+  input_data,
+  original_image,
+  history,
+  json_result
+) {
+  const output = useOutputStore();
+  const ui = useUIStore();
+
+  const generations = json_result["generations"];
+
+  const images = generations.map(
+    (generation) => "data:image/png;base64," + generation.img
+  );
+  const seeds = generations.map((generation) => generation.seed);
+
+  const images_with_metadata = {
+    content: images,
+    metadata: {
+      input: input_data,
+      backend_id: backend_id,
+    },
+    original_image: null,
+    history: null,
+  };
+
+  if (ui.show_latest_result) {
+    output.images = images_with_metadata;
+  }
+
+  const output_metadata = {
+    all_seeds: seeds,
+  };
+
+  console.log("output metadata", output_metadata);
+
+  images_with_metadata.metadata.output = output_metadata;
+
+  console.log(`Images received with seeds: ${seeds}`);
+
+  // Saving the latest images in the gallery
+  output.gallery.push(images_with_metadata);
+}
+
+function handleOutput(backend_type, ...args) {
+  switch (backend_type) {
+    case "gradio":
+      handleOutputGradio(...args);
+      break;
+    case "stable_horde":
+      handleOutputStableHorde(...args);
+      break;
+    default:
+      console.warn(`Invalid backend type: ${backend_type}`);
+  }
+}
+
 function resetInputsFromResultImage(image_index) {
   const backend = useBackendStore();
   const output = useOutputStore();
@@ -115,6 +174,9 @@ function resetInputsFromResultImage(image_index) {
     backend.changeFunction(function_id);
   }
 
+  let new_batch_count = null;
+  let new_batch_size = null;
+
   Object.entries(input_metadata).forEach(function (entry) {
     const [data_id, data_value] = entry;
 
@@ -129,24 +191,21 @@ function resetInputsFromResultImage(image_index) {
           const all_seeds = output_metadata.all_seeds;
 
           const seed = output_metadata.all_seeds[image_index];
-          backend.setInput("seed", seed);
+          backend.setInput(data_id, seed);
 
-          if (all_seeds.length > 1) {
-            // More than one image requested --> grid as first image
+          if (
+            all_seeds.length > 1 &&
+            output_metadata.index_of_first_image &&
+            image_index < output_metadata.index_of_first_image
+          ) {
+            // Image grid selected
+            new_batch_count = input_metadata.batch_count;
+            new_batch_size = input_metadata.batch_size;
+          } else {
+            // Requesting only one image if it's not the grid which is selected
 
-            if (
-              output_metadata.index_of_first_image &&
-              image_index < output_metadata.index_of_first_image
-            ) {
-              // Image grid selected
-              backend.setInput("batch_count", input_metadata.batch_count);
-              backend.setInput("batch_size", input_metadata.batch_size);
-            } else {
-              // Requesting only one image if it's not the grid which is selected
-
-              backend.setInput("batch_count", 1);
-              backend.setInput("batch_size", 1);
-            }
+            new_batch_count = 1;
+            new_batch_size = 1;
           }
         }
       }
@@ -154,6 +213,36 @@ function resetInputsFromResultImage(image_index) {
       backend.setInput(data_id, data_value);
     }
   });
+
+  if (new_batch_count) {
+    backend.setInput("batch_count", new_batch_count);
+  }
+  if (new_batch_size) {
+    backend.setInput("batch_size", new_batch_size);
+  }
 }
 
-export { handleOutput, resetInputsFromResultImage };
+function resetSeeds() {
+  const backend = useBackendStore();
+
+  const without_toast = false;
+
+  if (backend.hasInput("seeds")) {
+    backend.setInput("seeds", "", without_toast);
+    return;
+  }
+
+  const input = backend.findInput("seed");
+
+  if (input) {
+    let value;
+    if (input.type === "text") {
+      value = "";
+    } else {
+      value = -1;
+    }
+    input.value = value;
+  }
+}
+
+export { handleOutput, resetInputsFromResultImage, resetSeeds };

@@ -7,11 +7,13 @@ import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
 import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
+import backend_stable_horde from "@/backends/stable_horde/stable_horde.json";
 
 const backends_json = [
   backend_latent_diffusion,
   backend_stable_diffusion,
   backend_stable_diffusion_automatic1111,
+  backend_stable_horde,
 ];
 
 backends_json.forEach(function (backend) {
@@ -66,7 +68,10 @@ const backend_options = [
   {
     label: "Online",
     id: "online",
-    backends: [{ label: "Latent Diffusion", id: "latent_diffusion" }],
+    backends: [
+      { label: "Latent Diffusion", id: "latent_diffusion" },
+      { label: "Stable Horde", id: "stable_horde" },
+    ],
   },
   {
     label: "Local",
@@ -169,6 +174,7 @@ export const useBackendStore = defineStore({
     common_inputs: (state) => state.current.common_inputs,
     inputs: function (state) {
       const inputs_json = state.current_function.inputs;
+      console.log("Computing inputs");
 
       if (inputs_json === "auto") {
         if (!state.current_function.auto_inputs) {
@@ -244,6 +250,8 @@ export const useBackendStore = defineStore({
       state.inputs.filter(
         (input) => input.type === "image" || input.type === "image_mask"
       ),
+    model_info_inputs: (state) =>
+      state.inputs.filter((input) => input.on_model_info_tab),
     outputs: (state) => state.current_function.outputs,
     function_options: function (state) {
       if (!state.current.functions) {
@@ -287,6 +295,7 @@ export const useBackendStore = defineStore({
     license_html: (state) => state.getBackendField("license_html"),
     description: (state) => state.getBackendField("description"),
     doc_url: (state) => state.getBackendField("doc_url"),
+    has_seed: (state) => state.hasInput("seeds") || state.hasInput("seed"),
   },
   actions: {
     acceptLicense() {
