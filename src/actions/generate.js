@@ -111,6 +111,7 @@ async function generateImageGradio() {
 
 async function generateImageStableHorde() {
   const backend = useBackendStore();
+  const output = useOutputStore();
 
   const inputs_config = backend.inputs;
 
@@ -169,25 +170,43 @@ async function generateImageStableHorde() {
 
   const request_uuid = request_json.id;
 
+  output.request_uuid = request_uuid;
+
   const api_check_url =
     backend.base_url + "/api/v2/generate/check/" + request_uuid;
   console.log("api_check_url", api_check_url);
 
-  for (;;) {
-    await sleep(1000);
+  let elapsed_seconds = 0;
 
+  for (;;) {
     const check_response = await fetch(api_check_url, {
       method: "GET",
     });
 
     const check_json = await get_json(check_response);
-    console.log("check_json", check_json);
 
     const done = check_json.done;
+    const wait_time = check_json.wait_time;
+
+    const percentage = 100 * (1 - wait_time / (wait_time + elapsed_seconds));
+    output.loading_progress = Math.round(percentage * 100) / 100;
+    output.loading_message = `Estimated wait time: ${wait_time}s`;
+    console.log(`${output.loading_progress.toFixed(2)}%`);
 
     if (done) {
       break;
     }
+
+    for (let i = 0; i < 10; i++) {
+      if (!output.loading) {
+        // cancelled
+        return;
+      }
+
+      await sleep(100);
+    }
+
+    elapsed_seconds++;
   }
 
   const api_get_result_url =
@@ -289,6 +308,9 @@ async function generate() {
 
   if (!output.loading && !backend.show_license) {
     output.loading = true;
+    output.loading_progress = null;
+    output.loading_message = null;
+    output.request_uuid = null;
 
     try {
       await generateImages();
@@ -303,4 +325,25 @@ async function generate() {
   }
 }
 
-export { generate };
+async function cancelGeneration() {
+  const backend = useBackendStore();
+  const output = useOutputStore();
+  const ui = useUIStore();
+
+  const api_cancel_url =
+    backend.base_url + "/api/v2/generate/status/" + output.request_uuid;
+
+  console.log("api_cancel_url", api_cancel_url);
+
+  const cancel_response = await fetch(api_cancel_url, {
+    method: "DELETE",
+  });
+
+  const cancel_json = await get_json(cancel_response);
+  console.log("cancel_json", cancel_json);
+
+  output.loading = false;
+  ui.show_results = false;
+}
+
+export { generate, cancelGeneration };

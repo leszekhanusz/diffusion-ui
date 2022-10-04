@@ -52,5 +52,6 @@ Sidebar.p-sidebar-md(:visible="ui.right_panel_visible", :showCloseIcon="false" p
 .thumbnails {
   padding-top: 40px;
   padding-left: 30px;
+  padding-right: 30px;
 }
 </style>

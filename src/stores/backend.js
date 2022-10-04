@@ -125,6 +125,7 @@ export const useBackendStore = defineStore({
         return null;
       }
     },
+    cancellable: (state) => state.current.type === "stable_horde",
     use_gradio_config: (state) => !!state.selected_backend.original.config_path,
     needs_gradio_config: (state) =>
       state.use_gradio_config && !state.selected_backend.gradio_config,
