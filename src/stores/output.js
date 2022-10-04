@@ -4,6 +4,9 @@ export const useOutputStore = defineStore({
   id: "output",
   state: () => ({
     loading: false,
+    loading_progress: null,
+    loading_message: null,
+    request_uuid: null,
     images: {
       content: [],
       metadata: null,

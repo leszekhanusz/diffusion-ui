@@ -1,11 +1,14 @@
 <script setup>
 import Galleria from "primevue/galleria";
 import ProgressIndicator from "@/components/ProgressIndicator.vue";
+import CancelButton from "@/components/CancelButton.vue";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import ResultImage from "@/components/ResultImage.vue";
+import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useUIStore } from "@/stores/ui";
 
+const backend = useBackendStore();
 const output = useOutputStore();
 const ui = useUIStore();
 const responsiveOptions = [
@@ -27,7 +30,10 @@ const responsiveOptions = [
 <template lang="pug">
 .result-images
   template(v-if="output.loading && ui.show_latest_result")
-    ProgressIndicator(v-if="output.loading")
+    .flex.flex-column.w-full.align-items-center
+      ProgressIndicator(v-if="output.loading")
+      template(v-if="backend.cancellable")
+        CancelButton
   template(v-else)
     template(v-if="output.error_message")
       ErrorMessage
