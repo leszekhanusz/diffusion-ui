@@ -4,6 +4,30 @@ import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
 import { renderImage, resetEditorButtons } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
+import { sleep } from "@/actions/sleep";
+
+async function get_json(response) {
+  if (!response.ok) {
+    var json_error = null;
+    try {
+      json_error = await response.json();
+    } catch (e) {
+      // Ignore here, error thrown below
+    }
+
+    if (json_error) {
+      if (json_error.error) {
+        throw new Error(json_error.error);
+      }
+    }
+
+    throw new Error(
+      `Error! The backend returned the http code: ${response.status}`
+    );
+  }
+
+  return await response.json();
+}
 
 async function generateImageGradio() {
   const editor = useEditorStore();
@@ -72,26 +96,7 @@ async function generateImageGradio() {
     headers: { "Content-Type": "application/json" },
   });
 
-  if (!response.ok) {
-    var json_error = null;
-    try {
-      json_error = await response.json();
-    } catch (e) {
-      // Ignore here, error thrown below
-    }
-
-    if (json_error) {
-      if (json_error.error) {
-        throw new Error(json_error.error);
-      }
-    }
-
-    throw new Error(
-      `Error! The backend returned the http code: ${response.status}`
-    );
-  }
-
-  const json_result = await response.json();
+  const json_result = await get_json(response);
 
   handleOutput(
     "gradio",
@@ -148,7 +153,9 @@ async function generateImageStableHorde() {
 
   const body = JSON.stringify(frame);
 
-  const response = await fetch(backend.api_url, {
+  const api_request_url = backend.base_url + "/api/v2/generate/async";
+
+  const request_response = await fetch(api_request_url, {
     method: "POST",
     body: body,
     headers: {
@@ -157,27 +164,40 @@ async function generateImageStableHorde() {
     },
   });
 
-  if (!response.ok) {
-    var json_error = null;
-    try {
-      json_error = await response.json();
-    } catch (e) {
-      // Ignore here, error thrown below
-    }
+  const request_json = await get_json(request_response);
+  console.log("request_json", request_json);
 
-    if (json_error) {
-      if (json_error.error) {
-        throw new Error(json_error.error);
-      }
-    }
+  const request_uuid = request_json.id;
 
-    throw new Error(
-      `Error! The backend returned the http code: ${response.status}`
-    );
+  const api_check_url =
+    backend.base_url + "/api/v2/generate/check/" + request_uuid;
+  console.log("api_check_url", api_check_url);
+
+  for (;;) {
+    await sleep(1000);
+
+    const check_response = await fetch(api_check_url, {
+      method: "GET",
+    });
+
+    const check_json = await get_json(check_response);
+    console.log("check_json", check_json);
+
+    const done = check_json.done;
+
+    if (done) {
+      break;
+    }
   }
 
-  const json_result = await response.json();
+  const api_get_result_url =
+    backend.base_url + "/api/v2/generate/status/" + request_uuid;
 
+  const result_response = await fetch(api_get_result_url, {
+    method: "GET",
+  });
+
+  const json_result = await get_json(result_response);
   console.log("json_result", json_result);
 
   handleOutput(
