@@ -101,6 +101,8 @@ export const useBackendStore = defineStore({
     fn_id: null, // txt2img, img2img, inpainting
   }),
   getters: {
+    backend_ids: (state) =>
+      state.backends.map((backend) => backend.original.id),
     selected_backend: function (state) {
       var backend_found = state.backends.find(
         (backend) => backend.original.id === state.backend_id

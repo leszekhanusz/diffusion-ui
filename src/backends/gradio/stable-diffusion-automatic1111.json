@@ -1,5 +1,5 @@
 {
-  "id": "stable_diffusion_automatic1111",
+  "id": "automatic1111",
   "name": "Stable Diffusion Automatic1111",
   "description": "Automatic1111 fork of Stable Diffusion",
   "base_url": "http://127.0.0.1:7860",
