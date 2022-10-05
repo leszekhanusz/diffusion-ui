@@ -59,7 +59,7 @@ To use Automatic1111 fork of Stable Diffusion, follow the instructions [here](ht
 
 ### Automatic1111 Stable Diffusion Colab backend
 
-To run Automatic1111 fork of Stable Diffusion on Google Colab and use it as the backend, run [this notebook](https://colab.research.google.com/gist/kywch/282ab97f421a349bc0334d2042e9d8d6/diffusionui_with_colab_backend.ipynb)
+To run Automatic1111 fork of Stable Diffusion on Google Colab and use it as the backend, run [the diffusionui_with_colab_backend notebook](diffusionui_with_colab_backend.ipynb) in this repo.
 
 ### Stable Horde online backend
 
