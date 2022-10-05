@@ -57,6 +57,10 @@ To install the Stable Diffusion backend, follow the instructions [in the docs](h
 
 To use Automatic1111 fork of Stable Diffusion, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html)
 
+### Automatic1111 Stable Diffusion Colab backend
+
+To run Automatic1111 fork of Stable Diffusion on Google Colab and use it as the backend, run [this notebook](https://colab.research.google.com/gist/kywch/282ab97f421a349bc0334d2042e9d8d6/diffusionui_with_colab_backend.ipynb)
+
 ### Stable Horde online backend
 
 To generate images for free using the Stable Horde, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/stable-horde.html)
