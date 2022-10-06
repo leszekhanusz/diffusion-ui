@@ -25,15 +25,6 @@ const responsiveOptions = [
     numVisible: 2,
   },
 ];
-
-function swipeLeft() {
-  console.log("Swipe left");
-  output.goRight();
-}
-function swipeRight() {
-  console.log("Swipe right");
-  output.goLeft();
-}
 </script>
 
 <template lang="pug">
@@ -49,9 +40,9 @@ function swipeRight() {
     template(v-else)
       template(v-if="output.images")
         template(v-if="output.images.content.length == 1")
-          ResultImage(:src="output.images.content[0]", :index="0")
+          ResultImage(v-touch:swipe.top="output.goDown" v-touch:swipe.bottom="output.goUp" :src="output.images.content[0]", :index="0")
         template(v-else)
-          Galleria(v-touch:swipe.left="swipeLeft" v-touch:swipe.right="swipeRight" v-model:activeIndex="output.image_index.current" :value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)", :responsiveOptions="responsiveOptions")
+          Galleria(v-touch:swipe.left="output.goRight" v-touch:swipe.right="output.goLeft" v-touch:swipe.top="output.goDown" v-touch:swipe.bottom="output.goUp" v-model:activeIndex="output.image_index.current" :value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)", :responsiveOptions="responsiveOptions")
             template(#item="slotProps")
               template(v-if="slotProps.item")
                 ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
