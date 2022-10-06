@@ -50,7 +50,6 @@ export const useOutputStore = defineStore({
       } else {
         this.image_index.current = this.image_index.saved;
       }
-      console.log(`Saved restored to ${saved}`);
       await nextTick();
       this.image_index.saved = saved;
     },
