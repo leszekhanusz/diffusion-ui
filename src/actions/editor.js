@@ -426,8 +426,6 @@ function setupEventListeners() {
   editor.canvas.on("mouse:move", onMouseMove);
   editor.canvas.on("mouse:out", onMouseOut);
   editor.canvas.on("path:created", onPathCreated);
-
-  document.addEventListener("keyup", onKeyUp);
 }
 
 function initCanvas(canvas_id) {
@@ -715,4 +713,5 @@ export {
   undo,
   updateBrushSize,
   updateDrawLayerOpacity,
+  onKeyUp,
 };
