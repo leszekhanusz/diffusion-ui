@@ -127,10 +127,6 @@ function handleOutputStableHorde(
     history: null,
   };
 
-  if (ui.show_latest_result) {
-    output.images = images_with_metadata;
-  }
-
   const output_metadata = {
     all_seeds: seeds,
   };
@@ -143,6 +139,10 @@ function handleOutputStableHorde(
 
   // Saving the latest images in the gallery
   output.gallery.push(images_with_metadata);
+
+  if (ui.show_latest_result) {
+    output.gallery_index = output.nb_gallery - 1;
+  }
 }
 
 function handleOutput(backend_type, ...args) {
