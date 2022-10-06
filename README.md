@@ -10,7 +10,7 @@ and inpainting like [Stable Diffusion](https://github.com/CompVis/stable-diffusi
 </p>
 
 <p align="center">
-  <img src="https://github.com/leszekhanusz/diffusion-ui/blob/doc_add_fullscreen_picture/doc/automatic1111_fullscreen.png" style="width: 100%"/>
+  <img src="https://github.com/leszekhanusz/diffusion-ui/blob/main/doc/automatic1111_fullscreen.png" style="width: 100%"/>
 </p>
 
 ## Documentation
