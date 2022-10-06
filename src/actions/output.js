@@ -78,10 +78,6 @@ function handleOutputGradio(
     history: history,
   };
 
-  if (ui.show_latest_result) {
-    output.images = images_with_metadata;
-  }
-
   if (backend.current_function.handle_output) {
     if (backend.current_function.handle_output === "automatic1111") {
       const backend_function = backend.getFunction(backend_id, function_id);
@@ -97,6 +93,10 @@ function handleOutputGradio(
 
   // Saving the latest images in the gallery
   output.gallery.push(images_with_metadata);
+
+  if (ui.show_latest_result) {
+    output.gallery_index = output.nb_gallery - 1;
+  }
 }
 
 function handleOutputStableHorde(
