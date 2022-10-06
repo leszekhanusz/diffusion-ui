@@ -61,7 +61,7 @@ To use Automatic1111 fork of Stable Diffusion from your own pc, follow the instr
 
 #### online colab backend
 
-If you can't run it locally, it is also possible to use diffusion-ui online for free with this [Google Colab notebook](https://colab.research.google.com/github/leszekhanusz/diffusion-ui/blob/main/src/backends/colab/automatic1111.ipynb)
+If you can't run it locally, it is also possible to use the automatic1111 fork of Stable Diffusion with diffusion-ui online for free with this [Google Colab notebook](https://colab.research.google.com/github/leszekhanusz/diffusion-ui/blob/main/src/backends/colab/automatic1111.ipynb)
 
 ### Stable Horde online backend
 
