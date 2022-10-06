@@ -5,8 +5,6 @@ import LeftPanelView from "@/views/LeftPanelView.vue";
 import RightPanelView from "@/views/RightPanelView.vue";
 import { useBackendStore } from "@/stores/backend";
 import { useRoute } from "vue-router";
-import { onMounted } from "vue";
-import { onHomeMounted } from "@/actions/init";
 
 const backend = useBackendStore();
 const route = useRoute();
@@ -32,10 +30,6 @@ if (backend_id) {
     valid_backend_id = false;
   }
 }
-
-onMounted(() => {
-  onHomeMounted();
-});
 </script>
 
 <template lang="pug">

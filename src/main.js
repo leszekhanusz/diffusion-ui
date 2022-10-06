@@ -17,8 +17,6 @@ import ConfirmationService from "primevue/confirmationservice";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 
-import Vue3TouchEvents from "vue3-touch-events";
-
 /* import the fontawesome core */
 import { library } from "@fortawesome/fontawesome-svg-core";
 
@@ -79,7 +77,6 @@ app.use(router);
 app.use(PrimeVue);
 app.use(ConfirmationService);
 app.use(ToastService);
-app.use(Vue3TouchEvents);
 
 function confirmDialogPiniaPlugin() {
   return {

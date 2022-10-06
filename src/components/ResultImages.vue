@@ -38,17 +38,16 @@ const responsiveOptions = [
     template(v-if="output.error_message")
       ErrorMessage
     template(v-else)
-      template(v-if="output.images")
-        template(v-if="output.images.content.length == 1")
-          ResultImage(v-touch:swipe.top="output.goDown" v-touch:swipe.bottom="output.goUp" :src="output.images.content[0]", :index="0")
-        template(v-else)
-          Galleria(v-touch:swipe.left="output.goRight" v-touch:swipe.right="output.goLeft" v-touch:swipe.top="output.goDown" v-touch:swipe.bottom="output.goUp" v-model:activeIndex="output.image_index.current" :value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)", :responsiveOptions="responsiveOptions")
-            template(#item="slotProps")
-              template(v-if="slotProps.item")
-                ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
-            template(#thumbnail="slotProps")
-              template(v-if="slotProps.item")
-                img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px;")
+      template(v-if="output.images.content.length == 1")
+        ResultImage(:src="output.images.content[0]", :index="0")
+      template(v-else)
+        Galleria(:value="output.gallery_images", :numVisible="Math.min(output.gallery_images.length, 4)", :responsiveOptions="responsiveOptions")
+          template(#item="slotProps")
+            template(v-if="slotProps.item")
+              ResultImage(:src="slotProps.item.itemImageSrc", :index="slotProps.item.index")
+          template(#thumbnail="slotProps")
+            template(v-if="slotProps.item")
+              img(:src="slotProps.item.thumbnailImageSrc", style="width: 70px; height: 70px;")
 </template>
 
 <style scoped>
