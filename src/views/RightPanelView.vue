@@ -10,7 +10,7 @@ const ui = useUIStore();
 const output = useOutputStore();
 
 function thumbnailClick(index) {
-  output.images = output.gallery[index];
+  output.gallery_index = index;
   ui.show_results = true;
   ui.show_latest_result = false;
 
