@@ -17,6 +17,15 @@ if (backend_id) {
   if (backend.backend_ids.includes(backend_id)) {
     console.log(`Switching to the "${backend_id}" backend.`);
     backend.backend_id = backend_id;
+
+    if (route.query.host) {
+      let host = route.query.host;
+      if (!host.startsWith("http")) {
+        host = "https://" + host;
+      }
+      console.log("host", host);
+      backend.current.base_url = host;
+    }
   } else {
     valid_backend_id = false;
   }
