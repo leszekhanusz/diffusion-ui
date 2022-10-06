@@ -53,9 +53,15 @@ Or alternatively you can [run it locally](https://diffusionui.readthedocs.io/en/
 
 To install the Stable Diffusion backend, follow the instructions [in the docs](https://diffusionui.readthedocs.io/en/latest/backends/stable-diffusion.html)
 
-### Automatic1111 Stable Diffusion local backend
+### Automatic1111 Stable Diffusion
 
-To use Automatic1111 fork of Stable Diffusion, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html)
+#### local backend
+
+To use Automatic1111 fork of Stable Diffusion from your own pc, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html)
+
+#### online colab backend
+
+If you can't run it locally, it is also possible to use the automatic1111 fork of Stable Diffusion with diffusion-ui online for free with this [Google Colab notebook](https://colab.research.google.com/github/leszekhanusz/diffusion-ui/blob/main/src/backends/colab/automatic1111.ipynb)
 
 ### Stable Horde online backend
 
