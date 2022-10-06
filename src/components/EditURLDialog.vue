@@ -12,7 +12,11 @@ function resetURL() {
   ui.edit_url_new_url = backend.original.base_url;
 }
 function modifyURL() {
-  backend.current.base_url = ui.edit_url_new_url;
+  let new_url = ui.edit_url_new_url.trim();
+  if (new_url.endsWith("/")) {
+    new_url = new_url.slice(0, -1);
+  }
+  backend.current.base_url = new_url;
   ui.hideEditURL();
 }
 </script>
