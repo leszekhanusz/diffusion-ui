@@ -48,7 +48,8 @@ export const useUIStore = defineStore({
       return state.cursor_mode === "idle" && editor.mask_image_b64 !== null;
     },
     show_strength_slider: function (state) {
-      return state.show_pencil;
+      const editor = useEditorStore();
+      return editor.has_image && state.editor_view === "composite";
     },
   },
   actions: {
