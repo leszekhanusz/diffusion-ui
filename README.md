@@ -47,7 +47,7 @@ Diffusion UI was made using:
 ## Frontend
 
 The frontend is available at [diffusionui.com](http://diffusionui.com)
-(**Note:** You still need to have a local backend to make if work with Stable diffusion)
+(**Note:** You still need to have a local backend to make it work with Stable diffusion)
 
 Or alternatively you can [run it locally](https://diffusionui.readthedocs.io/en/latest/frontend.html).
 
