@@ -57,6 +57,21 @@
           "trigger": "click"
         }
       },
+      "progress": {
+        "fn_index": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "txt2img_check_progress"
+                }
+              }
+            }
+          }
+        }
+      },
       "handle_output": "automatic1111",
       "layout": [
         {

@@ -162,6 +162,17 @@ export const useBackendStore = defineStore({
         return this.getGradioConfigFunctionIndex(fn_index_config.conditions);
       }
     },
+    progress_fn_index: function (state) {
+      const progress_info = state.current_function.progress;
+
+      if (progress_info) {
+        return this.getGradioConfigFunctionIndex(
+          progress_info.fn_index.conditions
+        );
+      }
+
+      return null;
+    },
     gradio_function: function (state) {
       return state.gradio_config?.dependencies[state.fn_index];
     },
@@ -608,12 +619,49 @@ export const useBackendStore = defineStore({
     getGradioConfigFunctionIndex(conditions) {
       if (this.gradio_config) {
         const dependencies = this.gradio_config.dependencies;
+        const components = this.gradio_config.components;
 
         const fn_index = Object.keys(dependencies).find(function (key) {
           const dependency = dependencies[key];
-          return Object.keys(conditions).every(
-            (cond_key) => dependency[cond_key] === conditions[cond_key]
-          );
+          return Object.keys(conditions).every(function (cond_key) {
+            if (cond_key === "targets") {
+              return Object.keys(conditions.targets).every(function (
+                target_key
+              ) {
+                const target_conditions =
+                  conditions.targets[target_key].conditions;
+
+                const component_key = Object.keys(components).find(function (
+                  comp_key
+                ) {
+                  let component = components[comp_key];
+
+                  return Object.keys(target_conditions).every(function (
+                    target_cond_key
+                  ) {
+                    if (target_cond_key === "type") {
+                      return target_conditions["type"] === component.type;
+                    } else {
+                      return (
+                        target_conditions[target_cond_key] ===
+                        component.props[target_cond_key]
+                      );
+                    }
+                  });
+                });
+
+                const component_id = components[component_key].id;
+
+                return dependency.targets[target_key] == component_id;
+              });
+            } else {
+              if (key == 1)
+                console.log(
+                  `Checking if ${dependency[cond_key]} === ${conditions[cond_key]}`
+                );
+              return dependency[cond_key] === conditions[cond_key];
+            }
+          });
         });
 
         return fn_index;
