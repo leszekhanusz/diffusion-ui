@@ -57,6 +57,21 @@
           "trigger": "click"
         }
       },
+      "cancel": {
+        "fn_index": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "txt2img_interrupt"
+                }
+              }
+            }
+          }
+        }
+      },
       "progress": {
         "fn_index": {
           "conditions": {
@@ -208,6 +223,21 @@
       "id": "img2img",
       "mode": "img2img",
       "label": "Image to Image",
+      "cancel": {
+        "fn_index": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "img2img_interrupt"
+                }
+              }
+            }
+          }
+        }
+      },
       "progress": {
         "fn_index": {
           "conditions": {
@@ -370,6 +400,21 @@
       "id": "inpainting",
       "mode": "inpainting",
       "label": "Inpainting",
+      "cancel": {
+        "fn_index": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "img2img_interrupt"
+                }
+              }
+            }
+          }
+        }
+      },
       "progress": {
         "fn_index": {
           "conditions": {

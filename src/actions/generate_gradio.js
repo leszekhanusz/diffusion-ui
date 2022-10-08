@@ -47,15 +47,11 @@ async function check_progress(cancel_token) {
 
       const json_result = await getJson(result);
 
-      console.log("json_result", json_result);
-
       const html_progress = json_result.data[0];
 
       const percentage_match = html_progress.match(percent_regex);
 
       const percentage = parseInt(percentage_match[1], 10);
-
-      console.log("percentage", percentage);
 
       output.loading_progress = percentage;
 
@@ -72,7 +68,6 @@ async function check_progress(cancel_token) {
       }
     } catch (e) {
       // Nothing here, error simply ignored
-      console.warn(e);
     }
   }
 }
@@ -136,8 +131,6 @@ async function generateImageGradio() {
 
   const body = JSON.stringify(payload);
 
-  //console.log("sent", body);
-
   let cancel_token = {};
 
   const responses = await Promise.all([
@@ -172,4 +165,27 @@ async function generateImageGradio() {
   );
 }
 
-export { generateImageGradio };
+async function cancelGenerationGradio() {
+  const backend = useBackendStore();
+
+  const fn_index = backend.cancel_fn_index;
+
+  if (!fn_index) {
+    return;
+  }
+
+  const payload = {
+    data: [],
+    fn_index: fn_index,
+  };
+
+  const body = JSON.stringify(payload);
+
+  await fetch(backend.api_url, {
+    method: "POST",
+    body: body,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+export { cancelGenerationGradio, generateImageGradio };

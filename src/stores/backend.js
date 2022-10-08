@@ -127,7 +127,8 @@ export const useBackendStore = defineStore({
         return null;
       }
     },
-    cancellable: (state) => state.current.type === "stable_horde",
+    cancellable: (state) =>
+      state.current.type === "stable_horde" || state.cancel_fn_index,
     use_gradio_config: (state) => !!state.selected_backend.original.config_path,
     needs_gradio_config: (state) =>
       state.use_gradio_config && !state.selected_backend.gradio_config,
@@ -161,6 +162,17 @@ export const useBackendStore = defineStore({
       } else {
         return this.getGradioConfigFunctionIndex(fn_index_config.conditions);
       }
+    },
+    cancel_fn_index: function (state) {
+      const cancel_info = state.current_function.cancel;
+
+      if (cancel_info) {
+        return this.getGradioConfigFunctionIndex(
+          cancel_info.fn_index.conditions
+        );
+      }
+
+      return null;
     },
     progress_fn_index: function (state) {
       const progress_info = state.current_function.progress;
@@ -655,10 +667,6 @@ export const useBackendStore = defineStore({
                 return dependency.targets[target_key] == component_id;
               });
             } else {
-              if (key == 1)
-                console.log(
-                  `Checking if ${dependency[cond_key]} === ${conditions[cond_key]}`
-                );
               return dependency[cond_key] === conditions[cond_key];
             }
           });

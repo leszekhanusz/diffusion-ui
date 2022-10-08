@@ -3,7 +3,10 @@ import { useEditorStore } from "@/stores/editor";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
 import { resetEditorButtons } from "@/actions/editor";
-import { generateImageGradio } from "@/actions/generate_gradio";
+import {
+  generateImageGradio,
+  cancelGenerationGradio,
+} from "@/actions/generate_gradio";
 import {
   generateImageStableHorde,
   cancelGenerationStableHorde,
@@ -131,7 +134,20 @@ async function generate() {
 }
 
 async function cancelGeneration() {
-  await cancelGenerationStableHorde();
+  const backend = useBackendStore();
+
+  const backend_type = backend.current["type"];
+
+  switch (backend_type) {
+    case "gradio":
+      await cancelGenerationGradio();
+      break;
+    case "stable_horde":
+      await cancelGenerationStableHorde();
+      break;
+    default:
+      console.error(`backend type '${backend_type}' not valid`);
+  }
 }
 
 export { cancelGeneration, generate, getJson };
