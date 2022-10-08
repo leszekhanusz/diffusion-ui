@@ -208,6 +208,21 @@
       "id": "img2img",
       "mode": "img2img",
       "label": "Image to Image",
+      "progress": {
+        "fn_index": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "img2img_check_progress"
+                }
+              }
+            }
+          }
+        }
+      },
       "fn_index": {
         "conditions": {
           "js": "submit_img2img",
@@ -355,6 +370,21 @@
       "id": "inpainting",
       "mode": "inpainting",
       "label": "Inpainting",
+      "progress": {
+        "fn_index": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "img2img_check_progress"
+                }
+              }
+            }
+          }
+        }
+      },
       "fn_index": {
         "conditions": {
           "js": "submit_img2img",
