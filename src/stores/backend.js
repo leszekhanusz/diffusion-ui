@@ -1,3 +1,4 @@
+import { version } from "@/version";
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
 import { reactive, toRaw } from "vue";
@@ -36,18 +37,29 @@ function mergeBackend(storageValue, defaults) {
   // Merging the backend data from the config json file
   // and from the saved values in local storage
 
-  const merged = deepmerge(defaults, storageValue, {
-    arrayMerge: function (defaultArray, storageArray) {
-      // If the saved array does not have the same number of items
-      // than the config (after an update probably)
-      // then reset the array to the default value
-      if (defaultArray.length === storageArray.length) {
-        return storageArray;
-      } else {
-        return defaultArray;
-      }
-    },
-  });
+  let merged = defaults;
+
+  if (
+    !storageValue.diffusionui_version ||
+    storageValue.diffusionui_version !== version
+  ) {
+    console.log(
+      `New version of diffusion-ui detected for ${defaults.id}: (${storageValue.diffusionui_version} instead of ${version}) ==> Reloading new config`
+    );
+  } else {
+    merged = deepmerge(defaults, storageValue, {
+      arrayMerge: function (defaultArray, storageArray) {
+        // If the saved array does not have the same number of items
+        // than the config (after an update probably)
+        // then reset the array to the default value
+        if (defaultArray.length === storageArray.length) {
+          return storageArray;
+        } else {
+          return defaultArray;
+        }
+      },
+    });
+  }
 
   return merged;
 }
@@ -55,13 +67,17 @@ function mergeBackend(storageValue, defaults) {
 const backends = backends_json.map(function (backend) {
   const backend_original = JSON.parse(JSON.stringify(backend));
 
-  return {
+  let backend_config = {
     original: backend_original,
     current: useStorage("backend_" + backend.id, backend, localStorage, {
       mergeDefaults: mergeBackend,
     }),
     gradio_config: "config_path" in backend_original ? null : undefined,
   };
+
+  backend_config.current.value["diffusionui_version"] = version;
+
+  return backend_config;
 });
 
 const backend_options = [
