@@ -4,6 +4,7 @@ import ProgressIndicator from "@/components/ProgressIndicator.vue";
 import CancelButton from "@/components/CancelButton.vue";
 import ErrorMessage from "@/components/ErrorMessage.vue";
 import ResultImage from "@/components/ResultImage.vue";
+import Image from "primevue/image";
 import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useUIStore } from "@/stores/ui";
@@ -31,6 +32,8 @@ const responsiveOptions = [
 .result-images
   template(v-if="output.loading && ui.show_latest_result")
     .flex.flex-column.w-full.align-items-center
+      template(v-if="output.image_preview")
+        Image(:src="output.image_preview" imageStyle="max-width: min(100vw, 512px);")
       ProgressIndicator(v-if="output.loading")
       template(v-if="backend.cancellable")
         CancelButton

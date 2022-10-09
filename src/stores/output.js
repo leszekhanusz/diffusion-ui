@@ -8,6 +8,7 @@ export const useOutputStore = defineStore({
     loading_progress: null,
     loading_message: null,
     request_uuid: null,
+    image_preview: null,
     image_index: {
       current: 0,
       saved: 0,
