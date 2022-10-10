@@ -14,7 +14,7 @@ template(v-if="backend.current")
   template(v-if="backend.needs_gradio_config")
     LoadConfigButton
   template(v-else)
-    template(v-if="backend.has_multiple_functions")
+    template(v-if="backend.has_multiple_functions && backend.function_options.length > 1")
       .flex.flex-column.align-items-center
         Dropdown#fn_dropdown(optionLabel="label", optionValue="id", v-model="backend.fn_id", :options="backend.function_options")
       Divider
