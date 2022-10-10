@@ -3,99 +3,53 @@
   "name": "Stable Diffusion",
   "description": "Generate images from text, init image and mask image with Latent Diffusion LAION-400M.",
   "base_url": "http://127.0.0.1:7860",
+  "config_path": "config",
   "api_path": "api/predict",
   "doc_url": "https://diffusionui.readthedocs.io/en/latest/backends/stable-diffusion.html",
   "license": "CreativeML Open RAIL-M",
   "license_html": "The model is licensed with a <a href=\"https://huggingface.co/spaces/CompVis/stable-diffusion-license\" style=\"text-decoration: underline;\" target=\"_blank\">CreativeML Open RAIL-M</a> license. The authors claim no rights on the outputs you generate, you are free to use them and are accountable for their use which must not go against the provisions set in this license. The license forbids you from sharing any content that violates any laws, produce any harm to a person, disseminate any personal information that would be meant for harm, spread misinformation and target vulnerable groups. For the full list of restrictions please <a href=\"https://huggingface.co/spaces/CompVis/stable-diffusion-license\" target=\"_blank\" style=\"text-decoration: underline;\">read the license</a><h4>Biases and content acknowledgment</h4>Despite how impressive being able to turn text into image is, beware to the fact that this model may output content that reinforces or exacerbates societal biases, as well as realistic faces, pornography and violence. The model was trained on the <a href=\"https://laion.ai/blog/laion-5b/\" style=\"text-decoration: underline;\" target=\"_blank\">LAION-5B dataset</a>, which scraped non-curated image-text-pairs from the internet (the exception being the removal of illegal content) and is meant for research purposes. You can read more in the <a href=\"https://huggingface.co/CompVis/stable-diffusion-v1-4\" style=\"text-decoration: underline;\" target=\"_blank\">model card</a>",
   "type": "gradio",
-  "inputs": [
+  "functions": [
     {
-      "label": "API Version",
-      "id": "api_version",
-      "description": "Used to add a warning to ask to update the backend when the API changes",
-      "type": "int",
-      "visible": false,
-      "default": 2
-    }, {
-      "label": "Prompt",
-      "id": "prompt",
-      "description": "try adding increments to your prompt such as 'oil on canvas', 'a painting', 'a book cover'",
-      "type": "text",
-      "default": "Doll from a horror movie"
-    }, {
-      "label": "Image",
-      "id": "image",
-      "description": "Initial image for inpainting or img to img",
-      "type": "image",
-      "required": false,
-      "default": null
-    }, {
-      "label": "Mask",
-      "id": "image_mask",
-      "description": "Initial image for inpainting or img to img",
-      "type": "image_mask",
-      "required": false,
-      "default": null
-    }, {
-      "label": "Number of Images",
-      "id": "nb_images",
-      "description": "How many images you wish to generate",
-      "type": "int",
-      "default": 1,
-      "validation": {
-        "min": 1,
-        "max": 10
-      }
-    }, {
-      "label": "Steps",
-      "id": "nb_steps",
-      "description": "More steps can increase quality but will take longer to generate",
-      "type": "int",
-      "default": 50,
-      "validation": {
-        "min": 1,
-        "max": 200
-      }
-    }, {
-      "label": "Strength",
-      "id": "strength",
-      "description": "How close we should follow the initial image",
-      "type": "float",
-      "default": 0.7,
-      "step": 0.05,
-      "validation": {
-        "min": 0.0,
-        "max": 1.0
-      }
-    }, {
-      "label": "Guidance scale",
-      "id": "guidance_scale",
-      "description": "How closely we should follow the prompt",
-      "type": "float",
-      "default": 7.5,
-      "step": 0.1,
-      "validation": {
-        "min": 0.1,
-        "max": 20
-      }
-    }, {
-      "label": "Seeds",
-      "id": "seeds",
-      "description": "Comma separated list of numbers to generate initial latent images. Random if empty",
-      "type": "text",
-      "default": ""
-    }, {
-      "label": "Access code",
-      "id": "access_code",
-      "description": "Optional access code for the backend",
-      "type": "text",
-      "default": ""
-    }
-  ],
-  "outputs": [
-    {
-      "label": "Result",
-      "type": "image"
+      "id": "txt2img",
+      "label": "Unified pipeline",
+      "fn_index": 0,
+      "inputs": "auto",
+      "auto_inputs": {
+        "api_version": {
+          "visible": false
+        },
+        "prompt": {
+          "default": "Doll from a horror movie"
+        },
+        "negative_prompt": {
+          "description": "What should not appear in the image"
+        },
+        "number_of_images": {
+          "description": "How many images you wish to generate"
+        },
+        "number_of_steps": {
+          "description": "More steps can increase quality but will take longer to generate"
+        },
+        "strength": {
+          "description": "How close we should follow the initial image"
+        },
+        "guidance_scale": {
+          "description": "How closely we should follow the prompt"
+        },
+        "seeds": {
+          "description": "Comma separated list of numbers to generate initial latent images. Random if empty"
+        },
+        "access_code": {
+          "description": "Optional access code for the backend"
+        }
+      },
+      "outputs": [
+        {
+          "label": "Result",
+          "type": "image"
+        }
+      ]
     }
   ]
 }

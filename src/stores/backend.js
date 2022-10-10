@@ -678,9 +678,13 @@ export const useBackendStore = defineStore({
                   });
                 });
 
-                const component_id = components[component_key].id;
+                const component = components[component_key];
 
-                return dependency.targets[target_key] == component_id;
+                if (component) {
+                  return dependency.targets[target_key] == component.id;
+                } else {
+                  return false;
+                }
               });
             } else {
               return dependency[cond_key] === conditions[cond_key];
