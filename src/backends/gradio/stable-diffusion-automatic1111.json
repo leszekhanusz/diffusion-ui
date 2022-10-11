@@ -46,6 +46,36 @@
         }
       }
   ],
+  "model_change": {
+    "change": {
+      "fn_index": {
+        "conditions": {
+          "trigger": "change",
+          "targets": {
+            "0": {
+              "conditions": {
+                "label": "Stable Diffusion checkpoint"
+              }
+            }
+          }
+        }
+      }
+    },
+    "load": {
+      "fn_index": {
+        "conditions": {
+          "trigger": "load",
+          "outputs": {
+            "0": {
+              "conditions": {
+                "label": "Stable Diffusion checkpoint"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "functions": [
     {
       "id": "txt2img",

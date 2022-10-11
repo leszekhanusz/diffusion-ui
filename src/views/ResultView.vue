@@ -14,7 +14,7 @@ function goBackToInput() {
 
 <template lang="pug">
 .flex.flex-row.justify-content-center
-  Button(v-show="!output.loading", @click="goBackToInput")
+  Button(v-show="!output.loading_images", @click="goBackToInput")
     font-awesome-icon(icon="fa-solid fa-left-long")
     |  Try again
 ResultImages
