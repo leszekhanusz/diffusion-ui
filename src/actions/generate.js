@@ -6,6 +6,7 @@ import { resetEditorButtons } from "@/actions/editor";
 import {
   generateImageGradio,
   cancelGenerationGradio,
+  changeModelGradio,
 } from "@/actions/generate_gradio";
 import {
   generateImageStableHorde,
@@ -114,7 +115,7 @@ async function generate() {
   resetEditorButtons();
 
   if (!output.loading && !backend.show_license) {
-    output.loading = true;
+    output.loading_images = true;
     output.loading_progress = null;
     output.loading_message = null;
     output.image_preview = null;
@@ -128,7 +129,7 @@ async function generate() {
       output.error_message = error.message;
       console.error(error);
     } finally {
-      output.loading = false;
+      output.loading_images = false;
     }
   }
 }
@@ -150,4 +151,32 @@ async function cancelGeneration() {
   }
 }
 
-export { cancelGeneration, generate, getJson };
+async function changeModel() {
+  const backend = useBackendStore();
+  const output = useOutputStore();
+
+  try {
+    output.loading_model = true;
+    const backend_type = backend.current["type"];
+
+    switch (backend_type) {
+      case "gradio":
+        await changeModelGradio();
+        break;
+      default:
+        console.error(`backend type '${backend_type}' not valid`);
+    }
+  } catch (error) {
+    console.error(error);
+    backend.$toast.add({
+      severity: "error",
+      detail: "Loading new model failed",
+      life: 3000,
+      closable: false,
+    });
+  } finally {
+    output.loading_model = false;
+  }
+}
+
+export { cancelGeneration, changeModel, generate, getJson };

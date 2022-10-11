@@ -188,4 +188,35 @@ async function cancelGenerationGradio() {
   });
 }
 
-export { cancelGenerationGradio, generateImageGradio };
+async function changeModelGradio() {
+  const backend = useBackendStore();
+
+  const models_input = backend.models_input;
+  if (!models_input) {
+    return;
+  }
+
+  const fn_index = backend.model_change_fn_index;
+
+  if (!fn_index) {
+    return;
+  }
+
+  const requested_model = models_input.value;
+  console.log(`Requesting changing model to ${requested_model}`);
+
+  const payload = {
+    data: [requested_model],
+    fn_index: fn_index,
+  };
+
+  const body = JSON.stringify(payload);
+
+  await fetch(backend.api_url, {
+    method: "POST",
+    body: body,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+export { cancelGenerationGradio, changeModelGradio, generateImageGradio };

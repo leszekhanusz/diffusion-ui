@@ -201,6 +201,31 @@ export const useBackendStore = defineStore({
 
       return null;
     },
+    model_change_fn_index: function (state) {
+      const model_change_info = state.current.model_change;
+      if (model_change_info) {
+        return this.getGradioConfigFunctionIndex(
+          model_change_info.fn_index.conditions
+        );
+      }
+    },
+    models_input: function (state) {
+      if (state.model_change_fn_index) {
+        const dep =
+          state.gradio_config.dependencies[state.model_change_fn_index];
+        const model_input_id = dep.targets[0];
+        const gradio_input = state.gradio_config.components.find(
+          (component) => component.id === model_input_id
+        );
+        let input = reactive(state.convertGradioInput(gradio_input));
+        input.id = "models_change";
+        input.description = "Model checkpoint";
+        input.value = input.default;
+        return input;
+      } else {
+        return null;
+      }
+    },
     gradio_function: function (state) {
       return state.gradio_config?.dependencies[state.fn_index];
     },
@@ -648,16 +673,15 @@ export const useBackendStore = defineStore({
       if (this.gradio_config) {
         const dependencies = this.gradio_config.dependencies;
         const components = this.gradio_config.components;
+        const component_array_keys = ["inputs", "outputs", "targets"];
 
         const fn_index = Object.keys(dependencies).find(function (key) {
           const dependency = dependencies[key];
           return Object.keys(conditions).every(function (cond_key) {
-            if (cond_key === "targets") {
-              return Object.keys(conditions.targets).every(function (
-                target_key
-              ) {
-                const target_conditions =
-                  conditions.targets[target_key].conditions;
+            if (component_array_keys.includes(cond_key)) {
+              const condition_item = conditions[cond_key];
+              return Object.keys(condition_item).every(function (target_key) {
+                const target_conditions = condition_item[target_key].conditions;
 
                 const component_key = Object.keys(components).find(function (
                   comp_key
@@ -681,7 +705,7 @@ export const useBackendStore = defineStore({
                 const component = components[component_key];
 
                 if (component) {
-                  return dependency.targets[target_key] == component.id;
+                  return dependency[cond_key][target_key] == component.id;
                 } else {
                   return false;
                 }
@@ -774,24 +798,27 @@ export const useBackendStore = defineStore({
           };
           break;
         case "image":
-          if (gradio_input.props.tool === "editor") {
-            input = {
-              label: props.label,
-              id: "image_" + convert_context.images_found++,
-              type: props.label.toLowerCase().includes("mask")
-                ? "image_mask"
-                : "image",
-              props: props,
-              default: null,
-              visible: false,
-            };
-          } else {
-            input = {
-              label: props.label,
-              id: "image_" + convert_context.images_found++,
-              default: null,
-              visible: false,
-            };
+          {
+            let image_id = convert_context ? convert_context.images_found++ : 0;
+            if (gradio_input.props.tool === "editor") {
+              input = {
+                label: props.label,
+                id: "image_" + image_id,
+                type: props.label.toLowerCase().includes("mask")
+                  ? "image_mask"
+                  : "image",
+                props: props,
+                default: null,
+                visible: false,
+              };
+            } else {
+              input = {
+                label: props.label,
+                id: "image_" + image_id,
+                default: null,
+                visible: false,
+              };
+            }
           }
           break;
         default:
@@ -818,12 +845,14 @@ export const useBackendStore = defineStore({
 
       const input_id = input.id;
       let next_id = 0;
-      while (convert_context.used_ids.includes(input.id)) {
-        input.id = input_id + "_" + next_id;
-        next_id++;
+      if (convert_context) {
+        while (convert_context.used_ids.includes(input.id)) {
+          input.id = input_id + "_" + next_id;
+          next_id++;
+        }
+        convert_context.used_ids.push(input.id);
       }
 
-      convert_context.used_ids.push(input.id);
       input.auto_id = input.id;
       input.description = "";
 

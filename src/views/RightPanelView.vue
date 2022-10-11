@@ -37,7 +37,7 @@ Sidebar.p-sidebar-md(:visible="ui.right_panel_visible", :showCloseIcon="false" p
     template(v-for="(images, index) in output.gallery" :key="index")
       ImageThumbnails(:images="images.content" @click="thumbnailClick(index)")
   .thumbnails
-    ProgressIndicator.cursor-pointer(v-if="output.loading" @click="progressIndicatorClick")
+    ProgressIndicator.cursor-pointer(v-if="output.loading_images" @click="progressIndicatorClick")
 </template>
 
 <style>

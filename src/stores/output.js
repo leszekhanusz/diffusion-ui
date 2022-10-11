@@ -4,7 +4,8 @@ import { nextTick } from "vue";
 export const useOutputStore = defineStore({
   id: "output",
   state: () => ({
-    loading: false,
+    loading_images: false,
+    loading_model: false,
     loading_progress: null,
     loading_message: null,
     request_uuid: null,
@@ -18,6 +19,7 @@ export const useOutputStore = defineStore({
     error_message: null,
   }),
   getters: {
+    loading: (state) => state.loading_images || state.loading_model,
     nb_images: (state) => state.images?.content.length,
     nb_gallery: (state) => state.gallery.length,
     images: (state) => state.gallery[state.gallery_index],
