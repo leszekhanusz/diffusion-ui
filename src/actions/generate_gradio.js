@@ -219,4 +219,43 @@ async function changeModelGradio() {
   });
 }
 
-export { cancelGenerationGradio, changeModelGradio, generateImageGradio };
+async function initModelDropdown() {
+  const backend = useBackendStore();
+
+  const fn_index = backend.model_change_load_fn_index;
+
+  if (!fn_index) {
+    return;
+  }
+
+  const payload = {
+    data: [],
+    fn_index: fn_index,
+  };
+
+  const body = JSON.stringify(payload);
+
+  const response = await fetch(backend.api_url, {
+    method: "POST",
+    body: body,
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const json_result = await getJson(response);
+
+  const model = json_result.data[0];
+  console.log(`Current model: ${model}`);
+
+  backend.models_input.value = model;
+}
+
+async function initGradio() {
+  await initModelDropdown();
+}
+
+export {
+  cancelGenerationGradio,
+  changeModelGradio,
+  generateImageGradio,
+  initGradio,
+};

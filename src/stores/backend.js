@@ -4,6 +4,7 @@ import { useStorage } from "@vueuse/core";
 import { reactive, toRaw } from "vue";
 import { useUIStore } from "@/stores/ui";
 import { useOutputStore } from "@/stores/output";
+import { initGradio } from "@/actions/generate_gradio";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
@@ -205,7 +206,15 @@ export const useBackendStore = defineStore({
       const model_change_info = state.current.model_change;
       if (model_change_info) {
         return this.getGradioConfigFunctionIndex(
-          model_change_info.fn_index.conditions
+          model_change_info.change.fn_index.conditions
+        );
+      }
+    },
+    model_change_load_fn_index: function (state) {
+      const model_change_info = state.current.model_change;
+      if (model_change_info) {
+        return this.getGradioConfigFunctionIndex(
+          model_change_info.load.fn_index.conditions
         );
       }
     },
@@ -623,6 +632,8 @@ export const useBackendStore = defineStore({
               "The config json file downloaded does not seem to be a gradio config file";
             console.error(error_message, gradio_config);
           }
+
+          await initGradio();
         } catch (e) {
           error_message = "Error trying to download the gradio config";
           console.error(error_message, e);
