@@ -30,11 +30,11 @@ const responsiveOptions = [
 
 <template lang="pug">
 .result-images
-  template(v-if="output.loading && ui.show_latest_result")
+  template(v-if="output.loading_images && ui.show_latest_result")
     .flex.flex-column.w-full.align-items-center
       template(v-if="output.image_preview")
         Image(:src="output.image_preview" imageStyle="max-width: min(100vw, 512px);")
-      ProgressIndicator(v-if="output.loading")
+      ProgressIndicator(v-if="output.loading_images")
       template(v-if="backend.cancellable")
         CancelButton
   template(v-else)
