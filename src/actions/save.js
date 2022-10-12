@@ -5,7 +5,10 @@ function saveResultImage(image_index) {
   const output = useOutputStore();
 
   const image_data = output.images.content[image_index];
-  const filename = output.images.metadata.input.prompt + ".png";
+  const fileextension = image_data.startsWith("data:image/webp;")
+    ? ".webp"
+    : ".png";
+  const filename = output.images.metadata.input.prompt + fileextension;
 
   FileSaver.saveAs(image_data, filename);
 }

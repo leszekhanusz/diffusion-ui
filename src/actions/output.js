@@ -113,7 +113,7 @@ function handleOutputStableHorde(
   const generations = json_result["generations"];
 
   const images = generations.map(
-    (generation) => "data:image/png;base64," + generation.img
+    (generation) => "data:image/webp;base64," + generation.img
   );
   const seeds = generations.map((generation) => generation.seed);
 
