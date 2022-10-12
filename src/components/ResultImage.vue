@@ -5,6 +5,7 @@ import SpeedDial from "primevue/speeddial";
 import { useBackendStore } from "@/stores/backend";
 import { useUIStore } from "@/stores/ui";
 import { editResultImage, generateAgainResultImage } from "@/actions/editor";
+import { saveResultImage } from "@/actions/save";
 
 const ui = useUIStore();
 const backend = useBackendStore();
@@ -36,6 +37,10 @@ function generateAgain() {
   hideResults();
 }
 
+function saveImage() {
+  saveResultImage(props.index);
+}
+
 const buttons = computed(function () {
   const btns = [];
 
@@ -51,6 +56,12 @@ const buttons = computed(function () {
     label: "Generate again",
     icon: "pi pi-undo",
     command: generateAgain,
+  });
+
+  btns.push({
+    label: "Save image",
+    icon: "pi pi-download",
+    command: saveImage,
   });
 
   return btns;
