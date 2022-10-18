@@ -837,6 +837,7 @@ export const useBackendStore = defineStore({
           console.log("Unsupported gradio component type: ", gradio_input);
           input = {
             label: props.label,
+            id: "unsupported_" + gradio_input.id,
             default: null,
             visible: false,
           };
