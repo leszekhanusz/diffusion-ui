@@ -19,7 +19,12 @@ export const useUIStore = defineStore({
     show_color_picker: (state) => state.cursor_mode === "draw",
     show_eraser: function (state) {
       const editor = useEditorStore();
-      return state.editor_view === "composite" && !editor.is_drawing;
+      const backend = useBackendStore();
+      return (
+        state.editor_view === "composite" &&
+        !editor.is_drawing &&
+        backend.has_inpaint_mode
+      );
     },
     show_pencil: function (state) {
       const editor = useEditorStore();

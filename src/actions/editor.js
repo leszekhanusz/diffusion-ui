@@ -470,8 +470,14 @@ function updateBrushSize() {
   }
 }
 
-function renderImage() {
+function renderImage(img_format) {
   const editor = useEditorStore();
+
+  if (!img_format) {
+    img_format = "png";
+  }
+
+  console.log(`Rendering image with format: ${img_format}`);
 
   let emphasize_opacity = 0;
 
@@ -486,7 +492,7 @@ function renderImage() {
   editor.layers.draw.set("opacity", 1);
 
   // render the image in the store
-  editor.init_image_b64 = editor.canvas.toDataURL();
+  editor.init_image_b64 = editor.canvas.toDataURL({ format: img_format });
 
   // Restore the initial opacity
   if (editor.layers.emphasize) {
@@ -605,8 +611,6 @@ async function generateAgainResultImage(image_index) {
   const editor = useEditorStore();
   const output = useOutputStore();
 
-  resetInputsFromResultImage(image_index);
-
   if (output.images.history) {
     // If the output was made using an uploaded image or a drawing
     await editNewImage(output.images.original_image);
@@ -615,6 +619,8 @@ async function generateAgainResultImage(image_index) {
   } else {
     closeImage();
   }
+
+  resetInputsFromResultImage(image_index);
 }
 
 function newDrawing() {
