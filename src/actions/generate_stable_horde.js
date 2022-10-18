@@ -1,7 +1,9 @@
 import { getJson } from "@/actions/generate";
+import { useEditorStore } from "@/stores/editor";
 import { useUIStore } from "@/stores/ui";
 import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
+import { renderImage } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
 import { sleep } from "@/actions/sleep";
 
@@ -39,7 +41,11 @@ async function getJsonStableHorde(response) {
 
 async function generateImageStableHorde() {
   const backend = useBackendStore();
+  const editor = useEditorStore();
   const output = useOutputStore();
+
+  const original_image = editor.uploaded_image_b64;
+  const history = editor.has_image ? editor.history : null;
 
   const inputs_config = backend.inputs;
 
@@ -52,13 +58,40 @@ async function generateImageStableHorde() {
 
   const api_key = input_data.api_key;
 
-  const root_keys = ["prompt", "nsfw", "censor_nsfw", "workers"];
+  const root_keys = [
+    "prompt",
+    "nsfw",
+    "censor_nsfw",
+    "source_image",
+    "workers",
+  ];
+
+  const image_input = backend.getImageInput();
+
+  if (editor.has_image) {
+    // Create final image in input.init_image_b64
+    renderImage("webp");
+
+    const image_value = editor.init_image_b64;
+    const ignored_prefix = "data:image/webp;base64,";
+    image_input.value = image_value.slice(ignored_prefix.length);
+  } else {
+    image_input.value = null;
+  }
 
   const frame = inputs_config.reduce(
     function (result, input) {
       const input_id = input.id;
 
       if (input_id === "api_key") {
+        return result;
+      }
+
+      if (input_id === "source_image" && !input.value) {
+        return result;
+      }
+
+      if (input_id === "strength" && !editor.has_image) {
         return result;
       }
 
@@ -151,8 +184,8 @@ async function generateImageStableHorde() {
     backend_id,
     null,
     input_data,
-    null,
-    null,
+    original_image,
+    history,
     json_result
   );
 }

@@ -123,8 +123,8 @@ function handleOutputStableHorde(
       input: input_data,
       backend_id: backend_id,
     },
-    original_image: null,
-    history: null,
+    original_image: original_image,
+    history: history,
   };
 
   const output_metadata = {

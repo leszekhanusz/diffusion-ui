@@ -75,6 +75,24 @@
       "type": "text",
       "default": "a horde of cute stable robots in a sprawling server room repairing a massive mainframe"
     }, {
+      "label": "Init image",
+      "id": "source_image",
+      "description": "",
+      "type": "image",
+      "default": null
+    }, {
+      "label": "Denoising strength",
+      "id": "strength",
+      "api_id": "denoising_strength",
+      "description": "",
+      "type": "float",
+      "default": 0.7,
+      "step": 0.01,
+      "validation": {
+        "min": 0.01,
+        "max": 1.0
+      }
+    }, {
       "label": "Sampling method",
       "id": "sampler_name",
       "description": "",

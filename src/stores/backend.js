@@ -363,6 +363,8 @@ export const useBackendStore = defineStore({
 
       return false;
     },
+    has_inpaint_mode: (state) =>
+      state.has_img2img_mode && state.current.type !== "stable_horde",
     strength_input: (state) => state.findInput("strength"),
     strength: (state) => state.getInput("strength", 0),
     access_code_input: (state) => state.findInput("access_code", false),
