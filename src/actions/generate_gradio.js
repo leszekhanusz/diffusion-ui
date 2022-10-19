@@ -6,6 +6,34 @@ import { renderImage } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
 import { sleep } from "@/actions/sleep";
 
+async function check_progress_initial() {
+  const backend = useBackendStore();
+
+  const fn_index = backend.progress_initial_fn_index;
+
+  if (!fn_index) {
+    return;
+  }
+
+  const payload = {
+    data: [],
+    fn_index: fn_index,
+  };
+
+  const body = JSON.stringify(payload);
+
+  try {
+    await fetch(backend.api_url, {
+      method: "POST",
+      body: body,
+      headers: { "Content-Type": "application/json" },
+    });
+    // We do nothing with the info here for now
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
 async function check_progress(cancel_token) {
   const backend = useBackendStore();
   const output = useOutputStore();
@@ -16,12 +44,6 @@ async function check_progress(cancel_token) {
     return;
   }
 
-  var stop = false;
-
-  cancel_token.cancel = function () {
-    stop = true;
-  };
-
   const payload = {
     data: [],
     fn_index: fn_index,
@@ -29,46 +51,67 @@ async function check_progress(cancel_token) {
 
   const body = JSON.stringify(payload);
 
-  const percent_regex = />([0-9]*)%/;
+  const percent_regex = /[^.0-9]([0-9]*)%/;
 
-  while (!stop) {
-    await sleep(500);
+  try {
+    const result = await fetch(backend.api_url, {
+      method: "POST",
+      body: body,
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (cancel_token.cancelled) {
+      return;
+    }
+
+    const json_result = await getJson(result);
+
+    const html_progress = json_result.data[0];
+
+    const percentage_match = html_progress.match(percent_regex);
 
     try {
-      const result = await fetch(backend.api_url, {
-        method: "POST",
-        body: body,
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (stop) {
-        break;
-      }
-
-      const json_result = await getJson(result);
-
-      const html_progress = json_result.data[0];
-
-      const percentage_match = html_progress.match(percent_regex);
-
-      const percentage = parseInt(percentage_match[1], 10);
-
+      const percentage_text = percentage_match[1];
+      const percentage = parseInt(percentage_text, 10);
       output.loading_progress = percentage;
-
-      const image_preview_data = json_result.data.find(function (data) {
-        try {
-          return data.startsWith("data:image");
-        } catch (e) {
-          return false;
-        }
-      });
-
-      if (image_preview_data) {
-        output.image_preview = image_preview_data;
-      }
     } catch (e) {
       // Nothing here, error simply ignored
     }
+
+    const image_preview_data = json_result.data.find(function (data) {
+      try {
+        return data.startsWith("data:image");
+      } catch (e) {
+        return false;
+      }
+    });
+
+    if (image_preview_data) {
+      output.image_preview = image_preview_data;
+    }
+  } catch (e) {
+    // Nothing here, error simply ignored
+  }
+}
+
+async function check_progress_loop(cancel_token) {
+  const backend = useBackendStore();
+
+  const fn_index = backend.progress_fn_index;
+
+  if (!fn_index) {
+    return;
+  }
+
+  await check_progress_initial();
+
+  cancel_token.cancel = function () {
+    cancel_token.cancelled = true;
+  };
+
+  while (!cancel_token.cancelled) {
+    await sleep(500);
+    await check_progress(cancel_token);
   }
 }
 
@@ -131,10 +174,12 @@ async function generateImageGradio() {
 
   const body = JSON.stringify(payload);
 
-  let cancel_token = {};
+  let cancel_token = {
+    cancelled: false,
+  };
 
   const responses = await Promise.all([
-    check_progress(cancel_token),
+    check_progress_loop(cancel_token),
     (async function () {
       try {
         const result = await fetch(backend.api_url, {
