@@ -1,5 +1,6 @@
 <script setup>
 import { toRef, watch } from "vue";
+import KudosIndicator from "@/components/KudosIndicator.vue";
 import PromptInput from "@/components/PromptInput.vue";
 import FileUploadButton from "@/components/FileUploadButton.vue";
 import ImageEditor from "@/components/editor/ImageEditor.vue";
@@ -39,6 +40,7 @@ watch(toRef(editor, "mode"), function (mode) {
 
 <template lang="pug">
 .flex.flex-column.gap-3
+  KudosIndicator(v-if="backend.current.type === 'stable_horde'")
   template(v-if="backend.needs_gradio_config")
     LoadConfigButton
   template(v-else)

@@ -1,8 +1,9 @@
 import { getJson } from "@/actions/generate";
-import { useEditorStore } from "@/stores/editor";
-import { useUIStore } from "@/stores/ui";
-import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
+import { useEditorStore } from "@/stores/editor";
+import { useOutputStore } from "@/stores/output";
+import { useStableHordeStore } from "@/stores/stablehorde";
+import { useUIStore } from "@/stores/ui";
 import { renderImage } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
 import { sleep } from "@/actions/sleep";
@@ -198,8 +199,6 @@ async function cancelGenerationStableHorde() {
   const api_cancel_url =
     backend.base_url + "/api/v2/generate/status/" + output.request_uuid;
 
-  console.log("api_cancel_url", api_cancel_url);
-
   const cancel_response = await fetch(api_cancel_url, {
     method: "DELETE",
   });
@@ -211,4 +210,30 @@ async function cancelGenerationStableHorde() {
   ui.show_results = false;
 }
 
-export { generateImageStableHorde, cancelGenerationStableHorde };
+async function getUserInfoStableHorde() {
+  const backend = useBackendStore();
+  const sh_store = useStableHordeStore();
+  const api_key = sh_store.api_key;
+
+  console.log(`Getting user info from api key:${api_key}`);
+
+  const api_finduser_url = backend.base_url + "/api/v2/find_user";
+
+  const finduser_response = await fetch(api_finduser_url, {
+    method: "GET",
+    headers: {
+      apikey: api_key,
+    },
+  });
+
+  const finduser_json = await getJsonStableHorde(finduser_response);
+  console.log("finduser_json", finduser_json);
+
+  sh_store.user_info = finduser_json;
+}
+
+export {
+  cancelGenerationStableHorde,
+  generateImageStableHorde,
+  getUserInfoStableHorde,
+};
