@@ -67,6 +67,20 @@ function handleOutputGradio(
     images = [data_images];
   }
 
+  // Fix gradio 3.5 gallery base64 representation changed to local url
+  // See: https://github.com/gradio-app/gradio/pull/2265
+  images = images.map(function (image) {
+    if (typeof image === "string") {
+      return image;
+    } else {
+      if (image.is_file) {
+        return backend.base_url + "/file=" + image.name;
+      } else {
+        return image.data;
+      }
+    }
+  });
+
   const images_with_metadata = {
     content: images,
     metadata: {
