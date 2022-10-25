@@ -7,6 +7,7 @@ export const useStableHordeStore = defineStore({
   id: "stable_horde",
   state: () => ({
     user_info: null,
+    anon_key: anon_key,
   }),
   getters: {
     api_key_input: function () {
@@ -21,6 +22,7 @@ export const useStableHordeStore = defineStore({
       }
       return anon_key;
     },
+    valid_api_key: (state) => !!state.user_info,
     kudos: function (state) {
       if (state.user_info) {
         return parseInt(state.user_info.kudos, 10);

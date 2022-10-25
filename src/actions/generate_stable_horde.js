@@ -222,9 +222,11 @@ async function cancelGenerationStableHorde() {
 
 async function getUserInfoStableHorde() {
   const backend = useBackendStore();
+  const output = useOutputStore();
   const sh_store = useStableHordeStore();
   const api_key = sh_store.api_key;
 
+  output.loading_user_info = true;
   try {
     const api_finduser_url = backend.base_url + "/api/v2/find_user";
 
@@ -241,6 +243,8 @@ async function getUserInfoStableHorde() {
     sh_store.user_info = finduser_json;
   } catch (e) {
     sh_store.user_info = null;
+  } finally {
+    output.loading_user_info = false;
   }
 }
 

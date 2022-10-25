@@ -1,16 +1,23 @@
 <script setup>
 import { useStableHordeStore } from "@/stores/stablehorde";
+import { useUIStore } from "@/stores/ui";
+import { useOutputStore } from "@/stores/output";
 
+const output = useOutputStore();
 const sh_store = useStableHordeStore();
+const ui = useUIStore();
 </script>
 
 <template lang="pug">
 Transition(name="slide-fade")
-  .kudos-indicator-container(v-if="sh_store.kudos !== undefined")
-    .kudos-indicator
-      span.username {{ sh_store.username }}
-      img(src="src/assets/kudos_100.webp", width="20", height="20")
-      span {{ sh_store.kudos }}
+  .kudos-indicator-container(v-if="!output.loading_user_info")
+    .kudos-indicator.cursor-pointer(@click="ui.showKudosDialog")
+      template(v-if="sh_store.valid_api_key")
+        span.username {{ sh_store.username }}
+        img(src="src/assets/kudos_100.webp", width="20", height="20")
+        span {{ sh_store.kudos }}
+      template(v-else)
+        span.username Invalid API Key
 </template>
 
 <style scoped>
