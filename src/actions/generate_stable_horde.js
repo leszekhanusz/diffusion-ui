@@ -1,8 +1,9 @@
 import { getJson } from "@/actions/generate";
-import { useEditorStore } from "@/stores/editor";
-import { useUIStore } from "@/stores/ui";
-import { useOutputStore } from "@/stores/output";
 import { useBackendStore } from "@/stores/backend";
+import { useEditorStore } from "@/stores/editor";
+import { useOutputStore } from "@/stores/output";
+import { useStableHordeStore } from "@/stores/stablehorde";
+import { useUIStore } from "@/stores/ui";
 import { renderImage } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
 import { sleep } from "@/actions/sleep";
@@ -43,6 +44,7 @@ async function generateImageStableHorde() {
   const backend = useBackendStore();
   const editor = useEditorStore();
   const output = useOutputStore();
+  const sh_store = useStableHordeStore();
 
   const original_image = editor.uploaded_image_b64;
   const history = editor.has_image ? editor.history : null;
@@ -139,26 +141,30 @@ async function generateImageStableHorde() {
   let elapsed_seconds = 0;
 
   for (;;) {
-    const check_response = await fetch(api_check_url, {
-      method: "GET",
-    });
+    try {
+      const check_response = await fetch(api_check_url, {
+        method: "GET",
+      });
 
-    const check_json = await getJsonStableHorde(check_response);
+      const check_json = await getJsonStableHorde(check_response);
 
-    const done = check_json.done;
-    const wait_time = check_json.wait_time;
+      const done = check_json.done;
+      const wait_time = check_json.wait_time;
 
-    const percentage = 100 * (1 - wait_time / (wait_time + elapsed_seconds));
-    output.loading_progress = Math.round(percentage * 100) / 100;
-    output.loading_message = `Estimated wait time: ${wait_time}s`;
-    console.log(`${output.loading_progress.toFixed(2)}%`);
+      const percentage = 100 * (1 - wait_time / (wait_time + elapsed_seconds));
+      output.loading_progress = Math.round(percentage * 100) / 100;
+      output.loading_message = `Estimated wait time: ${wait_time}s`;
+      console.log(`${output.loading_progress.toFixed(2)}%`);
 
-    if (done) {
+      if (done) {
+        break;
+      }
+    } catch (e) {
       break;
     }
 
     for (let i = 0; i < 10; i++) {
-      if (!output.loading) {
+      if (!output.loading_images) {
         // cancelled
         return;
       }
@@ -188,6 +194,11 @@ async function generateImageStableHorde() {
     history,
     json_result
   );
+
+  // Update the kudos count
+  if (!sh_store.anonymous) {
+    getUserInfoStableHorde();
+  }
 }
 
 async function cancelGenerationStableHorde() {
@@ -198,8 +209,6 @@ async function cancelGenerationStableHorde() {
   const api_cancel_url =
     backend.base_url + "/api/v2/generate/status/" + output.request_uuid;
 
-  console.log("api_cancel_url", api_cancel_url);
-
   const cancel_response = await fetch(api_cancel_url, {
     method: "DELETE",
   });
@@ -207,8 +216,40 @@ async function cancelGenerationStableHorde() {
   const cancel_json = await getJsonStableHorde(cancel_response);
   console.log("cancel_json", cancel_json);
 
-  output.loading = false;
+  output.loading_images = false;
   ui.show_results = false;
 }
 
-export { generateImageStableHorde, cancelGenerationStableHorde };
+async function getUserInfoStableHorde() {
+  const backend = useBackendStore();
+  const output = useOutputStore();
+  const sh_store = useStableHordeStore();
+  const api_key = sh_store.api_key;
+
+  output.loading_user_info = true;
+  try {
+    const api_finduser_url = backend.base_url + "/api/v2/find_user";
+
+    const finduser_response = await fetch(api_finduser_url, {
+      method: "GET",
+      headers: {
+        apikey: api_key,
+      },
+    });
+
+    const finduser_json = await getJsonStableHorde(finduser_response);
+    console.log("finduser_json", finduser_json);
+
+    sh_store.user_info = finduser_json;
+  } catch (e) {
+    sh_store.user_info = null;
+  } finally {
+    output.loading_user_info = false;
+  }
+}
+
+export {
+  cancelGenerationStableHorde,
+  generateImageStableHorde,
+  getUserInfoStableHorde,
+};

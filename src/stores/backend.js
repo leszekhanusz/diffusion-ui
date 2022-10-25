@@ -883,5 +883,8 @@ export const useBackendStore = defineStore({
 
       return input;
     },
+    selectedBackendUpdated() {
+      console.log(`backend changed to ${this.backend_id}`);
+    },
   },
 });

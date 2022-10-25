@@ -34,7 +34,7 @@ const responsiveOptions = [
     .flex.flex-column.w-full.align-items-center
       template(v-if="output.image_preview")
         Image.image-preview(:src="output.image_preview" imageStyle="max-width: min(100vw, 512px);")
-      ProgressIndicator.linear-progress(v-if="output.loading_images")
+      ProgressIndicator(:class="{narrow: output.image_preview}")
       template(v-if="backend.cancellable")
         CancelButton
   template(v-else)
@@ -79,7 +79,7 @@ const responsiveOptions = [
   padding-bottom: 0;
 }
 
-.linear-progress {
+.narrow {
   top: -10px;
   height: 5px;
 }

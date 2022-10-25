@@ -13,6 +13,7 @@ export const useUIStore = defineStore({
     editor_view: "composite", // "composite" for the normal view or "mask" to show the mask
     show_results: false,
     show_latest_result: true,
+    show_kudos_dialog: false,
   }),
   getters: {
     show_brush: (state) => state.cursor_mode !== "idle",
@@ -77,6 +78,12 @@ export const useUIStore = defineStore({
     },
     hideRightPanel() {
       this.right_panel_visible = false;
+    },
+    showKudosDialog() {
+      this.show_kudos_dialog = true;
+    },
+    hideKudosDialog() {
+      this.show_kudos_dialog = false;
     },
   },
 });
