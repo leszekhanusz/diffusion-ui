@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { useBackendStore } from "@/stores/backend";
-import { getUserInfoStableHorde } from "@/actions/generate_stable_horde";
+
+const anon_key = "0000000000";
 
 export const useStableHordeStore = defineStore({
   id: "stable_horde",
   state: () => ({
-    anon_key: "0000000000",
     user_info: null,
   }),
   getters: {
@@ -13,22 +13,13 @@ export const useStableHordeStore = defineStore({
       const backend = useBackendStore();
       return backend.findInput("api_key", false);
     },
+    anonymous: (state) => state.api_key === anon_key,
     api_key: function (state) {
       const api_key_input = state.api_key_input;
       if (api_key_input) {
         return api_key_input.value;
       }
-      return state.anon_key;
-    },
-    needs_userinfo: function (state) {
-      const backend = useBackendStore();
-
-      const needed =
-        backend.current.type === "stable_horde" && state.user_info === null;
-      if (needed) {
-        getUserInfoStableHorde();
-      }
-      return needed;
+      return anon_key;
     },
     kudos: function (state) {
       if (state.user_info) {
