@@ -115,6 +115,19 @@
               }
             }
           }
+        },
+        "fn_index_initial": {
+          "conditions": {
+            "js": null,
+            "trigger": "click",
+            "targets": {
+              "0": {
+                "conditions": {
+                  "elem_id": "txt2img_check_progress_initial"
+                }
+              }
+            }
+          }
         }
       },
       "handle_output": "automatic1111",

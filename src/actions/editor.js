@@ -504,9 +504,15 @@ function renderImage(img_format) {
 async function fabricImageFromURL(image_url) {
   return new Promise(function (resolve, reject) {
     try {
-      fabric.Image.fromURL(image_url, function (image) {
-        resolve(image);
-      });
+      fabric.Image.fromURL(
+        image_url,
+        function (image) {
+          resolve(image);
+        }.bind(this),
+        {
+          crossOrigin: "anonymous",
+        }
+      );
     } catch (error) {
       reject(error);
     }

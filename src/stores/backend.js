@@ -191,6 +191,17 @@ export const useBackendStore = defineStore({
 
       return null;
     },
+    progress_initial_fn_index: function (state) {
+      const progress_info = state.current_function.progress;
+
+      if (progress_info?.fn_index_initial) {
+        return this.getGradioConfigFunctionIndex(
+          progress_info.fn_index_initial.conditions
+        );
+      }
+
+      return null;
+    },
     progress_fn_index: function (state) {
       const progress_info = state.current_function.progress;
 
