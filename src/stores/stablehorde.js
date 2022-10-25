@@ -20,7 +20,7 @@ export const useStableHordeStore = defineStore({
       if (api_key_input) {
         return api_key_input.value;
       }
-      return anon_key;
+      return "";
     },
     valid_api_key: (state) => !!state.user_info,
     kudos: function (state) {
