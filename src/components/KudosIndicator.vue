@@ -8,6 +8,7 @@ const sh_store = useStableHordeStore();
 Transition(name="slide-fade")
   .kudos-indicator-container(v-if="sh_store.kudos !== undefined")
     .kudos-indicator
+      span.username {{ sh_store.username }}
       img(src="src/assets/kudos_100.webp", width="20", height="20")
       span {{ sh_store.kudos }}
 </template>
@@ -32,6 +33,12 @@ Transition(name="slide-fade")
 .slide-fade-leave-to {
   transform: translateY(-20px);
   opacity: 0;
+}
+
+span.username {
+  font-size: 12px;
+  vertical-align: middle;
+  top: -1px;
 }
 
 .kudos-indicator {

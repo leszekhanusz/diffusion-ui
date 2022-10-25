@@ -26,6 +26,14 @@ export const useStableHordeStore = defineStore({
         return parseInt(state.user_info.kudos, 10);
       }
     },
+    username: function (state) {
+      if (state.user_info) {
+        const username_with_hash = state.user_info.username;
+        return username_with_hash.split("#")[0];
+      } else {
+        return "";
+      }
+    },
   },
   actions: {},
 });

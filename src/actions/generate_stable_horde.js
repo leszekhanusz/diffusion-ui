@@ -225,8 +225,6 @@ async function getUserInfoStableHorde() {
   const sh_store = useStableHordeStore();
   const api_key = sh_store.api_key;
 
-  console.log(`Getting user info from api key:${api_key}`);
-
   try {
     const api_finduser_url = backend.base_url + "/api/v2/find_user";
 
