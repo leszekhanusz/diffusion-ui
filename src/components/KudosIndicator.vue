@@ -14,7 +14,7 @@ Transition(name="slide-fade")
     .kudos-indicator.cursor-pointer(@click="ui.showKudosDialog")
       template(v-if="sh_store.valid_api_key")
         span.username {{ sh_store.username }}
-        img(src="src/assets/kudos_100.webp", width="20", height="20")
+        img(src="/kudos_100.webp", width="20", height="20")
         span {{ sh_store.kudos }}
       template(v-else)
         span.username Invalid API Key
