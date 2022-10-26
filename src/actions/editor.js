@@ -26,7 +26,9 @@ function undo({ save_redo = true } = {}) {
         delete undo_action.mask_path;
         delete undo_action.emphasize_path;
 
-        editor.mask_image_b64 = editor.canvas_mask.toDataURL();
+        editor.mask_image_b64 = editor.canvas_mask.toDataURL({
+          format: editor.img_format,
+        });
         break;
 
       case "draw":
@@ -55,7 +57,9 @@ async function doAction(action) {
       editor.canvas_mask.add(action.mask_path);
       editor.layers.emphasize.addWithUpdate(action.emphasize_path);
 
-      editor.mask_image_b64 = editor.canvas_mask.toDataURL();
+      editor.mask_image_b64 = editor.canvas_mask.toDataURL({
+        format: editor.img_format,
+      });
       break;
 
     case "draw":
@@ -470,12 +474,9 @@ function updateBrushSize() {
   }
 }
 
-function renderImage(img_format) {
+function renderImage() {
   const editor = useEditorStore();
-
-  if (!img_format) {
-    img_format = "png";
-  }
+  const img_format = editor.img_format;
 
   console.log(`Rendering image with format: ${img_format}`);
 

@@ -81,6 +81,12 @@
       "type": "image",
       "default": null
     }, {
+      "label": "Mask image",
+      "id": "mask_image",
+      "description": "",
+      "type": "image_mask",
+      "default": null
+    }, {
       "label": "Denoising strength",
       "id": "strength",
       "api_id": "denoising_strength",

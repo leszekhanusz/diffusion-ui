@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useBackendStore } from "@/stores/backend";
 
 export const useEditorStore = defineStore({
   id: "editor",
@@ -47,6 +48,10 @@ export const useEditorStore = defineStore({
       return "#" + state.chosen_color;
     },
     is_drawing: (state) => state.uploaded_image_b64 === null,
+    img_format: function () {
+      const backend = useBackendStore();
+      return backend.backend_id === "stable_horde" ? "webp" : "png";
+    },
   },
   actions: {},
 });

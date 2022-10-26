@@ -1,6 +1,7 @@
 import { version } from "@/version";
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
+import { useRoute } from "vue-router";
 import { reactive, toRaw } from "vue";
 import { useUIStore } from "@/stores/ui";
 import { useOutputStore } from "@/stores/output";
@@ -375,8 +376,23 @@ export const useBackendStore = defineStore({
 
       return false;
     },
-    has_inpaint_mode: (state) =>
-      state.has_img2img_mode && state.current.type !== "stable_horde",
+    has_inpaint_mode: function (state) {
+      if (state.has_img2img_mode) {
+        if (state.backend_id === "stable_horde") {
+          const route = useRoute();
+          if (route.query.beta) {
+            let beta_mode = route.query.beta;
+            if (beta_mode === "true") {
+              return true;
+            }
+          }
+          return false;
+        } else {
+          return true;
+        }
+      }
+      return false;
+    },
     strength_input: (state) => state.findInput("strength"),
     strength: (state) => state.getInput("strength", 0),
     access_code_input: (state) => state.findInput("access_code", false),
