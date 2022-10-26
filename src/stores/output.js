@@ -7,6 +7,7 @@ export const useOutputStore = defineStore({
     loading_images: false,
     loading_model: false,
     loading_user_info: true,
+    loading_models: true,
     loading_progress: null,
     loading_message: null,
     request_uuid: null,

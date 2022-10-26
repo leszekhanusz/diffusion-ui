@@ -30,7 +30,7 @@ const isVisible = computed(() => {
       template(v-if="input.type == 'text'")
         InputText.min-w-full(type="text", :id="'input_' + input.id", v-model="input.value")
       template(v-if="input.type == 'choice'")
-        Dropdown(v-model="input.value" :options="input.validation.options" class="w-full lg:w-min")
+        Dropdown(v-model="input.value" :options="input.validation.options" :optionLabel="input.validation.optionLabel" :optionValue="input.validation.optionValue" class="w-full lg:w-min")
       template(v-if="input.type == 'bigint'")
         InputNumber.flex(mode="decimal" showButtons v-model="input.value" :min="input.validation.min" :max="input.validation.max" :step="input.step ? input.step: 1" :title="input.description" :useGrouping="false")
   template(v-if="input.type == 'boolean'")

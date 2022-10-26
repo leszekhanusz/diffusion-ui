@@ -22,6 +22,19 @@ function setupWatchers() {
       getUserInfoStableHorde();
     }
   });
+
+  watch(toRef(sh_store, "models"), function () {
+    if (backend.backend_id === "stable_horde") {
+      sh_store.models_input.validation.options = sh_store.models.map(function (
+        model
+      ) {
+        return {
+          name: model.name,
+          label: `${model.name} (${model.count})`,
+        };
+      });
+    }
+  });
 }
 
 export { setupWatchers };

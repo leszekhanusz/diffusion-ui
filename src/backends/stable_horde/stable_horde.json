@@ -25,6 +25,10 @@
         {
           "type": "input",
           "id": "steps"
+        },
+        {
+          "type": "input",
+          "id": "models"
         }
       ]
     },
@@ -106,6 +110,22 @@
         ]
       },
       "default": "k_dpm_2"
+    }, {
+      "label": "Model",
+      "id": "models",
+      "description": "",
+      "type": "choice",
+      "validation": {
+        "optionLabel": "label",
+        "optionValue": "name",
+        "options": [
+          {
+            "name": "stable_diffusion",
+            "label": "stable_diffusion"
+          }
+        ]
+      },
+      "default": "stable_diffusion"
     }, {
       "label": "CFG Scale",
       "id": "cfg_scale",

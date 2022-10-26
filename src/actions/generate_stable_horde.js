@@ -61,9 +61,10 @@ async function generateImageStableHorde() {
   const api_key = input_data.api_key;
 
   const root_keys = [
-    "prompt",
-    "nsfw",
     "censor_nsfw",
+    "models",
+    "nsfw",
+    "prompt",
     "source_image",
     "workers",
   ];
@@ -98,7 +99,11 @@ async function generateImageStableHorde() {
       }
 
       const api_id = input.api_id ? input.api_id : input_id;
-      const value = input.value;
+      let value = input.value;
+
+      if (input_id === "models") {
+        value = [value];
+      }
 
       if (root_keys.includes(api_id)) {
         result[api_id] = value;
@@ -248,8 +253,34 @@ async function getUserInfoStableHorde() {
   }
 }
 
+async function getModelsStableHorde() {
+  const backend = useBackendStore();
+  const output = useOutputStore();
+  const sh_store = useStableHordeStore();
+
+  output.loading_models = true;
+
+  try {
+    const api_getmodels_url = backend.base_url + "/api/v2/status/models";
+
+    const getmodels_response = await fetch(api_getmodels_url, {
+      method: "GET",
+    });
+
+    const getmodels_json = await getJsonStableHorde(getmodels_response);
+    console.log("getmodels_json", getmodels_json);
+
+    sh_store.models = getmodels_json;
+  } catch (e) {
+    sh_store.models = null;
+  } finally {
+    output.loading_models = false;
+  }
+}
+
 export {
   cancelGenerationStableHorde,
   generateImageStableHorde,
+  getModelsStableHorde,
   getUserInfoStableHorde,
 };

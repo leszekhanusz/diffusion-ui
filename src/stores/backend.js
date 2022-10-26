@@ -5,6 +5,7 @@ import { reactive, toRaw } from "vue";
 import { useUIStore } from "@/stores/ui";
 import { useOutputStore } from "@/stores/output";
 import { initGradio } from "@/actions/generate_gradio";
+import { getModelsStableHorde } from "@/actions/generate_stable_horde";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
@@ -885,6 +886,9 @@ export const useBackendStore = defineStore({
     },
     selectedBackendUpdated() {
       console.log(`backend changed to ${this.backend_id}`);
+      if (this.backend_id === "stable_horde") {
+        getModelsStableHorde();
+      }
     },
   },
 });
