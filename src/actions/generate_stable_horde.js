@@ -66,6 +66,7 @@ async function generateImageStableHorde() {
     "nsfw",
     "prompt",
     "source_image",
+    "mask_image",
     "workers",
   ];
 
@@ -73,11 +74,22 @@ async function generateImageStableHorde() {
 
   if (editor.has_image) {
     // Create final image in input.init_image_b64
-    renderImage("webp");
+    renderImage();
 
     const image_value = editor.init_image_b64;
     const ignored_prefix = "data:image/webp;base64,";
     image_input.value = image_value.slice(ignored_prefix.length);
+
+    const mask_image_input = backend.getImageMaskInput();
+
+    if (mask_image_input) {
+      if (backend.has_inpaint_mode) {
+        const mask_image_value = editor.mask_image_b64;
+        mask_image_input.value = mask_image_value.slice(ignored_prefix.length);
+      } else {
+        mask_image_input.value = null;
+      }
+    }
   } else {
     image_input.value = null;
   }
@@ -90,7 +102,10 @@ async function generateImageStableHorde() {
         return result;
       }
 
-      if (input_id === "source_image" && !input.value) {
+      if (
+        (input_id === "source_image" || input_id === "mask_image") &&
+        !input.value
+      ) {
         return result;
       }
 
