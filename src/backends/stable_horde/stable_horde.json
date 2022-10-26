@@ -69,7 +69,7 @@
       "id": "prompt",
       "description": "The prompt with which to generate images",
       "type": "text",
-      "default": "a horde of cute stable robots in a sprawling server room repairing a massive mainframe"
+      "default": "Cute bunny playing poker"
     }, {
       "label": "Init image",
       "id": "source_image",
