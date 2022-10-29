@@ -82,7 +82,7 @@
       "default": null
     }, {
       "label": "Mask image",
-      "id": "mask_image",
+      "id": "source_mask",
       "description": "",
       "type": "image_mask",
       "default": null

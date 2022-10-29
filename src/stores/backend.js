@@ -1,10 +1,10 @@
 import { version } from "@/version";
 import { defineStore } from "pinia";
 import { useStorage } from "@vueuse/core";
-import { useRoute } from "vue-router";
 import { reactive, toRaw } from "vue";
 import { useUIStore } from "@/stores/ui";
 import { useOutputStore } from "@/stores/output";
+import { useStableHordeStore } from "@/stores/stablehorde";
 import { initGradio } from "@/actions/generate_gradio";
 import { getModelsStableHorde } from "@/actions/generate_stable_horde";
 import deepmerge from "deepmerge";
@@ -378,20 +378,17 @@ export const useBackendStore = defineStore({
     },
     has_inpaint_mode: function (state) {
       if (state.has_img2img_mode) {
-        if (state.backend_id === "stable_horde") {
-          const route = useRoute();
-          if (route.query.beta) {
-            let beta_mode = route.query.beta;
-            if (beta_mode === "true") {
-              return true;
-            }
-          }
-          return false;
-        } else {
-          return true;
-        }
+        return true;
       }
       return false;
+    },
+    inpainting_allowed: function (state) {
+      if (state.backend_id === "stable_horde") {
+        const sh_store = useStableHordeStore();
+        return sh_store.models_input.value.includes("inpaint");
+      } else {
+        return true;
+      }
     },
     strength_input: (state) => state.findInput("strength"),
     strength: (state) => state.getInput("strength", 0),

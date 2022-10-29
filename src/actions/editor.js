@@ -671,10 +671,20 @@ function setCursorMode(cursor_mode) {
 }
 
 function toggleEraser() {
+  const backend = useBackendStore();
   const ui = useUIStore();
 
   if (ui.cursor_mode !== "eraser") {
-    setCursorMode("eraser");
+    if (backend.inpainting_allowed) {
+      setCursorMode("eraser");
+    } else {
+      backend.$toast.add({
+        severity: "warn",
+        detail: "Inpainting is not allowed with this model",
+        life: 3000,
+        closable: false,
+      });
+    }
   } else {
     setCursorMode("idle");
   }
