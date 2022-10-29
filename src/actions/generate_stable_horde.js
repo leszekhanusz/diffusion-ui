@@ -66,11 +66,13 @@ async function generateImageStableHorde() {
     "nsfw",
     "prompt",
     "source_image",
-    "mask_image",
+    "source_mask",
+    "source_processing",
     "workers",
   ];
 
   const image_input = backend.getImageInput();
+  const mask_image_input = backend.getImageMaskInput();
 
   if (editor.has_image) {
     // Create final image in input.init_image_b64
@@ -80,18 +82,15 @@ async function generateImageStableHorde() {
     const ignored_prefix = "data:image/webp;base64,";
     image_input.value = image_value.slice(ignored_prefix.length);
 
-    const mask_image_input = backend.getImageMaskInput();
-
-    if (mask_image_input) {
-      if (backend.has_inpaint_mode) {
-        const mask_image_value = editor.mask_image_b64;
-        mask_image_input.value = mask_image_value.slice(ignored_prefix.length);
-      } else {
-        mask_image_input.value = null;
-      }
+    const mask_image_value = editor.mask_image_b64;
+    if (mask_image_value) {
+      mask_image_input.value = mask_image_value.slice(ignored_prefix.length);
+    } else {
+      mask_image_input.value = null;
     }
   } else {
     image_input.value = null;
+    mask_image_input.value = null;
   }
 
   const frame = inputs_config.reduce(
@@ -102,11 +101,20 @@ async function generateImageStableHorde() {
         return result;
       }
 
-      if (
-        (input_id === "source_image" || input_id === "mask_image") &&
-        !input.value
-      ) {
-        return result;
+      if (input_id === "source_image") {
+        if (!input.value) {
+          return result;
+        }
+        if (!result.source_processing) {
+          result.source_processing = "img2img";
+        }
+      }
+
+      if (input_id === "source_mask") {
+        if (!input.value) {
+          return result;
+        }
+        result.source_processing = "inpainting";
       }
 
       if (input_id === "strength" && !editor.has_image) {
@@ -204,6 +212,8 @@ async function generateImageStableHorde() {
 
   const json_result = await getJsonStableHorde(result_response);
   console.log("json_result", json_result);
+
+  delete input_data.source_processing;
 
   handleOutput(
     "stable_horde",
