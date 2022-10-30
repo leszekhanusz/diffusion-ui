@@ -200,6 +200,13 @@
       "on_model_info_tab": true,
       "default": "0000000000"
     }, {
+      "label": "Workers",
+      "id": "workers",
+      "description": "comma separated list of workers to restrict to, keep empty for all workers",
+      "type": "text",
+      "on_model_info_tab": true,
+      "default": ""
+    }, {
       "label": "NSFW",
       "id": "nsfw",
       "description": "Set to true if this request is NSFW. This will skip workers which censor images.",
