@@ -128,6 +128,13 @@ async function generateImageStableHorde() {
         value = [value];
       }
 
+      if (input_id === "workers") {
+        if (value.trim() === "") {
+          return result;
+        }
+        value = value.split(",");
+      }
+
       if (root_keys.includes(api_id)) {
         result[api_id] = value;
       } else {
