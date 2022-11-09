@@ -42,6 +42,8 @@ export const useEditorStore = defineStore({
     mode: "txt2img", // "txt2img", "img2img" or "inpainting"
     width: 512, // canvas width
     height: 512, // canvas height
+    zoom_max: 5,
+    zoom_min: 0.4,
   }),
   getters: {
     color: function (state) {

@@ -26,9 +26,7 @@ function undo({ save_redo = true } = {}) {
         delete undo_action.mask_path;
         delete undo_action.emphasize_path;
 
-        editor.mask_image_b64 = editor.canvas_mask.toDataURL({
-          format: editor.img_format,
-        });
+        renderCanvasMask();
         break;
 
       case "draw":
@@ -57,9 +55,7 @@ async function doAction(action) {
       editor.canvas_mask.add(action.mask_path);
       editor.layers.emphasize.addWithUpdate(action.emphasize_path);
 
-      editor.mask_image_b64 = editor.canvas_mask.toDataURL({
-        format: editor.img_format,
-      });
+      renderCanvasMask();
       break;
 
     case "draw":
@@ -182,9 +178,21 @@ function makeNewCanvasMask() {
 
   editor.canvas_mask = new fabric.Canvas();
   editor.canvas_mask.selection = false;
-  editor.canvas_mask.setBackgroundColor("black");
+  editor.canvas_mask.setBackgroundColor("white");
   editor.canvas_mask.setHeight(editor.height);
   editor.canvas_mask.setWidth(editor.width);
+
+  let canvas_mask_background = new fabric.Rect({
+    width: editor.width,
+    height: editor.height,
+    left: 0,
+    top: 0,
+    fill: "black",
+    absolutePositioned: true,
+    selectable: false,
+  });
+
+  editor.canvas_mask.add(canvas_mask_background);
 }
 
 function makeNewImageClip() {
@@ -218,12 +226,12 @@ async function makeNewLayerImage(image) {
     if (width > height) {
       image.scaleToWidth(512);
 
-      height = 512 * (height / width);
+      height = Math.floor(512 * (height / width));
       width = 512;
     } else {
       image.scaleToHeight(512);
 
-      width = 512 * (width / height);
+      width = Math.floor(512 * (width / height));
       height = 512;
     }
     console.log(`Scaled resolution: ${width}x${height}`);
@@ -334,12 +342,24 @@ function makeNewLayerBrushOutline() {
   });
 }
 
-function onMouseMove(o) {
+function onMouseMove(opt) {
   const editor = useEditorStore();
   const ui = useUIStore();
+  const evt = opt.e;
 
-  if (ui.cursor_mode !== "idle") {
-    var pointer = editor.canvas.getPointer(o.e);
+  if (ui.cursor_mode === "idle") {
+    if (this.isDragging) {
+      let vpt = this.viewportTransform;
+      vpt[4] += evt.clientX - this.lastPosX;
+      vpt[5] += evt.clientY - this.lastPosY;
+      this.requestRenderAll();
+      this.lastPosX = evt.clientX;
+      this.lastPosY = evt.clientY;
+
+      renderCanvasMask();
+    }
+  } else {
+    var pointer = editor.canvas.getPointer(evt);
     editor.layers.brush_outline.left = pointer.x;
     editor.layers.brush_outline.top = pointer.y;
     editor.layers.brush_outline.opacity = 0.9;
@@ -369,6 +389,66 @@ function onMouseOut() {
   editor.layers.brush_outline.opacity = 0;
 
   editor.canvas.renderAll();
+}
+
+function onMouseDown(opt) {
+  console.log("mouseDown", opt);
+
+  const evt = opt.e;
+
+  this.isDragging = true;
+  this.lastPosX = evt.clientX;
+  this.lastPosY = evt.clientY;
+}
+
+function onMouseUp(opt) {
+  console.log("mouseUp", opt);
+
+  this.setViewportTransform(this.viewportTransform);
+  this.isDragging = false;
+}
+
+function onMouseWheel(opt) {
+  const editor = useEditorStore();
+
+  const canvas = editor.canvas;
+  const zoom_min = editor.zoom_min;
+  const zoom_max = editor.zoom_max;
+
+  const evt = opt.e;
+  const delta = evt.deltaY;
+
+  let previous_zoom = canvas.getZoom();
+  let zoom = previous_zoom * 0.999 ** delta;
+
+  console.log(`zoom previous: ${previous_zoom}, new: ${zoom}`);
+  if (zoom > zoom_max) {
+    zoom = zoom_max;
+  } else if (zoom < zoom_min) {
+    zoom = zoom_min;
+  }
+
+  if ((zoom >= 1 && previous_zoom < 1) || (zoom <= 1 && previous_zoom > 1)) {
+    // Reset the zoom and panning of the canvas
+    canvas.viewportTransform = [1, 0, 0, 1, 0, 0];
+    editor.canvas.renderAll();
+  } else {
+    canvas.zoomToPoint(
+      {
+        x: evt.offsetX,
+        y: evt.offsetY,
+      },
+      zoom
+    );
+  }
+
+  renderCanvasMask();
+
+  evt.preventDefault();
+  evt.stopPropagation();
+
+  // Change the mode to inpainting if we zoom out
+  setModeToImg2ImgOrInpainting();
 }
 
 async function onPathCreated(e) {
@@ -427,8 +507,11 @@ async function onPathCreated(e) {
 function setupEventListeners() {
   const editor = useEditorStore();
 
+  editor.canvas.on("mouse:down", onMouseDown);
+  editor.canvas.on("mouse:up", onMouseUp);
   editor.canvas.on("mouse:move", onMouseMove);
   editor.canvas.on("mouse:out", onMouseOut);
+  editor.canvas.on("mouse:wheel", onMouseWheel);
   editor.canvas.on("path:created", onPathCreated);
 }
 
@@ -472,6 +555,65 @@ function updateBrushSize() {
   } else if (ui.cursor_mode === "draw") {
     editor.brush_size.draw = editor.brush_size.slider;
   }
+}
+
+function isCanvasMaskEmpty() {
+  // Ignoring pixels at the edge of the mask because apparently
+  // after zooming in and out, the black rectangle in the canvas mask
+  // is not reset completely right, leaving a grey row and column of 1 pixel
+  const editor = useEditorStore();
+
+  const canvas_mask = editor.canvas_mask;
+  const context = canvas_mask.getContext();
+  const width = canvas_mask.width;
+  const height = canvas_mask.height;
+  const imageData = context.getImageData(0, 0, width, height);
+  const pixelData = new Uint32Array(imageData.data.buffer);
+
+  const blackColor = 0xff000000;
+
+  let isBlack = true;
+
+  // Iterate through the pixel data and check if any pixel is not the specified color
+  for (let x = 1; x < width - 1; x++) {
+    for (let y = 1; y < height - 1; y++) {
+      const pixelColor = pixelData[y * width + x];
+      if (pixelColor !== blackColor) {
+        isBlack = false;
+        break;
+      }
+    }
+    if (!isBlack) {
+      break;
+    }
+  }
+
+  return isBlack;
+}
+
+function setModeToImg2ImgOrInpainting() {
+  const editor = useEditorStore();
+
+  if (isCanvasMaskEmpty()) {
+    editor.mode = "img2img";
+  } else {
+    editor.mode = "inpainting";
+  }
+}
+
+function renderCanvasMask() {
+  const editor = useEditorStore();
+
+  // Set the viewport of the mask same as the canvas
+  // This will reset the zoom level and panning of the canvas mask
+  editor.canvas_mask.setViewportTransform(editor.canvas.viewportTransform);
+
+  editor.canvas_mask.renderAll();
+
+  // Regenerate canvas mask image
+  editor.mask_image_b64 = editor.canvas_mask.toDataURL({
+    format: editor.img_format,
+  });
 }
 
 function renderImage() {
@@ -553,6 +695,9 @@ async function editNewImage(image_b64) {
   let image = null;
   let width = 512;
   let height = 512;
+
+  // Reset the zoom and viewport of the canvas
+  editor.canvas.viewportTransform = [1, 0, 0, 1, 0, 0];
 
   if (image_b64) {
     editor.uploaded_image_b64 = image_b64;
