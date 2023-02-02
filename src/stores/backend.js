@@ -876,6 +876,10 @@ export const useBackendStore = defineStore({
       }
       if (!("default" in input)) {
         input.default = gradio_input.props.value;
+
+        if (input.default === undefined) {
+          input.default = "";
+        }
       }
 
       if (!("id" in input)) {
