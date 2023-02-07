@@ -139,6 +139,7 @@ export const useBackendStore = defineStore({
     original: (state) => state.selected_backend.original,
     base_url: (state) => state.current.base_url,
     api_url: (state) => state.base_url + "/" + state.current.api_path,
+    progress_url: (state) => state.base_url + "/" + state.current.progress_path,
     config_url: function (state) {
       if (state.current.config_path) {
         return state.base_url + "/" + state.current.config_path;
