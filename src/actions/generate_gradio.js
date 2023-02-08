@@ -116,6 +116,11 @@ async function generateImageGradio() {
   const id_task = "task(" + Math.random().toString(36).slice(2) + ")";
   input_data["label"] = id_task;
 
+  // selected tab in img2img tag:
+  // img2img = 0, sketch, inpaint, inpaint sketch, inpaint upload = 4, batch)
+  const img2img_type = editor.mask_image_b64 ? 4 : 0;
+  input_data["label_0"] = img2img_type;
+
   console.log("input_data", input_data);
 
   const input_data_values = Object.values(input_data);
