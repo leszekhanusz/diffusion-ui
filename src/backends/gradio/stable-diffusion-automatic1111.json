@@ -245,7 +245,7 @@
         "cfg_scale": {
           "id": "guidance_scale"
         },
-        "highres._fix": {
+        "hires._fix": {
           "id": "enable_hr"
         }
       },
@@ -419,7 +419,7 @@
         "cfg_scale": {
           "id": "guidance_scale"
         },
-        "highres._fix": {
+        "hires._fix": {
           "id": "enable_hr"
         },
         "resize_mode": {
@@ -615,7 +615,7 @@
         "cfg_scale": {
           "id": "guidance_scale"
         },
-        "highres._fix": {
+        "hires._fix": {
           "id": "enable_hr"
         },
         "resize_mode": {
