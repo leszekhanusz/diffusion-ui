@@ -505,7 +505,7 @@
             },
             {
               "type": "input",
-              "id": "inpainting_mask_invert"
+              "id": "mask_mode"
             }
           ]
         },
@@ -620,14 +620,6 @@
         },
         "resize_mode": {
           "id": "resize_options"
-        },
-        "mask_mode": {
-          "value": "Upload mask",
-          "visible": false
-        },
-        "masking_mode": {
-          "id": "inpainting_mask_invert",
-          "visible": true
         },
         "label": {
           "value": 1
