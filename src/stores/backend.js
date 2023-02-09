@@ -139,6 +139,7 @@ export const useBackendStore = defineStore({
     original: (state) => state.selected_backend.original,
     base_url: (state) => state.current.base_url,
     api_url: (state) => state.base_url + "/" + state.current.api_path,
+    progress_url: (state) => state.base_url + "/" + state.current.progress_path,
     config_url: function (state) {
       if (state.current.config_path) {
         return state.base_url + "/" + state.current.config_path;
@@ -457,6 +458,30 @@ export const useBackendStore = defineStore({
         console.log(`input ${input_id} not found.`);
       }
     },
+    isVisible(visible_rule) {
+      if (visible_rule === undefined) {
+        return true;
+      }
+
+      if (visible_rule === false) {
+        return false;
+      }
+
+      if (typeof visible_rule === "object") {
+        const condition = visible_rule.condition;
+
+        if (condition === "===") {
+          const comparaison_input = this.findInput(visible_rule.input_id);
+
+          if (comparaison_input) {
+            const comp = comparaison_input.value === visible_rule.value;
+            return comp;
+          }
+        }
+      }
+
+      return true;
+    },
     isInputVisible(input_id) {
       const input = this.findInput(input_id);
 
@@ -472,27 +497,7 @@ export const useBackendStore = defineStore({
 
       if (input) {
         const visible_rule = input.visible;
-
-        if (visible_rule === undefined) {
-          return true;
-        }
-
-        if (visible_rule === false) {
-          return false;
-        }
-
-        if (typeof visible_rule === "object") {
-          const condition = visible_rule.condition;
-
-          if (condition === "===") {
-            const comparaison_input = this.findInput(visible_rule.input_id);
-
-            if (comparaison_input) {
-              const comp = comparaison_input.value === visible_rule.value;
-              return comp;
-            }
-          }
-        }
+        return this.isVisible(visible_rule);
       }
 
       return true;
@@ -876,6 +881,10 @@ export const useBackendStore = defineStore({
       }
       if (!("default" in input)) {
         input.default = gradio_input.props.value;
+
+        if (input.default === undefined) {
+          input.default = "";
+        }
       }
 
       if (!("id" in input)) {

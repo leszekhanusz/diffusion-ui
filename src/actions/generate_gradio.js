@@ -6,85 +6,48 @@ import { renderImage } from "@/actions/editor";
 import { handleOutput } from "@/actions/output";
 import { sleep } from "@/actions/sleep";
 
-async function check_progress_initial() {
-  const backend = useBackendStore();
-
-  const fn_index = backend.progress_initial_fn_index;
-
-  if (!fn_index) {
-    return;
-  }
-
-  const payload = {
-    data: [],
-    fn_index: fn_index,
-  };
-
-  const body = JSON.stringify(payload);
-
-  try {
-    await fetch(backend.api_url, {
-      method: "POST",
-      body: body,
-      headers: { "Content-Type": "application/json" },
-    });
-    // We do nothing with the info here for now
-  } catch (e) {
-    console.warn(e);
-  }
-}
-
-async function check_progress(cancel_token) {
+async function check_progress(progress_status) {
   const backend = useBackendStore();
   const output = useOutputStore();
 
-  const fn_index = backend.progress_fn_index;
-
-  if (!fn_index) {
-    return;
-  }
-
   const payload = {
-    data: [],
-    fn_index: fn_index,
+    id_task: progress_status.id_task,
+    id_live_preview: progress_status.id_live_preview,
   };
 
   const body = JSON.stringify(payload);
 
-  const percent_regex = /[^.0-9]([0-9]*)%/;
-
   try {
-    const result = await fetch(backend.api_url, {
+    const result = await fetch(backend.progress_url, {
       method: "POST",
       body: body,
       headers: { "Content-Type": "application/json" },
     });
 
-    if (cancel_token.cancelled) {
+    if (progress_status.cancelled) {
       return;
     }
 
     const json_result = await getJson(result);
 
-    const html_progress = json_result.data[0];
+    //const active = json_result.active;
+    //const queued = json_result.queued;
+    const completed = json_result.completed;
+    const progress = json_result.progress;
+    //const eta = json_result.eta;
+    const id_live_preview = json_result.id_live_preview;
 
-    const percentage_match = html_progress.match(percent_regex);
+    progress_status.id_live_preview = id_live_preview;
 
-    try {
-      const percentage_text = percentage_match[1];
-      const percentage = parseInt(percentage_text, 10);
-      output.loading_progress = percentage;
-    } catch (e) {
-      // Nothing here, error simply ignored
+    if (progress) {
+      output.loading_progress = progress * 100;
     }
 
-    const image_preview_data = json_result.data.find(function (data) {
-      try {
-        return data.startsWith("data:image");
-      } catch (e) {
-        return false;
-      }
-    });
+    if (completed) {
+      progress_status.cancelled = true;
+    }
+
+    const image_preview_data = json_result.live_preview;
 
     if (image_preview_data) {
       output.image_preview = image_preview_data;
@@ -94,24 +57,20 @@ async function check_progress(cancel_token) {
   }
 }
 
-async function check_progress_loop(cancel_token) {
+async function check_progress_loop(progress_status) {
   const backend = useBackendStore();
 
-  const fn_index = backend.progress_fn_index;
-
-  if (!fn_index) {
+  if (!backend.current.progress_path) {
     return;
   }
 
-  await check_progress_initial();
-
-  cancel_token.cancel = function () {
-    cancel_token.cancelled = true;
+  progress_status.cancel = function () {
+    progress_status.cancelled = true;
   };
 
-  while (!cancel_token.cancelled) {
+  while (!progress_status.cancelled) {
     await sleep(500);
-    await check_progress(cancel_token);
+    await check_progress(progress_status);
   }
 }
 
@@ -154,6 +113,14 @@ async function generateImageGradio() {
     ...inputs_config.map((x) => ({ [x["id"]]: x["value"] }))
   );
 
+  const id_task = "task(" + Math.random().toString(36).slice(2) + ")";
+  input_data["label"] = id_task;
+
+  // selected tab in img2img tag:
+  // img2img = 0, sketch, inpaint, inpaint sketch, inpaint upload = 4, batch)
+  const img2img_type = editor.mask_image_b64 ? 4 : 0;
+  input_data["label_0"] = img2img_type;
+
   console.log("input_data", input_data);
 
   const input_data_values = Object.values(input_data);
@@ -174,12 +141,14 @@ async function generateImageGradio() {
 
   const body = JSON.stringify(payload);
 
-  let cancel_token = {
+  let progress_status = {
+    id_task: id_task,
+    id_live_preview: -1,
     cancelled: false,
   };
 
   const responses = await Promise.all([
-    check_progress_loop(cancel_token),
+    check_progress_loop(progress_status),
     (async function () {
       try {
         const result = await fetch(backend.api_url, {
@@ -189,8 +158,8 @@ async function generateImageGradio() {
         });
         return result;
       } finally {
-        if (cancel_token.cancel) {
-          cancel_token.cancel();
+        if (progress_status.cancel) {
+          progress_status.cancel();
         }
       }
     })(),
