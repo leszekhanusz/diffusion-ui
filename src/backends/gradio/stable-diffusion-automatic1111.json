@@ -103,34 +103,6 @@
           }
         }
       },
-      "progress": {
-        "fn_index": {
-          "conditions": {
-            "js": null,
-            "trigger": "click",
-            "targets": {
-              "0": {
-                "conditions": {
-                  "elem_id": "txt2img_check_progress"
-                }
-              }
-            }
-          }
-        },
-        "fn_index_initial": {
-          "conditions": {
-            "js": null,
-            "trigger": "click",
-            "targets": {
-              "0": {
-                "conditions": {
-                  "elem_id": "txt2img_check_progress_initial"
-                }
-              }
-            }
-          }
-        }
-      },
       "handle_output": "automatic1111",
       "layout": [
         {
@@ -312,21 +284,6 @@
           }
         }
       },
-      "progress": {
-        "fn_index": {
-          "conditions": {
-            "js": null,
-            "trigger": "click",
-            "targets": {
-              "0": {
-                "conditions": {
-                  "elem_id": "img2img_check_progress"
-                }
-              }
-            }
-          }
-        }
-      },
       "fn_index": {
         "conditions": {
           "js": "submit_img2img",
@@ -480,21 +437,6 @@
               "0": {
                 "conditions": {
                   "elem_id": "img2img_interrupt"
-                }
-              }
-            }
-          }
-        }
-      },
-      "progress": {
-        "fn_index": {
-          "conditions": {
-            "js": null,
-            "trigger": "click",
-            "targets": {
-              "0": {
-                "conditions": {
-                  "elem_id": "img2img_check_progress"
                 }
               }
             }
