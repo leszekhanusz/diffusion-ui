@@ -208,20 +208,50 @@
               "id": "enable_hr"
             },
             {
-              "type": "input",
-              "id": "strength"
+              "type": "container",
+              "id": "hires_options",
+              "label": "High Resolution options",
+              "visible": {
+                "input_id": "enable_hr",
+                "condition": "===",
+                "value": true
+              },
+              "components": [
+                {
+                  "type": "input",
+                  "id": "strength"
+                },
+                {
+                  "type": "input",
+                  "id": "upscaler"
+                },
+                {
+                  "type": "input",
+                  "id": "hires_steps"
+                },
+                {
+                  "type": "input",
+                  "id": "upscale_by"
+                },
+                {
+                  "type": "input",
+                  "id": "resize_width_to"
+                },
+                {
+                  "type": "input",
+                  "id": "resize_height_to"
+                }
+              ]
             }
           ]
         }
       ],
       "auto_inputs": {
+        "upscaler": {
+          "value": "ESRGAN_4x"
+        },
         "denoising_strength": {
-          "id": "strength",
-          "visible": {
-            "input_id": "enable_hr",
-            "condition": "===",
-            "value": true
-          }
+          "id": "strength"
         },
         "sampling_steps": {
           "id": "nb_steps"
@@ -419,9 +449,6 @@
         "cfg_scale": {
           "id": "guidance_scale"
         },
-        "hires._fix": {
-          "id": "enable_hr"
-        },
         "resize_mode": {
           "id": "resize_options"
         }
@@ -590,6 +617,9 @@
         }
       },
       "auto_inputs": {
+        "masked_content": {
+          "value": "original"
+        },
         "denoising_strength": {
           "id": "strength"
         },
@@ -614,9 +644,6 @@
         },
         "cfg_scale": {
           "id": "guidance_scale"
-        },
-        "hires._fix": {
-          "id": "enable_hr"
         },
         "resize_mode": {
           "id": "resize_options"
