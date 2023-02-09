@@ -614,12 +614,42 @@
       "label": "Upscaling",
       "fn_index": {
         "conditions": {
-          "js": "get_extras_tab_index",
-          "trigger": "click"
+          "js": null,
+          "trigger": "click",
+          "targets": {
+            "0": {
+              "conditions": {
+                "elem_id": "extras_generate"
+              }
+            }
+          }
         }
       },
       "handle_output": "automatic1111",
       "inputs": "auto",
+      "auto_inputs": {
+        "input_directory": {
+          "visible": false
+        },
+        "output_directory": {
+          "visible": false
+        },
+        "show_result_images": {
+          "visible": false
+        },
+        "width": {
+          "visible": false
+        },
+        "height": {
+          "visible": false
+        },
+        "crop_to_fit": {
+          "visible": false
+        },
+        "upscaler_1": {
+          "value": "ESRGAN_4x"
+        }
+      },
       "outputs": [
         {
           "label": "Result",
