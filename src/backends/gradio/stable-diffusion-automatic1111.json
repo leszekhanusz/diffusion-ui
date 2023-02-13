@@ -475,6 +475,14 @@
             {
               "type": "input",
               "id": "mask_mode"
+            },
+            {
+              "type": "input",
+              "id": "inpaint_area"
+            },
+            {
+              "type": "input",
+              "id": "only_masked_padding,_pixels"
             }
           ]
         },
@@ -559,6 +567,13 @@
         }
       },
       "auto_inputs": {
+        "only_masked_padding,_pixels": {
+          "visible": {
+            "input_id": "inpaint_area",
+            "condition": "===",
+            "value": "Only masked"
+          }
+        },
         "masked_content": {
           "value": "original"
         },
