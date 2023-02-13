@@ -64,7 +64,7 @@ Sidebar.p-sidebar-md(:visible="ui.left_panel_visible", :showCloseIcon="false" :m
 }
 
 .p-dropdown-panel {
-  z-index: 1;
+  z-index: 1103;
 }
 
 .p-sidebar-content {
