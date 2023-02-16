@@ -58,6 +58,16 @@ async function doAction(action) {
 
       // Rerender Canvas mask and possibly switch between img2img and inpainting
       renderCanvasMask();
+
+      // will allow the inputs to be changed to inpainting
+      await nextTick();
+
+      // Modify masked content param to original if we're not doing outpainting
+      if (editor.canvas.getZoom() >= 1) {
+        const backend = useBackendStore();
+        backend.setInput("masked_content", "original");
+      }
+
       break;
 
     case "draw":
@@ -411,7 +421,7 @@ function onMouseUp(opt) {
   this.isDragging = false;
 }
 
-function onMouseWheel(opt) {
+async function onMouseWheel(opt) {
   const editor = useEditorStore();
 
   const canvas = editor.canvas;
@@ -447,6 +457,14 @@ function onMouseWheel(opt) {
 
   // Rerender Canvas mask and possibly switch between img2img and inpainting
   renderCanvasMask();
+
+  // will allow the inputs to be changed to inpainting
+  await nextTick();
+
+  if (zoom < 1) {
+    const backend = useBackendStore();
+    backend.setInput("masked_content", "fill");
+  }
 
   evt.preventDefault();
   evt.stopPropagation();
