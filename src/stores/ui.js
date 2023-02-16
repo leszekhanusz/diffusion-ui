@@ -34,7 +34,7 @@ export const useUIStore = defineStore({
           return state.editor_view === "composite";
         } else {
           return (
-            state.editor_view === "composite" && editor.mask_image_b64 !== null
+            state.editor_view === "composite" && editor.mode === "inpainting"
           );
         }
       } else {
@@ -51,7 +51,7 @@ export const useUIStore = defineStore({
     },
     show_mask_button: function (state) {
       const editor = useEditorStore();
-      return state.cursor_mode === "idle" && editor.mask_image_b64 !== null;
+      return state.cursor_mode === "idle" && editor.mode === "inpainting";
     },
     show_strength_slider: function (state) {
       const editor = useEditorStore();

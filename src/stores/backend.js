@@ -597,7 +597,7 @@ export const useBackendStore = defineStore({
         case "txt2img":
           return ["txt2img"];
         case "img2img":
-          return ["img2img", "inpainting"];
+          return ["img2img"];
         case "inpainting":
           return ["inpainting"];
       }

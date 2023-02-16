@@ -88,6 +88,8 @@ async function generateImageGradio() {
   const original_image = editor.uploaded_image_b64;
   const history = editor.has_image ? editor.history : null;
 
+  let canvas_viewport = null;
+
   if (backend.has_image_input) {
     let image_input = backend.getImageInput();
     let mask_image_input = backend.getImageMaskInput();
@@ -106,6 +108,8 @@ async function generateImageGradio() {
     if (mask_image_input) {
       mask_image_input.value = editor.mask_image_b64;
     }
+
+    canvas_viewport = editor.canvas.viewportTransform;
   }
 
   const input_data = Object.assign(
@@ -118,7 +122,7 @@ async function generateImageGradio() {
 
   // selected tab in img2img tag:
   // img2img = 0, sketch, inpaint, inpaint sketch, inpaint upload = 4, batch)
-  const img2img_type = editor.mask_image_b64 ? 4 : 0;
+  const img2img_type = editor.mode === "inpainting" ? 4 : 0;
   input_data["label_0"] = img2img_type;
 
   console.log("input_data", input_data);
@@ -175,7 +179,8 @@ async function generateImageGradio() {
     input_data,
     original_image,
     history,
-    json_result
+    json_result,
+    canvas_viewport
   );
 }
 

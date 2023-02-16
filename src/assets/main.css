@@ -3,6 +3,7 @@
 
 body {
   overscroll-behavior: contain;
+  background-color: whitesmoke;
 }
 
 #app {
