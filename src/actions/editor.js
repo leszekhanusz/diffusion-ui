@@ -26,6 +26,7 @@ function undo({ save_redo = true } = {}) {
         delete undo_action.mask_path;
         delete undo_action.emphasize_path;
 
+        // Rerender Canvas mask and possibly switch between img2img and inpainting
         renderCanvasMask();
         break;
 
@@ -55,6 +56,7 @@ async function doAction(action) {
       editor.canvas_mask.add(action.mask_path);
       editor.layers.emphasize.addWithUpdate(action.emphasize_path);
 
+      // Rerender Canvas mask and possibly switch between img2img and inpainting
       renderCanvasMask();
       break;
 
@@ -356,6 +358,7 @@ function onMouseMove(opt) {
       this.lastPosX = evt.clientX;
       this.lastPosY = evt.clientY;
 
+      // Rerender Canvas mask and possibly switch between img2img and inpainting
       renderCanvasMask();
     }
   } else {
@@ -442,13 +445,11 @@ function onMouseWheel(opt) {
     );
   }
 
+  // Rerender Canvas mask and possibly switch between img2img and inpainting
   renderCanvasMask();
 
   evt.preventDefault();
   evt.stopPropagation();
-
-  // Change the mode to inpainting if we zoom out
-  setModeToImg2ImgOrInpainting();
 }
 
 async function onPathCreated(e) {
@@ -614,6 +615,9 @@ function renderCanvasMask() {
   editor.mask_image_b64 = editor.canvas_mask.toDataURL({
     format: editor.img_format,
   });
+
+  // Change the mode to inpainting or img2img depending on the mask
+  setModeToImg2ImgOrInpainting();
 }
 
 function renderImage() {
