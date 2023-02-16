@@ -602,6 +602,15 @@ function setModeToImg2ImgOrInpainting() {
   }
 }
 
+function setViewportTransform(viewportTransform) {
+  const editor = useEditorStore();
+
+  editor.canvas.setViewportTransform(viewportTransform);
+
+  // Change the mode to inpainting or img2img depending on the mask
+  renderCanvasMask();
+}
+
 function renderCanvasMask() {
   const editor = useEditorStore();
 
@@ -879,6 +888,7 @@ export {
   renderCanvas,
   renderImage,
   resetEditorButtons,
+  setViewportTransform,
   toggleDraw,
   toggleEraser,
   toggleMaskView,

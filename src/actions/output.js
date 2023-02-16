@@ -1,6 +1,7 @@
 import { useBackendStore } from "@/stores/backend";
 import { useOutputStore } from "@/stores/output";
 import { useUIStore } from "@/stores/ui";
+import { setViewportTransform } from "@/actions/editor";
 
 function handleOutputAutomatic1111(
   json_result,
@@ -50,7 +51,8 @@ function handleOutputGradio(
   input_data,
   original_image,
   history,
-  json_result
+  json_result,
+  canvas_viewport
 ) {
   const backend = useBackendStore();
   const output = useOutputStore();
@@ -87,6 +89,7 @@ function handleOutputGradio(
       input: input_data,
       backend_id: backend_id,
       function_id: function_id,
+      canvas_viewport: canvas_viewport,
     },
     original_image: original_image,
     history: history,
@@ -181,11 +184,16 @@ function resetInputsFromResultImage(image_index) {
 
   const backend_id = output.images.metadata.backend_id;
   const function_id = output.images.metadata.function_id;
+  const canvas_viewport = output.images.metadata.canvas_viewport;
 
   backend.changeBackend(backend_id);
 
   if (function_id) {
     backend.changeFunction(function_id);
+  }
+
+  if (canvas_viewport) {
+    setViewportTransform(canvas_viewport);
   }
 
   let new_batch_count = null;

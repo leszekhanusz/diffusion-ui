@@ -88,6 +88,8 @@ async function generateImageGradio() {
   const original_image = editor.uploaded_image_b64;
   const history = editor.has_image ? editor.history : null;
 
+  let canvas_viewport = null;
+
   if (backend.has_image_input) {
     let image_input = backend.getImageInput();
     let mask_image_input = backend.getImageMaskInput();
@@ -106,6 +108,8 @@ async function generateImageGradio() {
     if (mask_image_input) {
       mask_image_input.value = editor.mask_image_b64;
     }
+
+    canvas_viewport = editor.canvas.viewportTransform;
   }
 
   const input_data = Object.assign(
@@ -175,7 +179,8 @@ async function generateImageGradio() {
     input_data,
     original_image,
     history,
-    json_result
+    json_result,
+    canvas_viewport
   );
 }
 
