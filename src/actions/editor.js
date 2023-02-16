@@ -405,8 +405,6 @@ function onMouseOut() {
 }
 
 function onMouseDown(opt) {
-  console.log("mouseDown", opt);
-
   const evt = opt.e;
 
   this.isDragging = true;
@@ -414,9 +412,7 @@ function onMouseDown(opt) {
   this.lastPosY = evt.clientY;
 }
 
-function onMouseUp(opt) {
-  console.log("mouseUp", opt);
-
+function onMouseUp() {
   this.setViewportTransform(this.viewportTransform);
   this.isDragging = false;
 }
@@ -434,7 +430,6 @@ async function onMouseWheel(opt) {
   let previous_zoom = canvas.getZoom();
   let zoom = previous_zoom * 0.999 ** delta;
 
-  console.log(`zoom previous: ${previous_zoom}, new: ${zoom}`);
   if (zoom > zoom_max) {
     zoom = zoom_max;
   } else if (zoom < zoom_min) {
