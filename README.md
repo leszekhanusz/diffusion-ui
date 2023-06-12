@@ -1,9 +1,8 @@
 # diffusion-ui
 
-This is a web interface frontend for the generation of images using diffusion models.
-
-The goal is to provide an interface to online and offline backends doing image generation
-and inpainting like [Stable Diffusion](https://github.com/CompVis/stable-diffusion).
+This is a web interface frontend for generation of images using the
+[Automatic1111 fork](https://github.com/AUTOMATIC1111/stable-diffusion-webui) of
+[Stable Diffusion](https://github.com/CompVis/stable-diffusion).
 
 <p align="center">
   <img src="https://github.com/leszekhanusz/diffusion-ui/blob/main/doc/cute_bunny.gif" />
@@ -35,14 +34,18 @@ Diffusion UI was made using:
     * from a drawing made on the interface
 * Inpainting
     * Including the possibility to draw inside an inpainting region
-* Modular support for different backends:
-    * a basic Stable Diffusion backend
-    * the full-featured automatic1111 fork
-    * the online free Stable Horde
+* Outpainting (using mouse to scroll out)
 * Modification of model parameters in left tab
 * Image gallery of previous image in the right tab
 * Allow to do variations and inpainting edits to previously generated images
-* [Share the backend on your PC](https://diffusionui.readthedocs.io/en/latest/backends/stable-diffusion.html#sharing) to use it on your smartphone or tablet
+
+## Tips
+
+* Use the mouse wheel to zoom in or zoom out in a provided image
+* Use the shift key to make straight lines for drawing or for making inpainting zones
+* Use Control-z to cancel an action in the image editor
+* Use the arrow keys (left,right,up and down) to move inside the image gallery.
+  The Home key will allow you to go back to the first image of the batch.
 
 ## Frontend
 
@@ -53,23 +56,18 @@ Or alternatively you can [run it locally](https://diffusionui.readthedocs.io/en/
 
 ## Backends
 
-### Stable Diffusion local backend
-
-To install the Stable Diffusion backend, follow the instructions [in the docs](https://diffusionui.readthedocs.io/en/latest/backends/stable-diffusion.html)
-
 ### Automatic1111 Stable Diffusion
 
 #### local backend
 
-To use Automatic1111 fork of Stable Diffusion from your own pc, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html)
+To be able to connect diffusion-ui to the Automatic1111 fork of Stable Diffusion from your own pc, you need to
+run it with the following parameters: `--cors-allow-origins=http://localhost:5173,https://diffusionui.com`.
+
+See the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html).
 
 #### online colab backend
 
 If you can't run it locally, it is also possible to use the automatic1111 fork of Stable Diffusion with diffusion-ui online for free with this [Google Colab notebook](https://colab.research.google.com/github/leszekhanusz/diffusion-ui/blob/main/src/backends/colab/automatic1111.ipynb)
-
-### Stable Horde online backend
-
-To generate images for free using the Stable Horde, follow the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/stable-horde.html)
 
 ## License
 [MIT License](https://github.com/leszekhanusz/diffusion-ui/blob/main/LICENSE) for the code here.
