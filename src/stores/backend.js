@@ -99,7 +99,7 @@ const backend_options = [
 ];
 
 const default_backend = backends.find(
-  (backend) => backend.original.id === "stable_diffusion"
+  (backend) => backend.original.id === "automatic1111"
 );
 const default_backend_id = default_backend.original.id;
 
