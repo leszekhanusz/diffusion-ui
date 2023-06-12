@@ -8,10 +8,6 @@ import {
   cancelGenerationGradio,
   changeModelGradio,
 } from "@/actions/generate_gradio";
-import {
-  generateImageStableHorde,
-  cancelGenerationStableHorde,
-} from "@/actions/generate_stable_horde";
 
 async function getJson(response) {
   if (!response.ok) {
@@ -46,9 +42,6 @@ async function generateImages() {
   switch (backend_type) {
     case "gradio":
       await generateImageGradio();
-      break;
-    case "stable_horde":
-      await generateImageStableHorde();
       break;
     default:
       console.error(`backend type '${backend_type}' not valid`);
@@ -142,9 +135,6 @@ async function cancelGeneration() {
   switch (backend_type) {
     case "gradio":
       await cancelGenerationGradio();
-      break;
-    case "stable_horde":
-      await cancelGenerationStableHorde();
       break;
     default:
       console.error(`backend type '${backend_type}' not valid`);

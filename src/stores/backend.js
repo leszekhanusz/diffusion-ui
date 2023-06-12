@@ -4,20 +4,16 @@ import { useStorage } from "@vueuse/core";
 import { reactive, toRaw } from "vue";
 import { useUIStore } from "@/stores/ui";
 import { useOutputStore } from "@/stores/output";
-import { useStableHordeStore } from "@/stores/stablehorde";
 import { initGradio } from "@/actions/generate_gradio";
-import { getModelsStableHorde } from "@/actions/generate_stable_horde";
 import deepmerge from "deepmerge";
 import backend_latent_diffusion from "@/backends/gradio/latent-diffusion.json";
 import backend_stable_diffusion from "@/backends/gradio/stable-diffusion.json";
 import backend_stable_diffusion_automatic1111 from "@/backends/gradio/stable-diffusion-automatic1111.json";
-import backend_stable_horde from "@/backends/stable_horde/stable_horde.json";
 
 const backends_json = [
   backend_latent_diffusion,
   backend_stable_diffusion,
   backend_stable_diffusion_automatic1111,
-  backend_stable_horde,
 ];
 
 backends_json.forEach(function (backend) {
@@ -87,10 +83,7 @@ const backend_options = [
   {
     label: "Online",
     id: "online",
-    backends: [
-      { label: "Latent Diffusion", id: "latent_diffusion" },
-      { label: "Stable Horde", id: "stable_horde" },
-    ],
+    backends: [{ label: "Latent Diffusion", id: "latent_diffusion" }],
   },
   {
     label: "Local",
@@ -106,7 +99,7 @@ const backend_options = [
 ];
 
 const default_backend = backends.find(
-  (backend) => backend.original.id === "stable_diffusion"
+  (backend) => backend.original.id === "automatic1111"
 );
 const default_backend_id = default_backend.original.id;
 
@@ -147,8 +140,7 @@ export const useBackendStore = defineStore({
         return null;
       }
     },
-    cancellable: (state) =>
-      state.current.type === "stable_horde" || state.cancel_fn_index,
+    cancellable: (state) => state.cancel_fn_index,
     use_gradio_config: (state) => !!state.selected_backend.original.config_path,
     needs_gradio_config: (state) =>
       state.use_gradio_config && !state.selected_backend.gradio_config,
@@ -383,13 +375,8 @@ export const useBackendStore = defineStore({
       }
       return false;
     },
-    inpainting_allowed: function (state) {
-      if (state.backend_id === "stable_horde") {
-        const sh_store = useStableHordeStore();
-        return sh_store.models_input.value.includes("inpaint");
-      } else {
-        return true;
-      }
+    inpainting_allowed: function () {
+      return true;
     },
     strength_input: (state) => state.findInput("strength"),
     strength: (state) => state.getInput("strength", 0),
@@ -667,7 +654,12 @@ export const useBackendStore = defineStore({
 
           await initGradio();
         } catch (e) {
-          error_message = "Error trying to download the gradio config";
+          if (this.backend_id === "automatic1111") {
+            error_message =
+              "You need to start the automatic1111 backend on your computer with '--cors-allow-origins=http://localhost:5173,https://diffusionui.com'.";
+          } else {
+            error_message = "Error trying to download the gradio config";
+          }
           console.error(error_message, e);
         } finally {
           this.loading_config = false;
@@ -908,9 +900,6 @@ export const useBackendStore = defineStore({
     },
     selectedBackendUpdated() {
       console.log(`backend changed to ${this.backend_id}`);
-      if (this.backend_id === "stable_horde") {
-        getModelsStableHorde();
-      }
     },
   },
 });

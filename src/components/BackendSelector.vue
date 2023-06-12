@@ -11,7 +11,7 @@ const output = useOutputStore();
 
 <template lang="pug">
 .flex.flex-column.align-items-center
-  Dropdown#backend(optionLabel="label", optionValue="id", optionGroupLabel="label" optionGroupChildren="backends" v-model="backend.backend_id", :options="backend.backend_options" title="Selection of the server backend")
+  Dropdown#backend(optionLabel="label", optionValue="id", optionGroupLabel="label" optionGroupChildren="backends" v-model="backend.backend_id", :options="backend.backend_options" title="Selection of the server backend" v-if="backend.backend_id !== 'automatic1111'")
 
   template(v-if="backend.models_input && backend.models_input.validation.options.length > 1")
     Dropdown#model(:loading="output.loading_model" @change="changeModel" v-model="backend.models_input.value" :options="backend.models_input.validation.options" :title="backend.models_input.description" :disabled="output.loading" class="w-full lg:w-min")
