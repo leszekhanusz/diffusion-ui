@@ -116,59 +116,10 @@ function handleOutputGradio(
   }
 }
 
-function handleOutputStableHorde(
-  backend_id,
-  function_id,
-  input_data,
-  original_image,
-  history,
-  json_result
-) {
-  const output = useOutputStore();
-  const ui = useUIStore();
-
-  const generations = json_result["generations"];
-
-  const images = generations.map(
-    (generation) => "data:image/webp;base64," + generation.img
-  );
-  const seeds = generations.map((generation) => generation.seed);
-
-  const images_with_metadata = {
-    content: images,
-    metadata: {
-      input: input_data,
-      backend_id: backend_id,
-    },
-    original_image: original_image,
-    history: history,
-  };
-
-  const output_metadata = {
-    all_seeds: seeds,
-  };
-
-  console.log("output metadata", output_metadata);
-
-  images_with_metadata.metadata.output = output_metadata;
-
-  console.log(`Images received with seeds: ${seeds}`);
-
-  // Saving the latest images in the gallery
-  output.gallery.push(images_with_metadata);
-
-  if (ui.show_latest_result) {
-    output.gallery_index = output.nb_gallery - 1;
-  }
-}
-
 function handleOutput(backend_type, ...args) {
   switch (backend_type) {
     case "gradio":
       handleOutputGradio(...args);
-      break;
-    case "stable_horde":
-      handleOutputStableHorde(...args);
       break;
     default:
       console.warn(`Invalid backend type: ${backend_type}`);
