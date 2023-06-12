@@ -654,7 +654,12 @@ export const useBackendStore = defineStore({
 
           await initGradio();
         } catch (e) {
-          error_message = "Error trying to download the gradio config";
+          if (this.backend_id === "automatic1111") {
+            error_message =
+              "You need to start the automatic1111 backend on your computer with '--cors-allow-origins=http://localhost:5173,https://diffusionui.com'.";
+          } else {
+            error_message = "Error trying to download the gradio config";
+          }
           console.error(error_message, e);
         } finally {
           this.loading_config = false;
