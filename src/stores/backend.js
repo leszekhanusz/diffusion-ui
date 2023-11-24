@@ -778,7 +778,9 @@ export const useBackendStore = defineStore({
             label: props.label,
             type: "choice",
             validation: {
-              options: props.choices,
+              options: props.choices.map((choice) =>
+                Array.isArray(choice) ? choice[0] : choice
+              ),
             },
           };
           break;
