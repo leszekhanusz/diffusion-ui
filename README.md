@@ -61,7 +61,7 @@ Or alternatively you can [run it locally](https://diffusionui.readthedocs.io/en/
 #### local backend
 
 To be able to connect diffusion-ui to the Automatic1111 fork of Stable Diffusion from your own pc, you need to
-run it with the following parameters: `--cors-allow-origins=http://localhost:5173,https://diffusionui.com`.
+run it with the following parameters: `--no-gradio-queue --cors-allow-origins=http://localhost:5173,https://diffusionui.com`.
 
 See the instructions [here](https://diffusionui.readthedocs.io/en/latest/backends/automatic1111.html).
 
