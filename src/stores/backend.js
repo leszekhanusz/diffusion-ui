@@ -858,21 +858,46 @@ export const useBackendStore = defineStore({
             }
           }
           break;
+        case "state":
+          input = {
+            label: props.name,
+            id: "state_" + gradio_input.id,
+            default: "",
+            visible: false,
+          };
+          break;
+        case "markdown":
+          input = {
+            label: props.name,
+            id: "markdown_" + gradio_input.id,
+            default: "",
+            visible: false,
+          };
+          break;
         default:
           console.log("Unsupported gradio component type: ", gradio_input.type);
           console.log("Unsupported gradio component type: ", gradio_input);
+
           input = {
-            label: props.label,
-            id: "unsupported_" + gradio_input.id,
+            label: props.label !== undefined ? props.label : "undefined_label",
+            id:
+              "unsupported_" + gradio_input.id !== undefined
+                ? gradio_input.id
+                : "no_id",
             default: null,
             visible: false,
           };
           break;
       }
 
+      if (input.label === undefined) {
+        input.label = "undefined_label";
+      }
+
       if (!("visible" in input)) {
         input.visible = gradio_input.visible;
       }
+
       if (!("default" in input)) {
         input.default = gradio_input.props.value;
 
