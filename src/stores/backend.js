@@ -874,6 +874,14 @@ export const useBackendStore = defineStore({
             visible: false,
           };
           break;
+        case "video":
+          input = {
+            label: props.name,
+            id: "video_" + gradio_input.id,
+            default: null,
+            visible: false,
+          };
+          break;
         default:
           console.log("Unsupported gradio component type: ", gradio_input.type);
           console.log("Unsupported gradio component type: ", gradio_input);
