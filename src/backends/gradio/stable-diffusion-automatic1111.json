@@ -92,7 +92,6 @@
       "cancel": {
         "fn_index": {
           "conditions": {
-            "js": null,
             "trigger": "click",
             "targets": {
               "0": {
